@@ -73,7 +73,9 @@ namespace PAS.DBContext
             // Configure RowVersion as a concurrency token
             modelBuilder.Entity<QuoteInventory>()
                 .Property(qi => qi.RowVersion)
-                .IsRowVersion(); // This ensures RowVersion is handled as a concurrency token
+                .IsRowVersion()
+                .HasColumnType("bytea") // Set RowVersion to bytea type
+                .IsRequired();
 
 
             base.OnModelCreating(modelBuilder);

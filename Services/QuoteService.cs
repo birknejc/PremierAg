@@ -52,14 +52,15 @@ namespace PAS.Services
                 {
                     quoteInventory.Inventory = inventory;
                     quoteInventory.ChemicalName = inventory.ChemicalName;
-                    quoteInventory.RowVersion = Guid.NewGuid().ToByteArray(); // Autogenerate RowVersion
+                    quoteInventory.RowVersion = quoteInventory.RowVersion ?? Guid.NewGuid().ToByteArray(); // Ensure RowVersion is initialized
                 }
             }
 
-            quote.QuoteDate = quote.QuoteDate.ToUniversalTime();
+            quote.QuoteDate = quote.QuoteDate.ToUniversalTime(); // Ensure date consistency
             _context.Quotes.Add(quote);
             await _context.SaveChangesAsync();
         }
+
 
 
 

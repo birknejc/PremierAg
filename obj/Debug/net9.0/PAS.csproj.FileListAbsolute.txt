@@ -133,4 +133,12 @@ C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\refint\
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\PAS.pdb
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\PAS.genruntimeconfig.cache
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\ref\PAS.dll
-C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt
+C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\bin\Debug\net9.0\Serilog.dll
+C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\bin\Debug\net9.0\Serilog.AspNetCore.dll
+C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\bin\Debug\net9.0\Serilog.Extensions.Hosting.dll
+C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\bin\Debug\net9.0\Serilog.Extensions.Logging.dll
+C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\bin\Debug\net9.0\Serilog.Formatting.Compact.dll
+C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\bin\Debug\net9.0\Serilog.Settings.Configuration.dll
+C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\bin\Debug\net9.0\Serilog.Sinks.Console.dll
+C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\bin\Debug\net9.0\Serilog.Sinks.Debug.dll
+C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\bin\Debug\net9.0\Serilog.Sinks.File.dll

@@ -3,6 +3,7 @@ using PAS.Models;
 using PAS.DBContext;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Serilog;
 
 namespace PAS.Services
 {
@@ -36,6 +37,8 @@ namespace PAS.Services
         // Adds a new Quote to the database
         public async Task AddQuoteAsync(Quote quote)
         {
+            Log.Information("Entering AddQuoteAsync method");
+
             if (quote.CustomerBusinessName == null)
             {
                 var customer = await _context.Customers.FindAsync(quote.CustomerId);
@@ -53,13 +56,17 @@ namespace PAS.Services
                     quoteInventory.Inventory = inventory;
                     quoteInventory.ChemicalName = inventory.ChemicalName;
                     quoteInventory.RowVersion = quoteInventory.RowVersion ?? Guid.NewGuid().ToByteArray(); // Ensure RowVersion is initialized
+                    Log.Information($"RowVersion set for InventoryId {quoteInventory.InventoryId}: {BitConverter.ToString(quoteInventory.RowVersion)}");
                 }
             }
 
             quote.QuoteDate = quote.QuoteDate.ToUniversalTime(); // Ensure date consistency
+            Log.Information("Before saving Quote");
             _context.Quotes.Add(quote);
             await _context.SaveChangesAsync();
+            Log.Information("Successfully saved Quote with initialized RowVersion values");
         }
+
 
 
 

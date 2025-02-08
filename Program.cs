@@ -2,18 +2,19 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.EntityFrameworkCore;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
-using Microsoft.Extensions.Configuration;
 using PAS.Data;
 using PAS.DBContext;  // For AppDbContext
 using PAS.Services;   // For all Services
-
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add logging configuration
-builder.Logging.ClearProviders(); // Clear default logging providers
-builder.Logging.AddConsole(); // Add console logger (you can also log to a file, debug, etc.)
-builder.Logging.AddDebug();   // Optional: for debugging in Visual Studio Output
+// Configure Serilog
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateLogger();
+
+builder.Host.UseSerilog(); // Integrate Serilog
 
 // Add services to the container.
 builder.Services.AddRazorPages();
@@ -50,3 +51,6 @@ app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
 app.Run();
+
+// Ensure the application shuts down properly
+Log.CloseAndFlush();

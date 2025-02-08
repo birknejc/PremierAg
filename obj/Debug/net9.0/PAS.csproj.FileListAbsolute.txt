@@ -127,7 +127,6 @@ C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\staticw
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\staticwebassets\msbuild.buildMultiTargeting.PAS.props
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\staticwebassets\msbuild.buildTransitive.PAS.props
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\staticwebassets.pack.json
-C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\PAS.csproj.Up2Date
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\PAS.dll
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\refint\PAS.dll

@@ -12,8 +12,8 @@ using PAS.DBContext;
 namespace PAS.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250208183600_QuoteInventoryConcurrency")]
-    partial class QuoteInventoryConcurrency
+    [Migration("20250208202601_InitialCreate2")]
+    partial class InitialCreate2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

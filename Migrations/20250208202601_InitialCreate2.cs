@@ -164,15 +164,15 @@ namespace PAS.Migrations
                 {
                     QuoteId = table.Column<int>(type: "integer", nullable: false),
                     InventoryId = table.Column<int>(type: "integer", nullable: false),
-                    QuantityPerAcre = table.Column<decimal>(type: "numeric", nullable: false),
-                    Cost = table.Column<decimal>(type: "numeric", nullable: false),
-                    Price = table.Column<decimal>(type: "numeric", nullable: false),
+                    Id = table.Column<int>(type: "integer", nullable: false),
+                    ChemicalName = table.Column<string>(type: "text", nullable: false),
                     EPA = table.Column<string>(type: "text", nullable: false),
-                    UnitOfMeasure = table.Column<string>(type: "text", nullable: false),
+                    Price = table.Column<decimal>(type: "numeric", nullable: false),
+                    QuantityPerAcre = table.Column<decimal>(type: "numeric", nullable: false),
+                    QuotePrice = table.Column<decimal>(type: "numeric", nullable: false),
                     QuoteUnitOfMeasure = table.Column<string>(type: "text", nullable: false),
-                    QuoteCost = table.Column<decimal>(type: "numeric", nullable: false),
-                    CostUnitOfMeasure = table.Column<string>(type: "text", nullable: false),
-                    QuotePrice = table.Column<decimal>(type: "numeric", nullable: false)
+                    UnitOfMeasure = table.Column<string>(type: "text", nullable: false),
+                    RowVersion = table.Column<byte[]>(type: "bytea", rowVersion: true, nullable: false)
                 },
                 constraints: table =>
                 {

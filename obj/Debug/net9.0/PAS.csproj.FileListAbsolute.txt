@@ -133,3 +133,4 @@ C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\refint\
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\PAS.pdb
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\PAS.genruntimeconfig.cache
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\ref\PAS.dll
+C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt

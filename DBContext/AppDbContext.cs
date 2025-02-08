@@ -70,6 +70,11 @@ namespace PAS.DBContext
                 .WithMany(i => i.QuoteInventories) // Update navigation property in Inventory
                 .HasForeignKey(qi => qi.InventoryId);
 
+            // Configure RowVersion as a concurrency token
+            modelBuilder.Entity<QuoteInventory>()
+                .Property(qi => qi.RowVersion)
+                .IsRowVersion(); // This ensures RowVersion is handled as a concurrency token
+
 
             base.OnModelCreating(modelBuilder);
         }

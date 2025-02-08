@@ -51,7 +51,8 @@ namespace PAS.Services
                 if (inventory != null)
                 {
                     quoteInventory.Inventory = inventory;
-                    quoteInventory.ChemicalName = inventory.ChemicalName; // Ensure ChemicalName is set
+                    quoteInventory.ChemicalName = inventory.ChemicalName;
+                    quoteInventory.RowVersion = new byte[8]; // Ensure RowVersion is initialized
                 }
             }
 
@@ -59,6 +60,7 @@ namespace PAS.Services
             _context.Quotes.Add(quote);
             await _context.SaveChangesAsync();
         }
+
 
 
 

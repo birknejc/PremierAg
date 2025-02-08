@@ -52,7 +52,7 @@ namespace PAS.Services
                 {
                     quoteInventory.Inventory = inventory;
                     quoteInventory.ChemicalName = inventory.ChemicalName;
-                    quoteInventory.RowVersion = new byte[8]; // Ensure RowVersion is initialized
+                    quoteInventory.RowVersion = Guid.NewGuid().ToByteArray(); // Autogenerate RowVersion
                 }
             }
 
@@ -60,6 +60,7 @@ namespace PAS.Services
             _context.Quotes.Add(quote);
             await _context.SaveChangesAsync();
         }
+
 
 
 

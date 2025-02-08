@@ -1,0 +1,156 @@
+﻿@page "/vendorpage"
+@using PAS.Models
+@using PAS.Services
+@inject VendorService VendorService
+
+<h3>Vendor Management</h3>
+
+<!-- Toggle Button for Vendor Form -->
+<button class="btn btn-primary" @onclick="ToggleVendorForm">Add Vendor</button>
+
+<!-- Vendor Form (Hidden until button clicked) -->
+@if (showVendorForm)
+{
+    <div class="container mt-3">
+        <EditForm Model="NewVendor" OnValidSubmit="AddVendor">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="form-group">
+                <label for="businessName">Vendor Business Name</label>
+                <InputText id="businessName" @bind-Value="NewVendor.BusinessName" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label for="streetAddress">Street Address</label>
+                <InputText id="streetAddress" @bind-Value="NewVendor.StreetAddress" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label for="city">City</label>
+                <InputText id="city" @bind-Value="NewVendor.City" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label for="zipCode">Zip Code</label>
+                <InputText id="zipCode" @bind-Value="NewVendor.ZipCode" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone</label>
+                <InputText id="phone" @bind-Value="NewVendor.Phone" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label for="fax">Fax</label>
+                <InputText id="fax" @bind-Value="NewVendor.Fax" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <InputText id="email" @bind-Value="NewVendor.Email" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label for="salesRepName">Sales Rep Name</label>
+                <InputText id="salesRepName" @bind-Value="NewVendor.SalesRepName" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label for="salesRepPhone">Sales Rep Phone</label>
+                <InputText id="salesRepPhone" @bind-Value="NewVendor.SalesRepPhone" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label for="salesRepEmail">Sales Rep Email</label>
+                <InputText id="salesRepEmail" @bind-Value="NewVendor.SalesRepEmail" class="form-control" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                @((NewVendor.Id == 0) ? "Add Vendor" : "Update Vendor")
+            </button>
+        </EditForm>
+    </div>
+}
+
+<hr />
+
+<h4>Vendors</h4>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Business Name</th>
+            <th>City</th>
+            <th>Phone</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var vendor in Vendors)
+        {
+            <tr>
+                <td>@vendor.BusinessName</td>
+                <td>@vendor.City</td>
+                <td>@vendor.Phone</td>
+                <td>
+                    <button class="btn btn-primary btn-sm" @onclick="() => EditVendor(vendor.Id)">Edit</button>
+                    <button class="btn btn-danger btn-sm" @onclick="() => DeleteVendor(vendor.Id)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<Vendor> Vendors = new();
+    private Vendor NewVendor = new();
+    private bool showVendorForm = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Vendors = await VendorService.GetVendorsAsync();
+    }
+
+    private void ToggleVendorForm()
+    {
+        // Toggle the form visibility
+        showVendorForm = !showVendorForm;
+        if (!showVendorForm)
+        {
+            // Clear the form if it's closed
+            NewVendor = new Vendor();
+        }
+    }
+
+    private async Task AddVendor()
+    {
+        if (NewVendor.Id == 0)
+        {
+            await VendorService.AddVendorAsync(NewVendor);
+        }
+        else
+        {
+            await VendorService.UpdateVendorAsync(NewVendor);
+        }
+        Vendors = await VendorService.GetVendorsAsync();
+        NewVendor = new Vendor();  // Reset the form after submission
+        showVendorForm = false; // Close the form after submission
+    }
+
+    private async Task EditVendor(int vendorId)
+    {
+        var vendor = await VendorService.GetVendorByIdAsync(vendorId);
+        if (vendor != null)
+        {
+            // Load the vendor data into the form for editing
+            NewVendor = vendor;
+            showVendorForm = true; // Open the form to edit
+        }
+    }
+
+    private async Task DeleteVendor(int vendorId)
+    {
+        await VendorService.DeleteVendorAsync(vendorId);
+        Vendors = await VendorService.GetVendorsAsync();
+    }
+}

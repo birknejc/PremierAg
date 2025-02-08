@@ -1,0 +1,124 @@
+﻿@page "/fieldpage{customerId:int}"
+@using PAS.Models
+@using PAS.Services
+@inject FieldService FieldService
+@inject NavigationManager NavigationManager
+
+
+
+<h3>Fields</h3>
+
+@if (fields != null && fields.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Field Name</th>
+                <th>Acres</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var field in fields)
+            {
+                <tr>
+                    <td>@field.FieldName</td>
+                    <td>@field.Acres</td>
+                    <td>
+                        <button class="btn btn-warning" @onclick="() => EditField(field.Id)">Edit</button>
+                        <button class="btn btn-danger" @onclick="() => DeleteField(field.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No fields found for this customer.</p>
+}
+
+<button class="btn btn-primary" @onclick="ShowAddFieldModal">Add Field</button>
+
+@if (showAddModal)
+{
+    <div class="modal" style="display:block;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add/Edit Field</h5>
+                    <button type="button" class="btn-close" @onclick="HideModal"></button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="newField" OnValidSubmit="HandleAddOrUpdateField">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                        <div class="form-group">
+                            <label>Field Name</label>
+                            <InputText class="form-control" @bind-Value="newField.FieldName" />
+                        </div>
+                        <div class="form-group">
+                            <label>Acres</label>
+                            <InputNumber class="form-control" @bind-Value="newField.Acres" />
+                        </div>
+                        <button type="submit" class="btn btn-success">Save</button>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int customerId { get; set; }
+
+    private List<Field> fields = new();
+    private Field newField = new();
+    private bool showAddModal = false;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        fields = await FieldService.GetFieldsByCustomerIdAsync(customerId);
+    }
+
+    private void ShowAddFieldModal()
+    {
+        newField = new Field { CustomerId = customerId };
+        showAddModal = true;
+    }
+
+    private void HideModal()
+    {
+        showAddModal = false;
+    }
+
+    private async Task HandleAddOrUpdateField()
+    {
+        if (newField.Id == 0)
+        {
+            await FieldService.AddFieldAsync(newField);
+        }
+        else
+        {
+            await FieldService.UpdateFieldAsync(newField);
+        }
+        fields = await FieldService.GetFieldsByCustomerIdAsync(customerId);
+        showAddModal = false;
+    }
+
+    private async Task EditField(int id)
+    {
+        var field = await FieldService.GetFieldByIdAsync(id);
+        if (field != null)
+        {
+            newField = field;
+            showAddModal = true;
+        }
+    }
+
+    private async Task DeleteField(int id)
+    {
+        await FieldService.DeleteFieldAsync(id);
+        fields = await FieldService.GetFieldsByCustomerIdAsync(customerId);
+    }
+}

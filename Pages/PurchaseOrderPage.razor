@@ -1,0 +1,242 @@
+﻿@page "/purchaseorderpage"
+@using PAS.Models
+@using PAS.Services
+@inject PurchaseOrderService PurchaseOrderService
+@inject VendorService VendorService
+@inject IJSRuntime JSRuntime
+
+<h3>Purchase Order Management</h3>
+
+<button class="btn btn-primary" @onclick="ToggleForm">Add Purchase Order</button>
+
+@if (showForm)
+{
+    <div>
+        <EditForm Model="NewPurchaseOrder" OnValidSubmit="AddPurchaseOrder">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <!-- Form fields for editing NewPurchaseOrder -->
+            <div class="container">
+                <div class="form-group">
+                    <label for="poNumber">Purchase Order Number</label>
+                    <InputText id="poNumber" @bind-Value="NewPurchaseOrder.PONumber" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label for="orderDate">Order Date (MM/DD/YYYY)</label>
+                    <InputText id="orderDate" @bind-Value="OrderDateFormatted" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label for="vendorName">Vendor Name</label>
+                    <InputSelect id="vendorName" @bind-Value="NewPurchaseOrder.BusinessName" class="form-control">
+                        <option value="">Select a Vendor</option>
+                        @foreach (var vendor in Vendors)
+                        {
+                            <option value="@vendor.BusinessName">@vendor.BusinessName</option>
+                        }
+                    </InputSelect>
+                </div>
+
+                <div class="form-group">
+                    <label for="chemicalName">Chemical Name</label>
+                    <InputSelect id="chemicalName" @bind-Value="SelectedChemicalId" class="form-control">
+                        <option value="">Select a Chemical</option>
+                        @foreach (var chemical in Chemicals)
+                        {
+                            <option value="@chemical.Id">@chemical.ChemicalName</option>
+                        }
+                    </InputSelect>
+                </div>
+
+                <div class="form-group">
+                    <label for="epaNumber">EPA Number</label>
+                    <InputText id="epaNumber" @bind-Value="NewPurchaseOrder.EPANumber" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label for="unitOfMeasure">Unit of Measure</label>
+                    <InputText id="unitOfMeasure" @bind-Value="NewPurchaseOrder.UnitOfMeasure" class="form-control" readonly />
+                </div>
+
+                <div class="form-group">
+                    <label for="price">Price</label>
+                    <InputNumber id="price" @bind-Value="NewPurchaseOrder.Price" class="form-control" readonly />
+                </div>
+
+                <div class="form-group">
+                    <label for="quantityOrdered">Quantity Ordered</label>
+                    <InputNumber id="quantityOrdered" @bind-Value="NewPurchaseOrder.QuantityOrdered" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label for="paymentDueDate">Payment Due Date (MM/DD/YYYY)</label>
+                    <InputText id="paymentDueDate" @bind-Value="PaymentDueDateFormatted" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label for="deliveryPickUpDate">Delivery/Pick Up Date (MM/DD/YYYY)</label>
+                    <InputText id="deliveryPickUpDate" @bind-Value="DeliveryPickUpDateFormatted" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label for="pickUpLocation">Pick Up Location</label>
+                    <InputText id="pickUpLocation" @bind-Value="NewPurchaseOrder.PickUpLocation" class="form-control" />
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">@((NewPurchaseOrder.Id == 0) ? "Add Purchase Order" : "Update Purchase Order")</button>
+        </EditForm>
+    </div>
+}
+
+<hr />
+
+<h4>Purchase Orders</h4>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>P.O. Number</th>
+            <th>Order Date</th>
+            <th>Vendor Name</th>
+            <th>Chemical Name</th>
+            <th>Price</th>
+            <th>Quantity Ordered</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var purchaseOrder in PurchaseOrders)
+        {
+            <tr>
+                <td>@purchaseOrder.PONumber</td>
+                <td>@(purchaseOrder.OrderDate == DateTime.MinValue ? "" : purchaseOrder.OrderDate.ToString("MM/dd/yyyy"))</td>
+                <td>@purchaseOrder.BusinessName</td>
+                <td>@purchaseOrder.ChemicalName</td>
+                <td>@purchaseOrder.Price</td>
+                <td>@purchaseOrder.QuantityOrdered</td>
+                <td>
+                    <button class="btn btn-info btn-sm" @onclick="() => PrintPurchaseOrder(purchaseOrder.Id)">Print</button>
+                    <button class="btn btn-primary btn-sm" @onclick="() => EditPurchaseOrder(purchaseOrder.Id)">Edit</button>
+                    <button class="btn btn-danger btn-sm" @onclick="() => DeletePurchaseOrder(purchaseOrder.Id)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<PurchaseOrder> PurchaseOrders = new();
+    private List<Vendor> Vendors = new();
+    private List<Inventory> Chemicals = new();
+    private PurchaseOrder NewPurchaseOrder = new();
+    private bool showForm = false; // Controls the visibility of the form
+    private int SelectedChemicalId
+    {
+        get => NewPurchaseOrder.InventoryId;
+        set
+        {
+            NewPurchaseOrder.InventoryId = value;
+            var selectedChemical = Chemicals.FirstOrDefault(c => c.Id == value);
+            if (selectedChemical != null)
+            {
+                NewPurchaseOrder.UnitOfMeasure = selectedChemical.UnitOfMeasure;
+                NewPurchaseOrder.Price = selectedChemical.Price;
+            }
+        }
+    }
+
+    private string OrderDateFormatted
+    {
+        get => NewPurchaseOrder.OrderDate == DateTime.MinValue ? "" : NewPurchaseOrder.OrderDate.ToString("MM/dd/yyyy");
+        set => NewPurchaseOrder.OrderDate = DateTime.TryParse(value, out var parsedDate)
+            ? DateTime.SpecifyKind(parsedDate, DateTimeKind.Utc)
+            : DateTime.MinValue;
+    }
+
+    private string PaymentDueDateFormatted
+    {
+        get => NewPurchaseOrder.PaymentDueDate == DateTime.MinValue ? "" : NewPurchaseOrder.PaymentDueDate.ToString("MM/dd/yyyy");
+        set => NewPurchaseOrder.PaymentDueDate = DateTime.TryParse(value, out var parsedDate)
+            ? DateTime.SpecifyKind(parsedDate, DateTimeKind.Utc)
+            : DateTime.MinValue;
+    }
+
+    private string DeliveryPickUpDateFormatted
+    {
+        get => NewPurchaseOrder.DeliveryPickUpDate == DateTime.MinValue ? "" : NewPurchaseOrder.DeliveryPickUpDate.ToString("MM/dd/yyyy");
+        set => NewPurchaseOrder.DeliveryPickUpDate = DateTime.TryParse(value, out var parsedDate)
+            ? DateTime.SpecifyKind(parsedDate, DateTimeKind.Utc)
+            : DateTime.MinValue;
+    }
+
+    private void ToggleForm()
+    {
+        showForm = !showForm; // Toggle the form visibility
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        PurchaseOrders = await PurchaseOrderService.GetPurchaseOrdersAsync();
+        Vendors = await VendorService.GetVendorsAsync(); // Fetch vendor list
+        Chemicals = await PurchaseOrderService.GetChemicalsAsync(); // Fetch chemical list
+    }
+
+    private async Task AddPurchaseOrder()
+    {
+        if (NewPurchaseOrder.Id == 0)
+        {
+            await PurchaseOrderService.AddPurchaseOrderAsync(NewPurchaseOrder);
+        }
+        else
+        {
+            await PurchaseOrderService.UpdatePurchaseOrderAsync(NewPurchaseOrder);
+        }
+        PurchaseOrders = await PurchaseOrderService.GetPurchaseOrdersAsync();
+        NewPurchaseOrder = new PurchaseOrder(); // Reset form
+        showForm = false; // Hide the form after submission
+    }
+
+    private async Task EditPurchaseOrder(int purchaseOrderId)
+    {
+        var purchaseOrder = await PurchaseOrderService.GetPurchaseOrderByIdAsync(purchaseOrderId);
+        if (purchaseOrder != null)
+        {
+            NewPurchaseOrder = purchaseOrder;
+            showForm = true; // Show form for editing
+        }
+    }
+
+    private async Task DeletePurchaseOrder(int purchaseOrderId)
+    {
+        await PurchaseOrderService.DeletePurchaseOrderAsync(purchaseOrderId);
+        PurchaseOrders = await PurchaseOrderService.GetPurchaseOrdersAsync();
+    }
+
+    private async Task PrintPurchaseOrder(int purchaseOrderId)
+    {
+        var purchaseOrder = PurchaseOrders.FirstOrDefault(po => po.Id == purchaseOrderId);
+        if (purchaseOrder != null)
+        {
+            // Read the HTML template file
+            var templatePath = "print_potemplate.html"; // Path to the template file
+            var templateContent = await File.ReadAllTextAsync(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", templatePath));
+
+            // Replace placeholders with actual purchase order values
+            templateContent = templateContent
+                .Replace("{{PONumber}}", purchaseOrder.PONumber)
+                .Replace("{{OrderDate}}", purchaseOrder.OrderDate.ToString("MM/dd/yyyy"))
+                .Replace("{{BusinessName}}", purchaseOrder.BusinessName)
+                .Replace("{{ChemicalName}}", purchaseOrder.ChemicalName)
+                .Replace("{{Price}}", purchaseOrder.Price.ToString("C"))
+                .Replace("{{QuantityOrdered}}", purchaseOrder.QuantityOrdered.ToString())
+                .Replace("{{PaymentDueDate}}", purchaseOrder.PaymentDueDate.ToString("MM/dd/yyyy"))
+                .Replace("{{DeliveryPickUpDate}}", purchaseOrder.DeliveryPickUpDate.ToString("MM/dd/yyyy"))
+                .Replace("{{PickUpLocation}}", purchaseOrder.PickUpLocation);
+
+            // Open a new window or iframe with the print content
+            await JSRuntime.InvokeVoidAsync("openPrintWindow", templateContent);
+        }
+    }
+}

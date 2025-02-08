@@ -1,0 +1,163 @@
+﻿@page "/customerpage"
+@using PAS.Models
+@using PAS.Services
+@inject CustomerService CustomerService
+@inject NavigationManager NavigationManager
+
+<h3>Customers</h3>
+
+@if (customers != null && customers.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Business Name</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>City</th>
+                <th>Phone</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var customer in customers)
+            {
+                <tr>
+                    <td>@customer.CustomerBusinessName</td>
+                    <td>@customer.CustomerFName</td>
+                    <td>@customer.CustomerLName</td>
+                    <td>@customer.CustomerCity</td>
+                    <td>@customer.CustomerPhone</td>
+                    <td>
+                        <button class="btn btn-warning" @onclick="() => EditCustomer(customer.Id)">Edit</button>
+                        <button class="btn btn-danger" @onclick="() => DeleteCustomer(customer.Id)">Delete</button>
+                        <button class="btn btn-secondary" @onclick="() => NavigateToFieldPage(customer.Id)">Manage Fields</button>
+
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No customers found.</p>
+}
+
+<button class="btn btn-primary" @onclick="ShowAddCustomerModal">Add Customer</button>
+
+@if (showAddModal)
+{
+    <div class="modal" style="display:block;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Customer</h5>
+                    <button type="button" class="btn-close" @onclick="HideModal"></button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="newCustomer" OnValidSubmit="HandleAddCustomer">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                        <div class="form-group">
+                            <label>Business Name</label>
+                            <InputText class="form-control" @bind-Value="newCustomer.CustomerBusinessName" />
+                        </div>
+                        <div class="form-group">
+                            <label>First Name</label>
+                            <InputText class="form-control" @bind-Value="newCustomer.CustomerFName" />
+                        </div>
+                        <div class="form-group">
+                            <label>Last Name</label>
+                            <InputText class="form-control" @bind-Value="newCustomer.CustomerLName" />
+                        </div>
+                        <div class="form-group">
+                            <label>Street</label>
+                            <InputText class="form-control" @bind-Value="newCustomer.CustomerStreet" />
+                        </div>
+                        <div class="form-group">
+                            <label>City</label>
+                            <InputText class="form-control" @bind-Value="newCustomer.CustomerCity" />
+                        </div>
+                        <div class="form-group">
+                            <label>State</label>
+                            <InputText class="form-control" @bind-Value="newCustomer.CustomerState" />
+                        </div>
+                        <div class="form-group">
+                            <label>ZipCode</label>
+                            <InputText class="form-control" @bind-Value="newCustomer.CustomerZipCode" />
+                        </div>
+                        <div class="form-group">
+                            <label>Phone</label>
+                            <InputText class="form-control" @bind-Value="newCustomer.CustomerPhone" />
+                        </div>
+                        <div class="form-group">
+                            <label>Cell</label>
+                            <InputText class="form-control" @bind-Value="newCustomer.CustomerCell" />
+                        </div>
+                        <div class="form-group">
+                            <label>Fax</label>
+                            <InputText class="form-control" @bind-Value="newCustomer.CustomerFax" />
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <InputText class="form-control" @bind-Value="newCustomer.CustomerEmail" />
+                        </div>
+                        <button type="submit" class="btn btn-success">Add</button>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<Customer> customers = new();
+    private Customer newCustomer = new();
+    private bool showAddModal = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        customers = await CustomerService.GetAllCustomersAsync();
+    }
+
+    private void ShowAddCustomerModal()
+    {
+        newCustomer = new Customer();
+        showAddModal = true;
+    }
+
+    private void HideModal()
+    {
+        showAddModal = false;
+    }
+
+    private async Task HandleAddCustomer()
+    {
+        await CustomerService.AddCustomerAsync(newCustomer);
+        customers = await CustomerService.GetAllCustomersAsync();
+        showAddModal = false;
+    }
+
+    private async Task DeleteCustomer(int id)
+    {
+        await CustomerService.DeleteCustomerAsync(id);
+        customers = await CustomerService.GetAllCustomersAsync();
+    }
+
+    private async Task EditCustomer(int id)
+    {
+        var customer = await CustomerService.GetCustomerByIdAsync(id);
+        if (customer != null)
+        {
+            newCustomer = customer;
+            showAddModal = true;
+        }
+    }
+
+    private void NavigateToFieldPage(int customerId)
+    {
+        Console.WriteLine($"Navigating to: /fieldpage{customerId}");
+        NavigationManager.NavigateTo($"/fieldpage{customerId}");
+    }
+}

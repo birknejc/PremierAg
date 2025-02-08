@@ -1,0 +1,109 @@
+﻿@inject NavigationManager NavigationManager
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">PAS</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="oi oi-home" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/customerpage">
+                <span class="oi oi-people" aria-hidden="true"></span> Customers
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/fieldpage">
+                <span class="oi oi-globe" aria-hidden="true"></span> Fields
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/quotepage">
+                <span class="oi oi-dollar" aria-hidden="true"></span> Quote
+            </NavLink>
+        </div>
+
+        <!-- Vendor Section with Sub-links for Inventory and Purchase Order -->
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/vendorpage">
+                <span class="oi oi-spreadsheet" aria-hidden="true"></span> Vendors
+            </NavLink>
+            @if (IsVendorPage)
+            {
+                <div class="ps-4">
+                    <!-- Indent sub-links -->
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="/inventorypage">
+                            <span class="oi oi-box" aria-hidden="true"></span> Inventory
+                        </NavLink>
+                    </div>
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="/purchaseorderpage">
+                            <span class="oi oi-cart" aria-hidden="true"></span> Purchase Order
+                        </NavLink>
+                    </div>
+                </div>
+            }
+        </div>
+    </nav>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+    private bool IsVendorPage { get; set; } = false;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    // Subscribe to location changes to handle navigation dynamically
+    protected override void OnInitialized()
+    {
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private async void OnLocationChanged(object sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        // Recheck on every navigation change
+        await CheckAndUpdateMenu();
+    }
+
+    private async Task CheckAndUpdateMenu()
+    {
+        var uri = NavigationManager.Uri;
+
+        // If on /vendorpage route, set IsVendorPage to true, otherwise set it to false
+        if (uri.Contains("/vendorpage"))
+        {
+            IsVendorPage = true;
+        }
+        else
+        {
+            IsVendorPage = false;
+        }
+
+        // Trigger a re-render if needed
+        StateHasChanged();
+    }
+
+    // Clean up the event subscription when the component is disposed
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+}

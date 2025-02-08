@@ -1,0 +1,149 @@
+﻿@page "/inventorypage"
+@using PAS.Models
+@using PAS.Services
+@inject InventoryService InventoryService;
+@inject NavigationManager NavigationManager;
+
+
+<h3>Inventory</h3>
+
+<!-- Display Inventory List -->
+@if (inventoryList != null && inventoryList.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Chemical Name</th>
+                <th>EPA #</th>
+                <th>Unit of Measure</th>
+                <th>Price</th>
+                <th>Vendor</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var inventory in inventoryList)
+            {
+                <tr>
+                    <td>@inventory.ChemicalName</td>
+                    <td>@inventory.EPA</td>
+                    <td>@inventory.UnitOfMeasure</td>
+                    <td>@inventory.Price</td>
+                    <td>@inventory.Vendor.BusinessName</td>
+                    <td>
+                        <button class="btn btn-warning" @onclick="() => EditInventory(inventory.Id)">Edit</button>
+                        <button class="btn btn-danger" @onclick="() => DeleteInventory(inventory.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No inventory items found.</p>
+}
+
+<!-- Add Inventory Modal -->
+<button class="btn btn-primary" @onclick="ShowAddInventoryModal">Add Inventory</button>
+
+<!-- Inventory Modal Form -->
+@if (showAddModal)
+{
+    <div class="modal" style="display:block;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Inventory</h5>
+                    <button type="button" class="btn-close" @onclick="HideModal"></button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="newInventory" OnValidSubmit="HandleAddInventory">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <div class="form-group">
+                            <label for="chemicalName">Chemical Name</label>
+                            <InputText id="chemicalName" class="form-control" @bind-Value="newInventory.ChemicalName" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="epa">EPA #</label>
+                            <InputText id="epa" class="form-control" @bind-Value="newInventory.EPA" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="unitOfMeasure">Unit of Measure</label>
+                            <InputText id="unitOfMeasure" class="form-control" @bind-Value="newInventory.UnitOfMeasure" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="price">Price</label>
+                            <InputNumber id="price" class="form-control" @bind-Value="newInventory.Price" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="vendorId">Vendor</label>
+                            <InputSelect id="vendorId" class="form-control" @bind-Value="newInventory.VendorId">
+                                <option value="">Select Vendor</option>
+                                @foreach (var vendor in vendors)
+                                {
+                                    <option value="@vendor.Id">@vendor.BusinessName</option>
+                                }
+                            </InputSelect>
+                        </div>
+
+                        <button type="submit" class="btn btn-success">Add</button>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<Inventory> inventoryList = new List<Inventory>();
+    private List<Vendor> vendors = new List<Vendor>();
+    private Inventory newInventory = new Inventory();
+    private bool showAddModal = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        inventoryList = await InventoryService.GetAllInventoriesAsync();
+        vendors = await InventoryService.GetAllVendorsAsync();
+    }
+
+    private void ShowAddInventoryModal()
+    {
+        newInventory = new Inventory();
+        showAddModal = true;
+    }
+
+    private void HideModal()
+    {
+        showAddModal = false;
+    }
+
+    private async Task HandleAddInventory()
+    {
+        await InventoryService.AddInventoryAsync(newInventory);
+        inventoryList = await InventoryService.GetAllInventoriesAsync();
+        showAddModal = false;
+    }
+
+    private async Task DeleteInventory(int id)
+    {
+        await InventoryService.DeleteInventoryAsync(id);
+        inventoryList = await InventoryService.GetAllInventoriesAsync();
+    }
+
+    private async Task EditInventory(int id)
+    {
+        var inventory = await InventoryService.GetInventoryByIdAsync(id);
+        if (inventory != null)
+        {
+            newInventory = inventory;
+            showAddModal = true;
+        }
+    }
+}

@@ -1,0 +1,41 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        @media print {
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+            }
+
+            .print-container {
+                width: 100%;
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                border: 1px solid #000;
+                background: #fff;
+            }
+
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="print-container">
+        <h3>Purchase Order Details</h3>
+        <p><strong>P.O. Number:</strong> {{PONumber}}</p>
+        <p><strong>Order Date:</strong> {{OrderDate}}</p>
+        <p><strong>Vendor Name:</strong> {{BusinessName}}</p>
+        <p><strong>Chemical Name:</strong> {{ChemicalName}}</p>
+        <p><strong>Price:</strong> {{Price}}</p>
+        <p><strong>Quantity Ordered:</strong> {{QuantityOrdered}}</p>
+        <p><strong>Payment Due Date:</strong> {{PaymentDueDate}}</p>
+        <p><strong>Delivery/Pick Up Date:</strong> {{DeliveryPickUpDate}}</p>
+        <p><strong>Pick Up Location:</strong> {{PickUpLocation}}</p>
+    </div>
+</body>
+</html>

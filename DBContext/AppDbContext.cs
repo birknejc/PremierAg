@@ -77,8 +77,18 @@ namespace PAS.DBContext
                 .HasColumnType("bytea") // Set RowVersion to bytea type
                 .IsRequired();
 
+            // Ensure RowVersion is included in the insert statement
+            modelBuilder.Entity<QuoteInventory>()
+                .Property(qi => qi.RowVersion)
+                .HasDefaultValueSql("gen_random_bytes(8)");
 
-            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Quote>()
+                .HasMany(q => q.QuoteInventories)
+                .WithOne(qi => qi.Quote)
+                .HasForeignKey(qi => qi.QuoteId);
+
+
+                base.OnModelCreating(modelBuilder);
         }
     }
 }

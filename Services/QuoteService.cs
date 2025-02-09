@@ -60,16 +60,23 @@ namespace PAS.Services
                 }
             }
 
+            Log.Information("QuoteInventories state before saving:");
+            foreach (var qi in quote.QuoteInventories)
+            {
+                Log.Information($"QuoteInventory - Id: {qi.Id}, InventoryId: {qi.InventoryId}, RowVersion: {BitConverter.ToString(qi.RowVersion)}");
+            }
+
             quote.QuoteDate = quote.QuoteDate.ToUniversalTime(); // Ensure date consistency
             Log.Information("Before saving Quote");
+
+            // Add the quote to the context
             _context.Quotes.Add(quote);
+
+            // Save changes
             await _context.SaveChangesAsync();
+
             Log.Information("Successfully saved Quote with initialized RowVersion values");
         }
-
-
-
-
 
 
 

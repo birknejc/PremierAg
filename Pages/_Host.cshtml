@@ -12,23 +12,39 @@
     <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
     <link href="css/site.css" rel="stylesheet" />
     <link href="PAS.styles.css" rel="stylesheet" />
-    <link rel="icon" type="image/png" href="favicon.png"/>
+    <link rel="icon" type="image/png" href="favicon.png" />
     <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
     <script src="js/site.js"></script>
-    
+
+    <script>
+        function showAlert(message) {
+            alert(message);
+        }
+    </script>
+
+
     <script>
         function openPrintWindow(printContent) {
             // Create a new window
             var printWindow = window.open('', '', 'width=800,height=600');
 
-            // Write the print content to the new window
-            printWindow.document.write(printContent);
+            // Check if the window was successfully created (i.e. not blocked by a popup blocker)
+            if (!printWindow) {
+                alert("Popup was blocked. Please allow popups for this site to print.");
+                return;
+            }
 
-            // Wait for the document to load, then call the print method
+            // Open the document for writing
+            printWindow.document.open();
+            printWindow.document.write(printContent);
             printWindow.document.close();
-            printWindow.focus();
-            printWindow.print();
-            printWindow.close();
+
+            // Wait a bit to ensure the content is loaded (optional, you might adjust the timeout)
+            setTimeout(function () {
+                printWindow.focus();
+                printWindow.print();
+                printWindow.close();
+            }, 500);
         }
     </script>
 </head>

@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "CiNa8Lxi1dfermbA9zc5KQPSL9ItAvgPedbgy6wFd+Y=",
+  "Hash": "DEBkLzrgIHfZ3dZjGb095TZIkjs0p48sh1V6XaEr/6Y=",
   "Source": "PAS",
   "BasePath": "_content/PAS",
   "Mode": "Default",
@@ -80,12 +80,33 @@
       "OriginalItemSpec": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\css\\bootstrap\\bootstrap.min.css.map"
     },
     {
-      "Identity": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\cscg5mfhl2-lyf17l8fo4.gz",
+      "Identity": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\cajx42di9q-1cryxryapl.gz",
       "SourceId": "PAS",
       "SourceType": "Discovered",
       "ContentRoot": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\",
       "BasePath": "_content/PAS",
-      "RelativePath": "css/site#[.{fingerprint=lyf17l8fo4}]?.css.gz",
+      "RelativePath": "js/site#[.{fingerprint=1cryxryapl}]?.js.gz",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Alternative",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\js\\site.js",
+      "AssetTraitName": "Content-Encoding",
+      "AssetTraitValue": "gzip",
+      "Fingerprint": "9aqqrd1vzh",
+      "Integrity": "b9kO9PkTxJSl2cmtpm3FMLHEyr9sd043jpYOYhrU4jk=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\js\\site.js"
+    },
+    {
+      "Identity": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\cscg5mfhl2-q4d19k1nsb.gz",
+      "SourceId": "PAS",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\",
+      "BasePath": "_content/PAS",
+      "RelativePath": "css/site#[.{fingerprint=q4d19k1nsb}]?.css.gz",
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Alternative",
@@ -94,8 +115,8 @@
       "RelatedAsset": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\css\\site.css",
       "AssetTraitName": "Content-Encoding",
       "AssetTraitValue": "gzip",
-      "Fingerprint": "3hqj3n76o7",
-      "Integrity": "OWTtqixX28L8lQZETqWw1cYzMD4GRaZ2GBMMcj6YsYo=",
+      "Fingerprint": "865amk6kor",
+      "Integrity": "UMHUiDpLeW/Vp9tgTuFAQQH/1X0kvCDGqAaU0HtVs7w=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\css\\site.css"
@@ -143,12 +164,33 @@
       "OriginalItemSpec": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\scopedcss\\bundle\\PAS.styles.css"
     },
     {
-      "Identity": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\jgrswj0ogc-fqg5imxh8k.gz",
+      "Identity": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\io2qtfdz5t-g4crs5roui.gz",
       "SourceId": "PAS",
       "SourceType": "Discovered",
       "ContentRoot": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\",
       "BasePath": "_content/PAS",
-      "RelativePath": "print_potemplate#[.{fingerprint=fqg5imxh8k}]?.html.gz",
+      "RelativePath": "print_invoicetemplate#[.{fingerprint=g4crs5roui}]?.html.gz",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Alternative",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\print_invoicetemplate.html",
+      "AssetTraitName": "Content-Encoding",
+      "AssetTraitValue": "gzip",
+      "Fingerprint": "yibz5p8uxy",
+      "Integrity": "Gk5QVsBOJlZs2JXRmcByaKsCoMKE31lMvVrQtTSq53w=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\print_invoicetemplate.html"
+    },
+    {
+      "Identity": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\jgrswj0ogc-1mhk6g3nwn.gz",
+      "SourceId": "PAS",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\",
+      "BasePath": "_content/PAS",
+      "RelativePath": "print_potemplate#[.{fingerprint=1mhk6g3nwn}]?.html.gz",
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Alternative",
@@ -157,8 +199,8 @@
       "RelatedAsset": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\print_potemplate.html",
       "AssetTraitName": "Content-Encoding",
       "AssetTraitValue": "gzip",
-      "Fingerprint": "cblzl9oqvj",
-      "Integrity": "WLCFFfhtuZDfH6l3PSJ+uWin9lrAmGa0mW9SJuZv5fk=",
+      "Fingerprint": "8c6wtlnb47",
+      "Integrity": "GMm0YFOwGlQRU9ROuYflYxkYXKHJBeyZtnZCB7Tyqxk=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\print_potemplate.html"
@@ -225,6 +267,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\css\\open-iconic\\README.md"
+    },
+    {
+      "Identity": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\yzelpdz66n-86klpnn6lc.gz",
+      "SourceId": "PAS",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\",
+      "BasePath": "_content/PAS",
+      "RelativePath": "print_loadmixtemplate#[.{fingerprint=86klpnn6lc}]?.html.gz",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Alternative",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\print_loadmixtemplate.html",
+      "AssetTraitName": "Content-Encoding",
+      "AssetTraitValue": "gzip",
+      "Fingerprint": "last2ccwc5",
+      "Integrity": "gxl7h/PaKyK0WLtYfC9cqKzUl7iS0GHdWTXaY5plKVw=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\print_loadmixtemplate.html"
     },
     {
       "Identity": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\scopedcss\\bundle\\PAS.styles.css",
@@ -309,27 +372,6 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\css\\bootstrap\\bootstrap.min.css.map"
-    },
-    {
-      "Identity": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\css\\open-iconic\\FONT-LICENSE",
-      "SourceId": "PAS",
-      "SourceType": "Discovered",
-      "ContentRoot": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\",
-      "BasePath": "_content/PAS",
-      "RelativePath": "css/open-iconic/FONT-LICENSE#[.{fingerprint}]?",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "Fingerprint": "48tmkg660f",
-      "Integrity": "jA4J4h/k76zVxbFKEaWwFKJccmO0voOQ1DbUW+5YNlI=",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\css\\open-iconic\\FONT-LICENSE"
     },
     {
       "Identity": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\css\\open-iconic\\font\\css\\open-iconic-bootstrap.min.css",
@@ -458,6 +500,27 @@
       "OriginalItemSpec": "wwwroot\\css\\open-iconic\\font\\fonts\\open-iconic.woff"
     },
     {
+      "Identity": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\css\\open-iconic\\FONT-LICENSE",
+      "SourceId": "PAS",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\",
+      "BasePath": "_content/PAS",
+      "RelativePath": "css/open-iconic/FONT-LICENSE#[.{fingerprint}]?",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "48tmkg660f",
+      "Integrity": "jA4J4h/k76zVxbFKEaWwFKJccmO0voOQ1DbUW+5YNlI=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\css\\open-iconic\\FONT-LICENSE"
+    },
+    {
       "Identity": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\css\\open-iconic\\ICON-LICENSE",
       "SourceId": "PAS",
       "SourceType": "Discovered",
@@ -514,8 +577,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "lyf17l8fo4",
-      "Integrity": "893FSO638c+gYN+eIS/4Ccg2oOPaGHryX6bSUCjgsGk=",
+      "Fingerprint": "q4d19k1nsb",
+      "Integrity": "ukH7mV4AvEM8IihugMJBC9ipo4izw5fvQJnd/8uMAU0=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\css\\site.css"
@@ -563,6 +626,69 @@
       "OriginalItemSpec": "wwwroot\\images\\logo.jpg"
     },
     {
+      "Identity": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\js\\site.js",
+      "SourceId": "PAS",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\",
+      "BasePath": "_content/PAS",
+      "RelativePath": "js/site#[.{fingerprint}]?.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "1cryxryapl",
+      "Integrity": "4WtB80Dl8D8l+R10y0basC4jwfRYoEdBigKct907TQU=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\js\\site.js"
+    },
+    {
+      "Identity": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\print_invoicetemplate.html",
+      "SourceId": "PAS",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\",
+      "BasePath": "_content/PAS",
+      "RelativePath": "print_invoicetemplate#[.{fingerprint}]?.html",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "g4crs5roui",
+      "Integrity": "4AmHVsFY4pmbSp3Kkd6L/3B/18maKuRCToPLNSnwIRA=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\print_invoicetemplate.html"
+    },
+    {
+      "Identity": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\print_loadmixtemplate.html",
+      "SourceId": "PAS",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\",
+      "BasePath": "_content/PAS",
+      "RelativePath": "print_loadmixtemplate#[.{fingerprint}]?.html",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "86klpnn6lc",
+      "Integrity": "YL75LCf+Zw5yTg5dxEIg4TnnbbO/kZJKH6gGcq33X0A=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\print_loadmixtemplate.html"
+    },
+    {
       "Identity": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\print_potemplate.html",
       "SourceId": "PAS",
       "SourceType": "Discovered",
@@ -577,8 +703,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "fqg5imxh8k",
-      "Integrity": "950WfgsEKt4kow3dPscAntquJ7UDrwaS1MWCV3EuYSk=",
+      "Fingerprint": "1mhk6g3nwn",
+      "Integrity": "KYzjRhoTOttf4TIN5DBS1/7fog6zo2xArtXhVLd6q5M=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\print_potemplate.html"
@@ -1178,88 +1304,6 @@
         {
           "Name": "integrity",
           "Value": "sha256-Kym5HpgDYV8Caci50HDUPG6WCQ6nTP+8hy429w+zHVU="
-        }
-      ]
-    },
-    {
-      "Route": "css/open-iconic/FONT-LICENSE",
-      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\css\\open-iconic\\FONT-LICENSE",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "4103"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "application/octet-stream"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"jA4J4h/k76zVxbFKEaWwFKJccmO0voOQ1DbUW+5YNlI=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Fri, 10 Jan 2025 19:55:46 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "no-cache"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "integrity",
-          "Value": "sha256-jA4J4h/k76zVxbFKEaWwFKJccmO0voOQ1DbUW+5YNlI="
-        }
-      ]
-    },
-    {
-      "Route": "css/open-iconic/FONT-LICENSE.48tmkg660f",
-      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\css\\open-iconic\\FONT-LICENSE",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "4103"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "application/octet-stream"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"jA4J4h/k76zVxbFKEaWwFKJccmO0voOQ1DbUW+5YNlI=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Fri, 10 Jan 2025 19:55:46 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "48tmkg660f"
-        },
-        {
-          "Name": "label",
-          "Value": "css/open-iconic/FONT-LICENSE"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-jA4J4h/k76zVxbFKEaWwFKJccmO0voOQ1DbUW+5YNlI="
         }
       ]
     },
@@ -2404,6 +2448,88 @@
       ]
     },
     {
+      "Route": "css/open-iconic/FONT-LICENSE",
+      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\css\\open-iconic\\FONT-LICENSE",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "4103"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/octet-stream"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"jA4J4h/k76zVxbFKEaWwFKJccmO0voOQ1DbUW+5YNlI=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 10 Jan 2025 19:55:46 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-jA4J4h/k76zVxbFKEaWwFKJccmO0voOQ1DbUW+5YNlI="
+        }
+      ]
+    },
+    {
+      "Route": "css/open-iconic/FONT-LICENSE.48tmkg660f",
+      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\css\\open-iconic\\FONT-LICENSE",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "4103"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/octet-stream"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"jA4J4h/k76zVxbFKEaWwFKJccmO0voOQ1DbUW+5YNlI=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 10 Jan 2025 19:55:46 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "48tmkg660f"
+        },
+        {
+          "Name": "label",
+          "Value": "css/open-iconic/FONT-LICENSE"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-jA4J4h/k76zVxbFKEaWwFKJccmO0voOQ1DbUW+5YNlI="
+        }
+      ]
+    },
+    {
       "Route": "css/open-iconic/ICON-LICENSE",
       "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\css\\open-iconic\\ICON-LICENSE",
       "Selectors": [],
@@ -2785,12 +2911,12 @@
     },
     {
       "Route": "css/site.css",
-      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\cscg5mfhl2-lyf17l8fo4.gz",
+      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\cscg5mfhl2-q4d19k1nsb.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000500000000"
+          "Quality": "0.000500250125"
         }
       ],
       "ResponseHeaders": [
@@ -2800,15 +2926,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "1999"
+          "Value": "1998"
         },
         {
           "Name": "ETag",
-          "Value": "\"OWTtqixX28L8lQZETqWw1cYzMD4GRaZ2GBMMcj6YsYo=\""
+          "Value": "\"UMHUiDpLeW/Vp9tgTuFAQQH/1X0kvCDGqAaU0HtVs7w=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 08 Feb 2025 01:41:37 GMT"
+          "Value": "Fri, 14 Feb 2025 00:10:02 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -2828,13 +2954,13 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"893FSO638c+gYN+eIS/4Ccg2oOPaGHryX6bSUCjgsGk=\""
+          "Value": "W/\"ukH7mV4AvEM8IihugMJBC9ipo4izw5fvQJnd/8uMAU0=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-893FSO638c+gYN+eIS/4Ccg2oOPaGHryX6bSUCjgsGk="
+          "Value": "sha256-ukH7mV4AvEM8IihugMJBC9ipo4izw5fvQJnd/8uMAU0="
         }
       ]
     },
@@ -2849,7 +2975,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "4021"
+          "Value": "4023"
         },
         {
           "Name": "Content-Type",
@@ -2857,11 +2983,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"893FSO638c+gYN+eIS/4Ccg2oOPaGHryX6bSUCjgsGk=\""
+          "Value": "\"ukH7mV4AvEM8IihugMJBC9ipo4izw5fvQJnd/8uMAU0=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 08 Feb 2025 01:41:37 GMT"
+          "Value": "Fri, 14 Feb 2025 00:10:02 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -2871,13 +2997,13 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-893FSO638c+gYN+eIS/4Ccg2oOPaGHryX6bSUCjgsGk="
+          "Value": "sha256-ukH7mV4AvEM8IihugMJBC9ipo4izw5fvQJnd/8uMAU0="
         }
       ]
     },
     {
       "Route": "css/site.css.gz",
-      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\cscg5mfhl2-lyf17l8fo4.gz",
+      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\cscg5mfhl2-q4d19k1nsb.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -2886,7 +3012,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "1999"
+          "Value": "1998"
         },
         {
           "Name": "Content-Type",
@@ -2894,11 +3020,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"OWTtqixX28L8lQZETqWw1cYzMD4GRaZ2GBMMcj6YsYo=\""
+          "Value": "\"UMHUiDpLeW/Vp9tgTuFAQQH/1X0kvCDGqAaU0HtVs7w=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 08 Feb 2025 01:41:37 GMT"
+          "Value": "Fri, 14 Feb 2025 00:10:02 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -2916,18 +3042,18 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-OWTtqixX28L8lQZETqWw1cYzMD4GRaZ2GBMMcj6YsYo="
+          "Value": "sha256-UMHUiDpLeW/Vp9tgTuFAQQH/1X0kvCDGqAaU0HtVs7w="
         }
       ]
     },
     {
-      "Route": "css/site.lyf17l8fo4.css",
-      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\cscg5mfhl2-lyf17l8fo4.gz",
+      "Route": "css/site.q4d19k1nsb.css",
+      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\cscg5mfhl2-q4d19k1nsb.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000500000000"
+          "Quality": "0.000500250125"
         }
       ],
       "ResponseHeaders": [
@@ -2937,15 +3063,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "1999"
+          "Value": "1998"
         },
         {
           "Name": "ETag",
-          "Value": "\"OWTtqixX28L8lQZETqWw1cYzMD4GRaZ2GBMMcj6YsYo=\""
+          "Value": "\"UMHUiDpLeW/Vp9tgTuFAQQH/1X0kvCDGqAaU0HtVs7w=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 08 Feb 2025 01:41:37 GMT"
+          "Value": "Fri, 14 Feb 2025 00:10:02 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -2965,13 +3091,13 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"893FSO638c+gYN+eIS/4Ccg2oOPaGHryX6bSUCjgsGk=\""
+          "Value": "W/\"ukH7mV4AvEM8IihugMJBC9ipo4izw5fvQJnd/8uMAU0=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "lyf17l8fo4"
+          "Value": "q4d19k1nsb"
         },
         {
           "Name": "label",
@@ -2979,12 +3105,12 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-893FSO638c+gYN+eIS/4Ccg2oOPaGHryX6bSUCjgsGk="
+          "Value": "sha256-ukH7mV4AvEM8IihugMJBC9ipo4izw5fvQJnd/8uMAU0="
         }
       ]
     },
     {
-      "Route": "css/site.lyf17l8fo4.css",
+      "Route": "css/site.q4d19k1nsb.css",
       "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\css\\site.css",
       "Selectors": [],
       "ResponseHeaders": [
@@ -2994,7 +3120,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "4021"
+          "Value": "4023"
         },
         {
           "Name": "Content-Type",
@@ -3002,11 +3128,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"893FSO638c+gYN+eIS/4Ccg2oOPaGHryX6bSUCjgsGk=\""
+          "Value": "\"ukH7mV4AvEM8IihugMJBC9ipo4izw5fvQJnd/8uMAU0=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 08 Feb 2025 01:41:37 GMT"
+          "Value": "Fri, 14 Feb 2025 00:10:02 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3016,7 +3142,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "lyf17l8fo4"
+          "Value": "q4d19k1nsb"
         },
         {
           "Name": "label",
@@ -3024,13 +3150,13 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-893FSO638c+gYN+eIS/4Ccg2oOPaGHryX6bSUCjgsGk="
+          "Value": "sha256-ukH7mV4AvEM8IihugMJBC9ipo4izw5fvQJnd/8uMAU0="
         }
       ]
     },
     {
-      "Route": "css/site.lyf17l8fo4.css.gz",
-      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\cscg5mfhl2-lyf17l8fo4.gz",
+      "Route": "css/site.q4d19k1nsb.css.gz",
+      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\cscg5mfhl2-q4d19k1nsb.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -3039,7 +3165,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "1999"
+          "Value": "1998"
         },
         {
           "Name": "Content-Type",
@@ -3047,11 +3173,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"OWTtqixX28L8lQZETqWw1cYzMD4GRaZ2GBMMcj6YsYo=\""
+          "Value": "\"UMHUiDpLeW/Vp9tgTuFAQQH/1X0kvCDGqAaU0HtVs7w=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 08 Feb 2025 01:41:37 GMT"
+          "Value": "Fri, 14 Feb 2025 00:10:02 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3069,7 +3195,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "lyf17l8fo4"
+          "Value": "q4d19k1nsb"
         },
         {
           "Name": "label",
@@ -3077,7 +3203,7 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-OWTtqixX28L8lQZETqWw1cYzMD4GRaZ2GBMMcj6YsYo="
+          "Value": "sha256-UMHUiDpLeW/Vp9tgTuFAQQH/1X0kvCDGqAaU0HtVs7w="
         }
       ]
     },
@@ -3246,6 +3372,304 @@
       ]
     },
     {
+      "Route": "js/site.1cryxryapl.js",
+      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\cajx42di9q-1cryxryapl.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.014084507042"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "70"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"b9kO9PkTxJSl2cmtpm3FMLHEyr9sd043jpYOYhrU4jk=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 24 Feb 2025 22:46:00 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"4WtB80Dl8D8l+R10y0basC4jwfRYoEdBigKct907TQU=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "1cryxryapl"
+        },
+        {
+          "Name": "label",
+          "Value": "js/site.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-4WtB80Dl8D8l+R10y0basC4jwfRYoEdBigKct907TQU="
+        }
+      ]
+    },
+    {
+      "Route": "js/site.1cryxryapl.js",
+      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\js\\site.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "50"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"4WtB80Dl8D8l+R10y0basC4jwfRYoEdBigKct907TQU=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 24 Feb 2025 22:46:00 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "1cryxryapl"
+        },
+        {
+          "Name": "label",
+          "Value": "js/site.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-4WtB80Dl8D8l+R10y0basC4jwfRYoEdBigKct907TQU="
+        }
+      ]
+    },
+    {
+      "Route": "js/site.1cryxryapl.js.gz",
+      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\cajx42di9q-1cryxryapl.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "70"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"b9kO9PkTxJSl2cmtpm3FMLHEyr9sd043jpYOYhrU4jk=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 24 Feb 2025 22:46:00 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "1cryxryapl"
+        },
+        {
+          "Name": "label",
+          "Value": "js/site.js.gz"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-b9kO9PkTxJSl2cmtpm3FMLHEyr9sd043jpYOYhrU4jk="
+        }
+      ]
+    },
+    {
+      "Route": "js/site.js",
+      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\cajx42di9q-1cryxryapl.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.014084507042"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "70"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"b9kO9PkTxJSl2cmtpm3FMLHEyr9sd043jpYOYhrU4jk=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 24 Feb 2025 22:46:00 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"4WtB80Dl8D8l+R10y0basC4jwfRYoEdBigKct907TQU=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-4WtB80Dl8D8l+R10y0basC4jwfRYoEdBigKct907TQU="
+        }
+      ]
+    },
+    {
+      "Route": "js/site.js",
+      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\js\\site.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "50"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"4WtB80Dl8D8l+R10y0basC4jwfRYoEdBigKct907TQU=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 24 Feb 2025 22:46:00 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-4WtB80Dl8D8l+R10y0basC4jwfRYoEdBigKct907TQU="
+        }
+      ]
+    },
+    {
+      "Route": "js/site.js.gz",
+      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\cajx42di9q-1cryxryapl.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "70"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"b9kO9PkTxJSl2cmtpm3FMLHEyr9sd043jpYOYhrU4jk=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 24 Feb 2025 22:46:00 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-b9kO9PkTxJSl2cmtpm3FMLHEyr9sd043jpYOYhrU4jk="
+        }
+      ]
+    },
+    {
       "Route": "PAS.9r00ijez3v.bundle.scp.css",
       "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\3fni2ukzdl-9r00ijez3v.gz",
       "Selectors": [
@@ -3270,7 +3694,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 08 Feb 2025 18:46:33 GMT"
+          "Value": "Sat, 08 Mar 2025 01:14:35 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3331,7 +3755,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 08 Feb 2025 18:46:33 GMT"
+          "Value": "Sat, 08 Mar 2025 01:14:35 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3376,7 +3800,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 08 Feb 2025 18:46:33 GMT"
+          "Value": "Sat, 08 Mar 2025 01:14:35 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3431,7 +3855,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 08 Feb 2025 18:46:33 GMT"
+          "Value": "Sat, 08 Mar 2025 01:14:35 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3492,7 +3916,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 08 Feb 2025 18:46:33 GMT"
+          "Value": "Sat, 08 Mar 2025 01:14:35 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3537,7 +3961,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 08 Feb 2025 18:46:33 GMT"
+          "Value": "Sat, 08 Mar 2025 01:14:35 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3592,7 +4016,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 08 Feb 2025 18:46:33 GMT"
+          "Value": "Sat, 08 Mar 2025 01:14:35 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3645,7 +4069,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 08 Feb 2025 18:46:33 GMT"
+          "Value": "Sat, 08 Mar 2025 01:14:35 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3682,7 +4106,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 08 Feb 2025 18:46:33 GMT"
+          "Value": "Sat, 08 Mar 2025 01:14:35 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3729,7 +4153,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 08 Feb 2025 18:46:33 GMT"
+          "Value": "Sat, 08 Mar 2025 01:14:35 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3782,7 +4206,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 08 Feb 2025 18:46:33 GMT"
+          "Value": "Sat, 08 Mar 2025 01:14:35 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3819,7 +4243,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 08 Feb 2025 18:46:33 GMT"
+          "Value": "Sat, 08 Mar 2025 01:14:35 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3842,13 +4266,13 @@
       ]
     },
     {
-      "Route": "print_potemplate.fqg5imxh8k.html",
-      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\jgrswj0ogc-fqg5imxh8k.gz",
+      "Route": "print_invoicetemplate.g4crs5roui.html",
+      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\io2qtfdz5t-g4crs5roui.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.002132196162"
+          "Quality": "0.002415458937"
         }
       ],
       "ResponseHeaders": [
@@ -3858,15 +4282,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "468"
+          "Value": "413"
         },
         {
           "Name": "ETag",
-          "Value": "\"WLCFFfhtuZDfH6l3PSJ+uWin9lrAmGa0mW9SJuZv5fk=\""
+          "Value": "\"Gk5QVsBOJlZs2JXRmcByaKsCoMKE31lMvVrQtTSq53w=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sun, 19 Jan 2025 21:28:16 GMT"
+          "Value": "Wed, 05 Mar 2025 04:04:42 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3886,13 +4310,609 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"950WfgsEKt4kow3dPscAntquJ7UDrwaS1MWCV3EuYSk=\""
+          "Value": "W/\"4AmHVsFY4pmbSp3Kkd6L/3B/18maKuRCToPLNSnwIRA=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "fqg5imxh8k"
+          "Value": "g4crs5roui"
+        },
+        {
+          "Name": "label",
+          "Value": "print_invoicetemplate.html"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-4AmHVsFY4pmbSp3Kkd6L/3B/18maKuRCToPLNSnwIRA="
+        }
+      ]
+    },
+    {
+      "Route": "print_invoicetemplate.g4crs5roui.html",
+      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\print_invoicetemplate.html",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1102"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"4AmHVsFY4pmbSp3Kkd6L/3B/18maKuRCToPLNSnwIRA=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 05 Mar 2025 04:04:42 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "g4crs5roui"
+        },
+        {
+          "Name": "label",
+          "Value": "print_invoicetemplate.html"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-4AmHVsFY4pmbSp3Kkd6L/3B/18maKuRCToPLNSnwIRA="
+        }
+      ]
+    },
+    {
+      "Route": "print_invoicetemplate.g4crs5roui.html.gz",
+      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\io2qtfdz5t-g4crs5roui.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "413"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"Gk5QVsBOJlZs2JXRmcByaKsCoMKE31lMvVrQtTSq53w=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 05 Mar 2025 04:04:42 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "g4crs5roui"
+        },
+        {
+          "Name": "label",
+          "Value": "print_invoicetemplate.html.gz"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-Gk5QVsBOJlZs2JXRmcByaKsCoMKE31lMvVrQtTSq53w="
+        }
+      ]
+    },
+    {
+      "Route": "print_invoicetemplate.html",
+      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\io2qtfdz5t-g4crs5roui.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.002415458937"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "413"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"Gk5QVsBOJlZs2JXRmcByaKsCoMKE31lMvVrQtTSq53w=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 05 Mar 2025 04:04:42 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"4AmHVsFY4pmbSp3Kkd6L/3B/18maKuRCToPLNSnwIRA=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-4AmHVsFY4pmbSp3Kkd6L/3B/18maKuRCToPLNSnwIRA="
+        }
+      ]
+    },
+    {
+      "Route": "print_invoicetemplate.html",
+      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\print_invoicetemplate.html",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1102"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"4AmHVsFY4pmbSp3Kkd6L/3B/18maKuRCToPLNSnwIRA=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 05 Mar 2025 04:04:42 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-4AmHVsFY4pmbSp3Kkd6L/3B/18maKuRCToPLNSnwIRA="
+        }
+      ]
+    },
+    {
+      "Route": "print_invoicetemplate.html.gz",
+      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\io2qtfdz5t-g4crs5roui.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "413"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"Gk5QVsBOJlZs2JXRmcByaKsCoMKE31lMvVrQtTSq53w=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 05 Mar 2025 04:04:42 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-Gk5QVsBOJlZs2JXRmcByaKsCoMKE31lMvVrQtTSq53w="
+        }
+      ]
+    },
+    {
+      "Route": "print_loadmixtemplate.86klpnn6lc.html",
+      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\yzelpdz66n-86klpnn6lc.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.001404494382"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "711"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"gxl7h/PaKyK0WLtYfC9cqKzUl7iS0GHdWTXaY5plKVw=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 14 Feb 2025 00:10:02 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"YL75LCf+Zw5yTg5dxEIg4TnnbbO/kZJKH6gGcq33X0A=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "86klpnn6lc"
+        },
+        {
+          "Name": "label",
+          "Value": "print_loadmixtemplate.html"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-YL75LCf+Zw5yTg5dxEIg4TnnbbO/kZJKH6gGcq33X0A="
+        }
+      ]
+    },
+    {
+      "Route": "print_loadmixtemplate.86klpnn6lc.html",
+      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\print_loadmixtemplate.html",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "2405"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"YL75LCf+Zw5yTg5dxEIg4TnnbbO/kZJKH6gGcq33X0A=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 14 Feb 2025 00:10:02 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "86klpnn6lc"
+        },
+        {
+          "Name": "label",
+          "Value": "print_loadmixtemplate.html"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-YL75LCf+Zw5yTg5dxEIg4TnnbbO/kZJKH6gGcq33X0A="
+        }
+      ]
+    },
+    {
+      "Route": "print_loadmixtemplate.86klpnn6lc.html.gz",
+      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\yzelpdz66n-86klpnn6lc.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "711"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"gxl7h/PaKyK0WLtYfC9cqKzUl7iS0GHdWTXaY5plKVw=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 14 Feb 2025 00:10:02 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "86klpnn6lc"
+        },
+        {
+          "Name": "label",
+          "Value": "print_loadmixtemplate.html.gz"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-gxl7h/PaKyK0WLtYfC9cqKzUl7iS0GHdWTXaY5plKVw="
+        }
+      ]
+    },
+    {
+      "Route": "print_loadmixtemplate.html",
+      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\yzelpdz66n-86klpnn6lc.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.001404494382"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "711"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"gxl7h/PaKyK0WLtYfC9cqKzUl7iS0GHdWTXaY5plKVw=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 14 Feb 2025 00:10:02 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"YL75LCf+Zw5yTg5dxEIg4TnnbbO/kZJKH6gGcq33X0A=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-YL75LCf+Zw5yTg5dxEIg4TnnbbO/kZJKH6gGcq33X0A="
+        }
+      ]
+    },
+    {
+      "Route": "print_loadmixtemplate.html",
+      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\print_loadmixtemplate.html",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "2405"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"YL75LCf+Zw5yTg5dxEIg4TnnbbO/kZJKH6gGcq33X0A=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 14 Feb 2025 00:10:02 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-YL75LCf+Zw5yTg5dxEIg4TnnbbO/kZJKH6gGcq33X0A="
+        }
+      ]
+    },
+    {
+      "Route": "print_loadmixtemplate.html.gz",
+      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\yzelpdz66n-86klpnn6lc.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "711"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"gxl7h/PaKyK0WLtYfC9cqKzUl7iS0GHdWTXaY5plKVw=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 14 Feb 2025 00:10:02 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-gxl7h/PaKyK0WLtYfC9cqKzUl7iS0GHdWTXaY5plKVw="
+        }
+      ]
+    },
+    {
+      "Route": "print_potemplate.1mhk6g3nwn.html",
+      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\jgrswj0ogc-1mhk6g3nwn.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.001079913607"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "925"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"GMm0YFOwGlQRU9ROuYflYxkYXKHJBeyZtnZCB7Tyqxk=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 04 Mar 2025 01:42:01 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"KYzjRhoTOttf4TIN5DBS1/7fog6zo2xArtXhVLd6q5M=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "1mhk6g3nwn"
         },
         {
           "Name": "label",
@@ -3900,12 +4920,12 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-950WfgsEKt4kow3dPscAntquJ7UDrwaS1MWCV3EuYSk="
+          "Value": "sha256-KYzjRhoTOttf4TIN5DBS1/7fog6zo2xArtXhVLd6q5M="
         }
       ]
     },
     {
-      "Route": "print_potemplate.fqg5imxh8k.html",
+      "Route": "print_potemplate.1mhk6g3nwn.html",
       "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\print_potemplate.html",
       "Selectors": [],
       "ResponseHeaders": [
@@ -3915,7 +4935,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "1277"
+          "Value": "2874"
         },
         {
           "Name": "Content-Type",
@@ -3923,11 +4943,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"950WfgsEKt4kow3dPscAntquJ7UDrwaS1MWCV3EuYSk=\""
+          "Value": "\"KYzjRhoTOttf4TIN5DBS1/7fog6zo2xArtXhVLd6q5M=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sun, 19 Jan 2025 21:28:16 GMT"
+          "Value": "Tue, 04 Mar 2025 01:42:01 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3937,7 +4957,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "fqg5imxh8k"
+          "Value": "1mhk6g3nwn"
         },
         {
           "Name": "label",
@@ -3945,13 +4965,13 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-950WfgsEKt4kow3dPscAntquJ7UDrwaS1MWCV3EuYSk="
+          "Value": "sha256-KYzjRhoTOttf4TIN5DBS1/7fog6zo2xArtXhVLd6q5M="
         }
       ]
     },
     {
-      "Route": "print_potemplate.fqg5imxh8k.html.gz",
-      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\jgrswj0ogc-fqg5imxh8k.gz",
+      "Route": "print_potemplate.1mhk6g3nwn.html.gz",
+      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\jgrswj0ogc-1mhk6g3nwn.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -3960,7 +4980,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "468"
+          "Value": "925"
         },
         {
           "Name": "Content-Type",
@@ -3968,11 +4988,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"WLCFFfhtuZDfH6l3PSJ+uWin9lrAmGa0mW9SJuZv5fk=\""
+          "Value": "\"GMm0YFOwGlQRU9ROuYflYxkYXKHJBeyZtnZCB7Tyqxk=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sun, 19 Jan 2025 21:28:16 GMT"
+          "Value": "Tue, 04 Mar 2025 01:42:01 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3990,7 +5010,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "fqg5imxh8k"
+          "Value": "1mhk6g3nwn"
         },
         {
           "Name": "label",
@@ -3998,18 +5018,18 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-WLCFFfhtuZDfH6l3PSJ+uWin9lrAmGa0mW9SJuZv5fk="
+          "Value": "sha256-GMm0YFOwGlQRU9ROuYflYxkYXKHJBeyZtnZCB7Tyqxk="
         }
       ]
     },
     {
       "Route": "print_potemplate.html",
-      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\jgrswj0ogc-fqg5imxh8k.gz",
+      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\jgrswj0ogc-1mhk6g3nwn.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.002132196162"
+          "Quality": "0.001079913607"
         }
       ],
       "ResponseHeaders": [
@@ -4019,15 +5039,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "468"
+          "Value": "925"
         },
         {
           "Name": "ETag",
-          "Value": "\"WLCFFfhtuZDfH6l3PSJ+uWin9lrAmGa0mW9SJuZv5fk=\""
+          "Value": "\"GMm0YFOwGlQRU9ROuYflYxkYXKHJBeyZtnZCB7Tyqxk=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sun, 19 Jan 2025 21:28:16 GMT"
+          "Value": "Tue, 04 Mar 2025 01:42:01 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4047,13 +5067,13 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"950WfgsEKt4kow3dPscAntquJ7UDrwaS1MWCV3EuYSk=\""
+          "Value": "W/\"KYzjRhoTOttf4TIN5DBS1/7fog6zo2xArtXhVLd6q5M=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-950WfgsEKt4kow3dPscAntquJ7UDrwaS1MWCV3EuYSk="
+          "Value": "sha256-KYzjRhoTOttf4TIN5DBS1/7fog6zo2xArtXhVLd6q5M="
         }
       ]
     },
@@ -4068,7 +5088,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "1277"
+          "Value": "2874"
         },
         {
           "Name": "Content-Type",
@@ -4076,11 +5096,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"950WfgsEKt4kow3dPscAntquJ7UDrwaS1MWCV3EuYSk=\""
+          "Value": "\"KYzjRhoTOttf4TIN5DBS1/7fog6zo2xArtXhVLd6q5M=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sun, 19 Jan 2025 21:28:16 GMT"
+          "Value": "Tue, 04 Mar 2025 01:42:01 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4090,13 +5110,13 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-950WfgsEKt4kow3dPscAntquJ7UDrwaS1MWCV3EuYSk="
+          "Value": "sha256-KYzjRhoTOttf4TIN5DBS1/7fog6zo2xArtXhVLd6q5M="
         }
       ]
     },
     {
       "Route": "print_potemplate.html.gz",
-      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\jgrswj0ogc-fqg5imxh8k.gz",
+      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\jgrswj0ogc-1mhk6g3nwn.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -4105,7 +5125,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "468"
+          "Value": "925"
         },
         {
           "Name": "Content-Type",
@@ -4113,11 +5133,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"WLCFFfhtuZDfH6l3PSJ+uWin9lrAmGa0mW9SJuZv5fk=\""
+          "Value": "\"GMm0YFOwGlQRU9ROuYflYxkYXKHJBeyZtnZCB7Tyqxk=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sun, 19 Jan 2025 21:28:16 GMT"
+          "Value": "Tue, 04 Mar 2025 01:42:01 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4135,7 +5155,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-WLCFFfhtuZDfH6l3PSJ+uWin9lrAmGa0mW9SJuZv5fk="
+          "Value": "sha256-GMm0YFOwGlQRU9ROuYflYxkYXKHJBeyZtnZCB7Tyqxk="
         }
       ]
     }

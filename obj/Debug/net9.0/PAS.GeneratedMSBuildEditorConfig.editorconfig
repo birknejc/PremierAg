@@ -32,6 +32,10 @@ build_property.EnableCodeStyleSeverity =
 build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/birkn/Documents/Premier Ag Solution\, L.L.C/PAS/Pages/ConversionPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udmVyc2lvblBhZ2UucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/birkn/Documents/Premier Ag Solution\, L.L.C/PAS/Pages/Counter.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ291bnRlci5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
@@ -54,6 +58,14 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/birkn/Documents/Premier Ag Solution\, L.L.C/PAS/Pages/InventoryPage.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW52ZW50b3J5UGFnZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/birkn/Documents/Premier Ag Solution\, L.L.C/PAS/Pages/InvoicePage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW52b2ljZVBhZ2UucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/birkn/Documents/Premier Ag Solution\, L.L.C/PAS/Pages/LoadMixPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTG9hZE1peFBhZ2UucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/birkn/Documents/Premier Ag Solution\, L.L.C/PAS/Pages/PurchaseOrderPage.razor]

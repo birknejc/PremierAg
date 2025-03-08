@@ -11,31 +11,78 @@
 
             .print-container {
                 width: 100%;
-                max-width: 600px;
+                max-width: 750px; /* Adjust the max-width as needed */
                 margin: 0 auto;
                 padding: 20px;
-                border: 1px solid #000;
-                background: #fff;
+                background: #fff; /* Removed border */
+                overflow: hidden; /* Ensure content doesn't overflow */
             }
 
             .no-print {
                 display: none;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                table-layout: fixed; /* Ensure columns have fixed width */
+            }
+
+            th, td {
+                border: 1px solid #000;
+                padding: 8px;
+                text-align: left;
+                word-wrap: break-word; /* Ensure content wraps within the cell */
+            }
+
+            th {
+                background-color: #f2f2f2;
+            }
+
+            .column-item {
+                width: 40%; /* Increase width of Item column */
+            }
+
+            .column-uom,
+            .column-price,
+            .column-ordered,
+            .column-received,
+            .column-total {
+                width: 12%; /* Decrease width of other columns */
             }
         }
     </style>
 </head>
 <body>
     <div class="print-container">
+        <div style="display: flex; align-items: center; margin-bottom: 20px;">
+            <img src="images/logo.jpg" alt="Logo" style="width: 100px; height: auto; margin-right: 20px;">
+            <h1 style="margin: 0;">Purchase Order</h1>
+        </div>
         <h3>Purchase Order Details</h3>
         <p><strong>P.O. Number:</strong> {{PONumber}}</p>
         <p><strong>Order Date:</strong> {{OrderDate}}</p>
         <p><strong>Vendor Name:</strong> {{BusinessName}}</p>
-        <p><strong>Chemical Name:</strong> {{ChemicalName}}</p>
-        <p><strong>Price:</strong> {{Price}}</p>
-        <p><strong>Quantity Ordered:</strong> {{QuantityOrdered}}</p>
         <p><strong>Payment Due Date:</strong> {{PaymentDueDate}}</p>
         <p><strong>Delivery/Pick Up Date:</strong> {{DeliveryPickUpDate}}</p>
         <p><strong>Pick Up Location:</strong> {{PickUpLocation}}</p>
+
+        <h4>Items</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th class="column-item">Item</th>
+                    <th class="column-uom">UOM</th>
+                    <th class="column-price">Price</th>
+                    <th class="column-ordered">Ordered</th>
+                    <th class="column-received">Received</th> <!-- Added Received field -->
+                    <th class="column-total">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{ItemsRows}}
+            </tbody>
+        </table>
     </div>
 </body>
 </html>

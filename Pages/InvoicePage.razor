@@ -1,0 +1,348 @@
+﻿@page "/invoicepage"
+@using PAS.Models
+@using PAS.Services
+@inject InvoiceService InvoiceService
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+
+<h3>Invoice Management</h3>
+
+<button class="btn btn-primary" style="margin-right: 10px;" @onclick="GenerateInvoices">Generate Invoices</button>
+<button class="btn btn-secondary" style="margin-right: 10px;" @onclick="ToggleDisplayAllInvoices">@((isDisplayingAllInvoices ? "Hide All Invoices" : "Display All Invoices"))</button>
+
+@if (!string.IsNullOrEmpty(generateMessage))
+{
+    <div class="alert alert-info">@generateMessage</div>
+}
+
+@if (!invoicesWithQuote.Any() && !invoicesWithoutQuote.Any())
+{
+    <p>No invoices found.</p>
+}
+else
+{
+    <!-- Buttons for Printing -->
+    <button class="btn btn-primary" style="margin-right: 10px;" @onclick="PrintAllInvoices">Print All</button>
+    <button class="btn btn-primary" style="margin-right: 10px;" @onclick="ReprintSelectedInvoices">Reprint Selected Invoices</button>
+
+    <!-- Table for Invoices with Quotes -->
+    <h4>Invoices with Quotes</h4>
+    @if (invoicesWithQuote.Any())
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Select</th>
+                    <th>Customer</th>
+                    <th>Quote ID</th>
+                    <th>Chemical Name</th>
+                    <th>Unit of Measure</th>
+                    <th>Price</th>
+                    <th>Rate Per Acre</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var invoice in invoicesWithQuote)
+                {
+                    <tr>
+                        <td>
+                            <input type="checkbox" @bind="invoice.IsGroupSelected" />
+                        </td>
+                        <td>@invoice.InvoiceCustomer</td>
+                        <td>@invoice.QuoteId</td>
+                        <td>@invoice.InvoiceChemicalName</td>
+                        <td>@invoice.InvoiceUnitOfMeasure</td>
+                        <td>@invoice.InvoicePrice</td>
+                        <td>@invoice.InvoiceRatePerAcre</td>
+                        <td>
+                            <button class="btn btn-danger" @onclick="() => DeleteInvoiceWithQuote(invoice.Id)">Delete</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No invoices with quotes found.</p>
+    }
+
+    <!-- Table for Invoices without Quotes -->
+    <h4>Invoices without Quotes</h4>
+    @if (invoicesWithoutQuote.Any())
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Select</th>
+                    <th>Customer</th>
+                    <th>Chemical Name</th>
+                    <th>Unit of Measure</th>
+                    <th>Price</th>
+                    <th>Rate Per Acre</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var invoice in invoicesWithoutQuote)
+                {
+                    <tr>
+                        <td>
+                            <input type="checkbox" @bind="invoice.IsGroupSelected" />
+                        </td>
+                        <td>@invoice.InvoiceCustomer</td>
+                        <td>@invoice.InvoiceChemicalName</td>
+                        <td>@invoice.InvoiceUnitOfMeasure</td>
+                        <td>@invoice.InvoicePrice</td>
+                        <td>@invoice.InvoiceRatePerAcre</td>
+                        <td>
+                            <button class="btn btn-danger" @onclick="() => DeleteInvoiceWithoutQuote(invoice.Id)">Delete</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No invoices without quotes found.</p>
+    }
+}
+
+@code {
+    private List<Invoice> invoicesWithQuote = new();
+    private List<NoQuoteInvoice> invoicesWithoutQuote = new();
+    private bool isDisplayingAllInvoices = false;
+    private string generateMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadInvoices();
+    }
+
+    private async Task LoadInvoices()
+    {
+        invoicesWithQuote.Clear();
+        invoicesWithoutQuote.Clear();
+
+        // Retrieve invoices with and without quotes
+        var (withQuote, withoutQuote) = await InvoiceService.GenerateInvoicesAsync();
+
+        invoicesWithQuote.AddRange(withQuote);
+        invoicesWithoutQuote.AddRange(withoutQuote);
+    }
+
+    private async Task GenerateInvoices()
+    {
+        generateMessage = string.Empty;
+
+        // Retrieve existing invoices
+        var existingInvoices = await InvoiceService.GetAllInvoicesAsync();
+        var (newWithQuote, newWithoutQuote) = await InvoiceService.GenerateInvoicesAsync();
+
+        // Filter new invoices with quotes
+        var invoicesToAddWithQuote = newWithQuote.Where(newInvoice =>
+            !existingInvoices.Any(existingInvoice =>
+                existingInvoice.InvoiceCustomer == newInvoice.InvoiceCustomer &&
+                existingInvoice.InvoiceChemicalName == newInvoice.InvoiceChemicalName &&
+                existingInvoice.InvoiceRatePerAcre == newInvoice.InvoiceRatePerAcre &&
+                existingInvoice.InvoiceUnitOfMeasure == newInvoice.InvoiceUnitOfMeasure &&
+                existingInvoice.InvoicePrice == newInvoice.InvoicePrice
+            )).ToList();
+
+        // Filter new invoices without quotes
+        var invoicesToAddWithoutQuote = newWithoutQuote.Where(newInvoice =>
+            !existingInvoices.Any(existingInvoice =>
+                existingInvoice.InvoiceCustomer == newInvoice.InvoiceCustomer &&
+                existingInvoice.InvoiceChemicalName == newInvoice.InvoiceChemicalName &&
+                existingInvoice.InvoiceRatePerAcre == newInvoice.InvoiceRatePerAcre &&
+                existingInvoice.InvoiceUnitOfMeasure == newInvoice.InvoiceUnitOfMeasure &&
+                existingInvoice.InvoicePrice == newInvoice.InvoicePrice
+            )).ToList();
+
+        if (!invoicesToAddWithQuote.Any() && !invoicesToAddWithoutQuote.Any())
+        {
+            generateMessage = "No new invoices to generate.";
+            return;
+        }
+
+        // Add invoices with quotes
+        foreach (var invoice in invoicesToAddWithQuote)
+        {
+            await InvoiceService.AddInvoiceAsync(invoice);
+        }
+
+        // Add invoices without quotes
+        foreach (var invoice in invoicesToAddWithoutQuote)
+        {
+            await InvoiceService.AddNoQuoteInvoiceAsync(invoice);
+        }
+
+        generateMessage = $"{invoicesToAddWithQuote.Count + invoicesToAddWithoutQuote.Count} new invoices generated successfully.";
+        await LoadInvoices();
+    }
+
+    private async Task DeleteInvoiceWithQuote(int invoiceId)
+    {
+        await InvoiceService.DeleteInvoiceAsync(invoiceId);
+        invoicesWithQuote.RemoveAll(i => i.Id == invoiceId);
+    }
+
+    private async Task DeleteInvoiceWithoutQuote(int invoiceId)
+    {
+        await InvoiceService.DeleteNoQuoteInvoiceAsync(invoiceId);
+        invoicesWithoutQuote.RemoveAll(i => i.Id == invoiceId);
+    }
+
+    private async Task ToggleDisplayAllInvoices()
+    {
+        isDisplayingAllInvoices = !isDisplayingAllInvoices;
+
+        if (isDisplayingAllInvoices)
+        {
+            await LoadInvoices();
+        }
+        else
+        {
+            invoicesWithQuote.Clear();
+            invoicesWithoutQuote.Clear();
+        }
+    }
+
+    private async Task PrintAllInvoices()
+    {
+        var allUnprintedInvoicesWithQuote = invoicesWithQuote.Where(i => !i.IsPrinted).ToList();
+        var allUnprintedInvoicesWithoutQuote = invoicesWithoutQuote.Where(i => !i.IsPrinted).ToList();
+
+        if (!allUnprintedInvoicesWithQuote.Any() && !allUnprintedInvoicesWithoutQuote.Any())
+        {
+            generateMessage = "No unprinted invoices to print.";
+            return;
+        }
+
+        var allContent = new System.Text.StringBuilder();
+
+        if (allUnprintedInvoicesWithQuote.Any())
+        {
+            BuildPrintContent(allUnprintedInvoicesWithQuote.GroupBy(i => i.CustomerId), allContent);
+        }
+
+        if (allUnprintedInvoicesWithoutQuote.Any())
+        {
+            BuildPrintContent(allUnprintedInvoicesWithoutQuote.GroupBy(i => i.CustomerId), allContent);
+        }
+
+        // Open the print window
+        var finalContent = await GetFinalPrintContent(allContent.ToString());
+        await JSRuntime.InvokeVoidAsync("openPrintWindow", finalContent);
+
+        // Mark all invoices as printed
+        var printedInvoiceIds = allUnprintedInvoicesWithQuote.Select(i => i.Id).ToList();
+        var printedNoQuoteInvoiceIds = allUnprintedInvoicesWithoutQuote.Select(i => i.Id).ToList();
+
+        await InvoiceService.MarkInvoicesAsPrintedAsync(printedInvoiceIds);
+        await InvoiceService.MarkNoQuoteInvoicesAsPrintedAsync(printedNoQuoteInvoiceIds);
+    }
+
+    private async Task ReprintSelectedInvoices()
+    {
+        var selectedGroupsWithQuote = invoicesWithQuote.GroupBy(i => i.CustomerId)
+                                                       .Where(group => group.First().IsGroupSelected)
+                                                       .ToList();
+
+        var selectedGroupsWithoutQuote = invoicesWithoutQuote.GroupBy(i => i.CustomerId)
+                                                             .Where(group => group.First().IsGroupSelected)
+                                                             .ToList();
+
+        if (!selectedGroupsWithQuote.Any() && !selectedGroupsWithoutQuote.Any())
+        {
+            generateMessage = "No invoice groups selected for reprinting.";
+            return;
+        }
+
+        var allContent = new System.Text.StringBuilder();
+
+        if (selectedGroupsWithQuote.Any())
+        {
+            BuildPrintContent(selectedGroupsWithQuote, allContent);
+        }
+
+        if (selectedGroupsWithoutQuote.Any())
+        {
+            BuildPrintContent(selectedGroupsWithoutQuote, allContent);
+        }
+
+        // Open the print window
+        var finalContent = await GetFinalPrintContent(allContent.ToString());
+        await JSRuntime.InvokeVoidAsync("openPrintWindow", finalContent);
+    }
+
+    private void BuildPrintContent<T>(IEnumerable<IGrouping<int, T>> groupedInvoices, System.Text.StringBuilder allContent) where T : class
+    {
+        foreach (var group in groupedInvoices)
+        {
+            var customerName = (group.First() as Invoice)?.InvoiceCustomer ?? (group.First() as NoQuoteInvoice)?.InvoiceCustomer;
+            var invoiceDate = DateTime.Now.ToString("MM/dd/yyyy");
+            var totalAmount = group.Sum(i =>
+            {
+                if (i is Invoice invoiceWithQuote)
+                {
+                    return invoiceWithQuote.InvoiceRatePerAcre * invoiceWithQuote.InvoicePrice;
+                }
+                if (i is NoQuoteInvoice invoiceWithoutQuote)
+                {
+                    return invoiceWithoutQuote.InvoiceRatePerAcre * invoiceWithoutQuote.InvoicePrice;
+                }
+                return 0;
+            }).ToString("F2");
+
+            var itemsHtml = string.Join("", group.Select(i =>
+            {
+                if (i is Invoice invoiceWithQuote)
+                {
+                    var amount = (invoiceWithQuote.InvoiceRatePerAcre * invoiceWithQuote.InvoicePrice).ToString("F2");
+                    return $"<tr><td>{invoiceWithQuote.InvoiceRatePerAcre}</td><td>{invoiceWithQuote.UnitOfMeasure}</td><td>{invoiceWithQuote.InvoiceChemicalName}</td><td>{invoiceWithQuote.InvoicePrice}</td><td>{amount}</td></tr>";
+                }
+                if (i is NoQuoteInvoice invoiceWithoutQuote)
+                {
+                    var amount = (invoiceWithoutQuote.InvoiceRatePerAcre * invoiceWithoutQuote.InvoicePrice).ToString("F2");
+                    return $"<tr><td>{invoiceWithoutQuote.InvoiceRatePerAcre}</td><td>{invoiceWithoutQuote.UnitOfMeasure}</td><td>{invoiceWithoutQuote.InvoiceChemicalName}</td><td>{invoiceWithoutQuote.InvoicePrice}</td><td>{amount}</td></tr>";
+                }
+                return string.Empty;
+            }));
+
+            var customerContent = $@"
+            <div class='print-container'>
+                <h1>Invoice for {customerName}</h1>
+                <p><strong>Invoice Date:</strong> {invoiceDate}</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Qty</th>
+                            <th>Unit</th>
+                            <th>Description</th>
+                            <th>Price/Unit</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                {itemsHtml}
+                    </tbody>
+                </table>
+                <p><strong>Total Amount:</strong> {totalAmount}</p>
+            </div>";
+
+            allContent.Append(customerContent);
+
+            allContent.Append("<div class='page-break'></div>");
+        }
+    }
+
+    private async Task<string> GetFinalPrintContent(string allContent)
+    {
+        var templatePath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "print_invoicetemplate.html");
+        var templateContent = await System.IO.File.ReadAllTextAsync(templatePath);
+        return templateContent.Replace("{{InvoicesContent}}", allContent);
+    }
+}

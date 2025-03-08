@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Load Sheet</title>
+    <style>
+        /* Add your print-specific styles here */
+        body, html {
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .print-section {
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        table {
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="print-section">
+        <div style="display: flex; align-items: center; margin-bottom: 20px;">
+            <img src="images/logo.jpg" alt="Logo" style="width: 100px; height: auto; margin-right: 20px;">
+            <h1 style="margin: 0;">LOAD SHEET</h1>
+        </div>
+        <div style="margin-bottom: 20px;">
+            <div><strong>Load #:</strong> {{LoadId}}</div>
+            <div><strong>Date:</strong> {{LoadDate}}</div>
+            <div><strong>Time:</strong> {{LoadTime}}</div>
+            <div><strong>Crop:</strong> {{Crop}}</div>
+            <div><strong>Total Mixed Acres:</strong> {{TotalAcres}}</div>
+            <div><strong>Total Gallons:</strong> {{TotalGallons}}</div>
+            <div><strong>Rate/Acre:</strong> {{RatePerAcre}}</div>
+        </div>
+        <h4>Load Mix</h4>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Rate/Acre</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{LoadMixRows}}
+            </tbody>
+        </table>
+        <h4>Fields Applied To</h4>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Customer/Field</th>
+                    <th>Average Rate</th>
+                    <th>Total Gallons</th>
+                    <th>Acres</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{FieldsAppliedToRows}}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

@@ -5,6 +5,7 @@
 @inject NavigationManager NavigationManager
 
 <h3>Customers</h3>
+<button class="btn btn-primary" @onclick="ShowAddCustomerModal">Add Customer</button>
 
 @if (customers != null && customers.Any())
 {
@@ -44,15 +45,13 @@ else
     <p>No customers found.</p>
 }
 
-<button class="btn btn-primary" @onclick="ShowAddCustomerModal">Add Customer</button>
-
 @if (showAddModal)
 {
     <div class="modal" style="display:block;">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add Customer</h5>
+                    <h5 class="modal-title">@((isEditMode ? "Edit Customer" : "Add Customer"))</h5>
                     <button type="button" class="btn-close" @onclick="HideModal"></button>
                 </div>
                 <div class="modal-body">
@@ -103,7 +102,7 @@ else
                             <label>Email</label>
                             <InputText class="form-control" @bind-Value="newCustomer.CustomerEmail" />
                         </div>
-                        <button type="submit" class="btn btn-success">Add</button>
+                        <button type="submit" class="btn btn-success">@((isEditMode ? "Update" : "Add"))</button>
                     </EditForm>
                 </div>
             </div>
@@ -115,6 +114,7 @@ else
     private List<Customer> customers = new();
     private Customer newCustomer = new();
     private bool showAddModal = false;
+    private bool isEditMode = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -125,24 +125,29 @@ else
     {
         newCustomer = new Customer();
         showAddModal = true;
+        isEditMode = false;
     }
 
     private void HideModal()
     {
         showAddModal = false;
+        isEditMode = false;
     }
 
     private async Task HandleAddCustomer()
     {
-        await CustomerService.AddCustomerAsync(newCustomer);
+        if (isEditMode)
+        {
+            await CustomerService.UpdateCustomerAsync(newCustomer); // Update existing customer
+        }
+        else
+        {
+            await CustomerService.AddCustomerAsync(newCustomer); // Add new customer
+        }
+
         customers = await CustomerService.GetAllCustomersAsync();
         showAddModal = false;
-    }
-
-    private async Task DeleteCustomer(int id)
-    {
-        await CustomerService.DeleteCustomerAsync(id);
-        customers = await CustomerService.GetAllCustomersAsync();
+        isEditMode = false;
     }
 
     private async Task EditCustomer(int id)
@@ -152,12 +157,18 @@ else
         {
             newCustomer = customer;
             showAddModal = true;
+            isEditMode = true; // Set edit mode flag
         }
+    }
+
+    private async Task DeleteCustomer(int id)
+    {
+        await CustomerService.DeleteCustomerAsync(id);
+        customers = await CustomerService.GetAllCustomersAsync();
     }
 
     private void NavigateToFieldPage(int customerId)
     {
-        Console.WriteLine($"Navigating to: /fieldpage{customerId}");
         NavigationManager.NavigateTo($"/fieldpage{customerId}");
     }
 }

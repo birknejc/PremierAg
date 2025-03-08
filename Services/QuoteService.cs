@@ -2,6 +2,7 @@
 using PAS.Models;
 using PAS.DBContext;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Serilog;
 
@@ -66,6 +67,9 @@ namespace PAS.Services
                 Log.Information($"QuoteInventory - Id: {qi.Id}, InventoryId: {qi.InventoryId}, RowVersion: {BitConverter.ToString(qi.RowVersion)}");
             }
 
+            // Calculate QuoteTotal
+            quote.QuoteTotal = quote.QuoteInventories.Sum(qi => qi.QuotePrice);
+
             quote.QuoteDate = quote.QuoteDate.ToUniversalTime(); // Ensure date consistency
             Log.Information("Before saving Quote");
 
@@ -77,8 +81,6 @@ namespace PAS.Services
 
             Log.Information("Successfully saved Quote with initialized RowVersion values");
         }
-
-
 
         // Updates an existing Quote in the database
         public async Task UpdateQuoteAsync(Quote quote)
@@ -158,6 +160,9 @@ namespace PAS.Services
                     }
                 }
 
+                // Calculate and set QuoteTotal
+                existingQuote.QuoteTotal = existingQuote.QuoteInventories.Sum(qi => qi.QuotePrice);
+
                 // Save changes with concurrency handling
                 bool saveFailed;
                 do
@@ -193,7 +198,6 @@ namespace PAS.Services
             }
         }
 
-
         // Deletes a Quote from the database by its ID
         public async Task DeleteQuoteAsync(int id)
         {
@@ -215,6 +219,20 @@ namespace PAS.Services
         public async Task<List<Inventory>> GetInventoriesAsync()
         {
             return await _context.Inventories.ToListAsync();
+        }
+
+        // Fetches a list of fields based on the CustomerId
+        public async Task<List<Field>> GetFieldsByCustomerIdAsync(int customerId)
+        {
+            return await _context.Fields
+                                 .Where(f => f.CustomerId == customerId)
+                                 .ToListAsync();
+        }
+
+        // Fetches a list of all Fields for the lookup in the QuotePage
+        public async Task<List<Field>> GetFieldsAsync()
+        {
+            return await _context.Fields.ToListAsync();
         }
     }
 }

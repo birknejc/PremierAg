@@ -1,13 +1,15 @@
 ﻿@page "/inventorypage"
+@page "/inventory/edit/{inventoryId:int}"
 @using PAS.Models
 @using PAS.Services
-@inject InventoryService InventoryService;
-@inject NavigationManager NavigationManager;
-
+@using Microsoft.AspNetCore.WebUtilities
+@inject InventoryService InventoryService
+@inject ConversionService ConversionService
+@inject NavigationManager NavigationManager
 
 <h3>Inventory</h3>
+<button class="btn btn-primary" @onclick="ShowAddInventoryModal">Add Inventory</button>
 
-<!-- Display Inventory List -->
 @if (inventoryList != null && inventoryList.Any())
 {
     <table class="table">
@@ -15,20 +17,28 @@
             <tr>
                 <th>Chemical Name</th>
                 <th>EPA #</th>
-                <th>Unit of Measure</th>
-                <th>Price</th>
+                <th>Unit of Measure (Purchased)</th>
+                <th>Price (Purchased)</th>
+                <th>Unit of Measure (Sold)</th>
+                <th>Quantity On Hand</th>
+                <th>Weighted Average Price</th>
+                <th>Quantity Quoted</th>
                 <th>Vendor</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var inventory in inventoryList)
+            @foreach (var inventory in inventoryList.OrderBy(inventory => inventory.ChemicalName))
             {
                 <tr>
                     <td>@inventory.ChemicalName</td>
                     <td>@inventory.EPA</td>
-                    <td>@inventory.UnitOfMeasure</td>
+                    <td>@inventory.UnitOfMeasurePurchase</td>
                     <td>@inventory.Price</td>
+                    <td>@inventory.UnitOfMeasure</td>
+                    <td>@inventory.QuantityOnHand</td>
+                    <td>@inventory.WeightedAveragePrice</td>
+                    <td>@inventory.QuantityQuoted</td>
                     <td>@inventory.Vendor.BusinessName</td>
                     <td>
                         <button class="btn btn-warning" @onclick="() => EditInventory(inventory.Id)">Edit</button>
@@ -44,17 +54,13 @@ else
     <p>No inventory items found.</p>
 }
 
-<!-- Add Inventory Modal -->
-<button class="btn btn-primary" @onclick="ShowAddInventoryModal">Add Inventory</button>
-
-<!-- Inventory Modal Form -->
 @if (showAddModal)
 {
     <div class="modal" style="display:block;">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add Inventory</h5>
+                    <h5 class="modal-title">@((isEditMode ? "Edit Inventory" : "Add Inventory"))</h5>
                     <button type="button" class="btn-close" @onclick="HideModal"></button>
                 </div>
                 <div class="modal-body">
@@ -73,13 +79,30 @@ else
                         </div>
 
                         <div class="form-group">
-                            <label for="unitOfMeasure">Unit of Measure</label>
-                            <InputText id="unitOfMeasure" class="form-control" @bind-Value="newInventory.UnitOfMeasure" />
+                            <label for="unitOfMeasurePurchase">Unit of Measure (Purchased)</label>
+                            <InputSelect id="unitOfMeasurePurchase" class="form-control" @bind-Value="newInventory.UnitOfMeasurePurchase">
+                                <option value="">Select Unit of Measure</option>
+                                @foreach (var conversion in puomConversions)
+                                {
+                                    <option value="@conversion.PUOM">@conversion.PUOM</option>
+                                }
+                            </InputSelect>
                         </div>
 
                         <div class="form-group">
                             <label for="price">Price</label>
                             <InputNumber id="price" class="form-control" @bind-Value="newInventory.Price" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="unitOfMeasure">Unit of Measure (Sold)</label>
+                            <InputSelect id="unitOfMeasure" class="form-control" @bind-Value="newInventory.UnitOfMeasure">
+                                <option value="">Select Unit of Measure</option>
+                                @foreach (var conversion in suomConversions)
+                                {
+                                    <option value="@conversion.SUOM">@conversion.SUOM</option>
+                                }
+                            </InputSelect>
                         </div>
 
                         <div class="form-group">
@@ -93,7 +116,22 @@ else
                             </InputSelect>
                         </div>
 
-                        <button type="submit" class="btn btn-success">Add</button>
+                        <div class="form-group">
+                            <label for="quantityOnHand">Quantity On Hand</label>
+                            <InputNumber id="quantityOnHand" class="form-control" @bind-Value="newInventory.QuantityOnHand" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="weightedAveragePrice">Weighted Average Price</label>
+                            <InputNumber id="weightedAveragePrice" class="form-control" @bind-Value="newInventory.WeightedAveragePrice" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="quantityQuoted">Quantity Quoted</label>
+                            <InputNumber id="quantityQuoted" class="form-control" @bind-Value="newInventory.QuantityQuoted" />
+                        </div>
+
+                        <button type="submit" class="btn btn-success">@((isEditMode ? "Update" : "Add"))</button>
                     </EditForm>
                 </div>
             </div>
@@ -104,37 +142,72 @@ else
 @code {
     private List<Inventory> inventoryList = new List<Inventory>();
     private List<Vendor> vendors = new List<Vendor>();
+    private List<UOMConversion> puomConversions = new List<UOMConversion>();
+    private List<UOMConversion> suomConversions = new List<UOMConversion>();
     private Inventory newInventory = new Inventory();
     private bool showAddModal = false;
+    private bool isEditMode = false;
+
+    [Parameter]
+    public int? InventoryId { get; set; }
+
+    private string ReturnUrl { get; set; } // Parameter to store the return URL
 
     protected override async Task OnInitializedAsync()
     {
-        inventoryList = await InventoryService.GetAllInventoriesAsync();
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("returnUrl", out var returnUrl))
+        {
+            ReturnUrl = returnUrl;
+        }
+
+        if (InventoryId.HasValue)
+        {
+            await EditInventory(InventoryId.Value);
+        }
+        else
+        {
+            inventoryList = await InventoryService.GetAllInventoriesAsync();
+        }
+
         vendors = await InventoryService.GetAllVendorsAsync();
+        puomConversions = await ConversionService.GetAllConversionsAsync();
+        suomConversions = await ConversionService.GetAllConversionsAsync();
     }
 
     private void ShowAddInventoryModal()
     {
         newInventory = new Inventory();
         showAddModal = true;
+        isEditMode = false;
     }
 
     private void HideModal()
     {
         showAddModal = false;
+        isEditMode = false;
     }
 
     private async Task HandleAddInventory()
     {
-        await InventoryService.AddInventoryAsync(newInventory);
+        if (isEditMode)
+        {
+            await InventoryService.UpdateInventoryAsync(newInventory); // Update existing inventory
+        }
+        else
+        {
+            await InventoryService.AddInventoryAsync(newInventory); // Add new inventory
+        }
+
         inventoryList = await InventoryService.GetAllInventoriesAsync();
         showAddModal = false;
-    }
+        isEditMode = false;
 
-    private async Task DeleteInventory(int id)
-    {
-        await InventoryService.DeleteInventoryAsync(id);
-        inventoryList = await InventoryService.GetAllInventoriesAsync();
+        // Navigate back to the return URL if provided
+        if (!string.IsNullOrEmpty(ReturnUrl))
+        {
+            NavigationManager.NavigateTo(ReturnUrl);
+        }
     }
 
     private async Task EditInventory(int id)
@@ -144,6 +217,15 @@ else
         {
             newInventory = inventory;
             showAddModal = true;
+            isEditMode = true; // Set edit mode flag
         }
     }
+
+    private async Task DeleteInventory(int id)
+    {
+        await InventoryService.DeleteInventoryAsync(id);
+        inventoryList = await InventoryService.GetAllInventoriesAsync();
+    }
 }
+
+

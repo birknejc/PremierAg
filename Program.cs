@@ -26,10 +26,17 @@ builder.Services.AddScoped<PurchaseOrderService>();
 builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<FieldService>();
 builder.Services.AddScoped<QuoteService>();
+builder.Services.AddScoped<LoadMixService>();
+builder.Services.AddScoped<ConversionService>();
+builder.Services.AddSingleton<PurchaseOrderState>();
+builder.Services.AddScoped<InvoiceService>();
+
 
 // Connect to PostgreSQL database
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")),
+    ServiceLifetime.Scoped);
+
 
 var app = builder.Build();
 

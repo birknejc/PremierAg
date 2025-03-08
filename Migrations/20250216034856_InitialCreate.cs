@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace PAS.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate2 : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -84,6 +84,7 @@ namespace PAS.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    CustomerId = table.Column<int>(type: "integer", nullable: false),
                     CustomerBusinessName = table.Column<string>(type: "text", nullable: false),
                     QuoteStreet = table.Column<string>(type: "text", nullable: false),
                     QuoteCity = table.Column<string>(type: "text", nullable: false),
@@ -91,7 +92,7 @@ namespace PAS.Migrations
                     QuoteZipcode = table.Column<string>(type: "text", nullable: false),
                     QuotePhone = table.Column<string>(type: "text", nullable: false),
                     QuoteDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    CustomerId = table.Column<int>(type: "integer", nullable: false)
+                    QuoteTotal = table.Column<decimal>(type: "numeric", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -125,6 +126,34 @@ namespace PAS.Migrations
                         principalTable: "Vendors",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "LoadMixes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    QuoteId = table.Column<int>(type: "integer", nullable: false),
+                    LoadDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    LoadTime = table.Column<TimeSpan>(type: "interval", nullable: false),
+                    Crop = table.Column<string>(type: "text", nullable: false),
+                    TotalGallons = table.Column<int>(type: "integer", nullable: false),
+                    Product = table.Column<string>(type: "text", nullable: false),
+                    RatePerAcre = table.Column<string>(type: "text", nullable: false),
+                    Total = table.Column<string>(type: "text", nullable: false),
+                    TotalAcres = table.Column<int>(type: "integer", nullable: false),
+                    LMRatePerAcre = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LoadMixes", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_LoadMixes_Quotes_QuoteId",
+                        column: x => x.QuoteId,
+                        principalTable: "Quotes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -172,7 +201,7 @@ namespace PAS.Migrations
                     QuotePrice = table.Column<decimal>(type: "numeric", nullable: false),
                     QuoteUnitOfMeasure = table.Column<string>(type: "text", nullable: false),
                     UnitOfMeasure = table.Column<string>(type: "text", nullable: false),
-                    RowVersion = table.Column<byte[]>(type: "bytea", rowVersion: true, nullable: false)
+                    RowVersion = table.Column<byte[]>(type: "bytea", rowVersion: true, nullable: false, defaultValueSql: "gen_random_bytes(8)")
                 },
                 constraints: table =>
                 {
@@ -191,6 +220,51 @@ namespace PAS.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "LoadFields",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    LoadMixId = table.Column<int>(type: "integer", nullable: false),
+                    FieldName = table.Column<string>(type: "text", nullable: false),
+                    FieldAverageRate = table.Column<decimal>(type: "numeric", nullable: false),
+                    FieldTotalGallons = table.Column<decimal>(type: "numeric", nullable: false),
+                    FieldAcres = table.Column<decimal>(type: "numeric", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LoadFields", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_LoadFields_LoadMixes_LoadMixId",
+                        column: x => x.LoadMixId,
+                        principalTable: "LoadMixes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "LoadMixDetails",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    LoadMixId = table.Column<int>(type: "integer", nullable: false),
+                    Product = table.Column<string>(type: "text", nullable: false),
+                    RatePerAcre = table.Column<string>(type: "text", nullable: false),
+                    Total = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LoadMixDetails", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_LoadMixDetails_LoadMixes_LoadMixId",
+                        column: x => x.LoadMixId,
+                        principalTable: "LoadMixes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Fields_CustomerId",
                 table: "Fields",
@@ -200,6 +274,21 @@ namespace PAS.Migrations
                 name: "IX_Inventories_VendorId",
                 table: "Inventories",
                 column: "VendorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LoadFields_LoadMixId",
+                table: "LoadFields",
+                column: "LoadMixId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LoadMixDetails_LoadMixId",
+                table: "LoadMixDetails",
+                column: "LoadMixId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LoadMixes_QuoteId",
+                table: "LoadMixes",
+                column: "QuoteId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PurchaseOrders_InventoryId",
@@ -224,10 +313,19 @@ namespace PAS.Migrations
                 name: "Fields");
 
             migrationBuilder.DropTable(
+                name: "LoadFields");
+
+            migrationBuilder.DropTable(
+                name: "LoadMixDetails");
+
+            migrationBuilder.DropTable(
                 name: "PurchaseOrders");
 
             migrationBuilder.DropTable(
                 name: "QuoteInventory");
+
+            migrationBuilder.DropTable(
+                name: "LoadMixes");
 
             migrationBuilder.DropTable(
                 name: "Inventories");

@@ -1,4 +1,6 @@
-﻿namespace PAS.Models
+﻿using System.Collections.Generic;
+
+namespace PAS.Models
 {
     public class Customer
     {
@@ -8,7 +10,7 @@
         public string CustomerLName { get; set; }
         public string CustomerStreet { get; set; }
         public string CustomerCity { get; set; }
-        public string CustomerState { get; set; }  
+        public string CustomerState { get; set; }
         public string CustomerZipCode { get; set; }
         public string CustomerPhone { get; set; }
         public string CustomerCell { get; set; }
@@ -16,6 +18,7 @@
         public string CustomerEmail { get; set; }
         public ICollection<Field> Fields { get; set; } = new List<Field>();
         public ICollection<Quote> Quotes { get; set; } = new List<Quote>();
-
+        public ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
+        public ICollection<NoQuoteInvoice> NoQuoteInvoices { get; set; } = new List<NoQuoteInvoice>(); // Add this line
     }
 }

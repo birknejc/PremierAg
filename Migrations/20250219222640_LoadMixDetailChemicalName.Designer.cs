@@ -12,8 +12,8 @@ using PAS.DBContext;
 namespace PAS.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250208225106_EnsureRowVersionInitialization")]
-    partial class EnsureRowVersionInitialization
+    [Migration("20250219222640_LoadMixDetailChemicalName")]
+    partial class LoadMixDetailChemicalName
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,40 @@ namespace PAS.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("LoadFields", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("FieldAcres")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("FieldAverageRate")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("FieldName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("FieldTotalGallons")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("LoadMixId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SelectedFieldId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LoadMixId");
+
+                    b.ToTable("LoadFields");
+                });
 
             modelBuilder.Entity("PAS.Models.Customer", b =>
                 {
@@ -140,6 +174,88 @@ namespace PAS.Migrations
                     b.ToTable("Inventories");
                 });
 
+            modelBuilder.Entity("PAS.Models.LoadMix", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Crop")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("LMRatePerAcre")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("LoadDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<TimeSpan>("LoadTime")
+                        .HasColumnType("interval");
+
+                    b.Property<int?>("QuoteId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TotalAcres")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TotalGallons")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuoteId");
+
+                    b.ToTable("LoadMixes");
+                });
+
+            modelBuilder.Entity("PAS.Models.LoadMixDetails", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ChemicalName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("EPA")
+                        .HasColumnType("text");
+
+                    b.Property<int>("LoadMixId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal?>("Price")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("Product")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal?>("QuotePrice")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("QuoteUnitOfMeasure")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RatePerAcre")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Total")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LoadMixId");
+
+                    b.ToTable("LoadMixDetails");
+                });
+
             modelBuilder.Entity("PAS.Models.PurchaseOrder", b =>
                 {
                     b.Property<int>("Id")
@@ -234,6 +350,9 @@ namespace PAS.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<decimal>("QuoteTotal")
+                        .HasColumnType("numeric");
+
                     b.Property<string>("QuoteZipcode")
                         .IsRequired()
                         .HasColumnType("text");
@@ -281,7 +400,8 @@ namespace PAS.Migrations
                         .IsConcurrencyToken()
                         .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("bytea");
+                        .HasColumnType("bytea")
+                        .HasDefaultValueSql("gen_random_bytes(8)");
 
                     b.Property<string>("UnitOfMeasure")
                         .IsRequired()
@@ -347,6 +467,17 @@ namespace PAS.Migrations
                     b.ToTable("Vendors");
                 });
 
+            modelBuilder.Entity("LoadFields", b =>
+                {
+                    b.HasOne("PAS.Models.LoadMix", "LoadMix")
+                        .WithMany("LoadFields")
+                        .HasForeignKey("LoadMixId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("LoadMix");
+                });
+
             modelBuilder.Entity("PAS.Models.Field", b =>
                 {
                     b.HasOne("PAS.Models.Customer", "Customer")
@@ -367,6 +498,27 @@ namespace PAS.Migrations
                         .IsRequired();
 
                     b.Navigation("Vendor");
+                });
+
+            modelBuilder.Entity("PAS.Models.LoadMix", b =>
+                {
+                    b.HasOne("PAS.Models.Quote", "Quote")
+                        .WithMany("LoadMixes")
+                        .HasForeignKey("QuoteId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Quote");
+                });
+
+            modelBuilder.Entity("PAS.Models.LoadMixDetails", b =>
+                {
+                    b.HasOne("PAS.Models.LoadMix", "LoadMix")
+                        .WithMany("LoadMixDetails")
+                        .HasForeignKey("LoadMixId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("LoadMix");
                 });
 
             modelBuilder.Entity("PAS.Models.PurchaseOrder", b =>
@@ -422,8 +574,17 @@ namespace PAS.Migrations
                     b.Navigation("QuoteInventories");
                 });
 
+            modelBuilder.Entity("PAS.Models.LoadMix", b =>
+                {
+                    b.Navigation("LoadFields");
+
+                    b.Navigation("LoadMixDetails");
+                });
+
             modelBuilder.Entity("PAS.Models.Quote", b =>
                 {
+                    b.Navigation("LoadMixes");
+
                     b.Navigation("QuoteInventories");
                 });
 

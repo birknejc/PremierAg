@@ -1,0 +1,121 @@
+﻿@page "/conversionpage"
+@using PAS.Models
+@using PAS.Services
+@inject ConversionService ConversionService
+@inject NavigationManager NavigationManager
+
+<h3>Unit of Measure Conversion Management</h3>
+
+<div>
+    <button class="btn btn-primary" @onclick="AddNewConversion">Add New Conversion</button>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Purchase UOM</th>
+            <th>Conversion Factor<br />(Purchase Unit to Sold Unit)</th>
+            <th>Sold UOM</th>
+            <th>Conversion Factor<br />(Sold Unit to Quote Unit)</th>
+            <th>Quote UOM</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var conversion in conversions)
+        {
+            <tr>
+                <td>@conversion.PUOM</td>
+                <td>@conversion.CFPurSold</td>
+                <td>@conversion.SUOM</td>
+                <td>@conversion.ConversionFactor</td>
+                <td>@conversion.QUOM</td>
+                <td>
+                    <button class="btn btn-warning" @onclick="() => EditConversion(conversion.Id)">Edit</button>
+                    <button class="btn btn-danger" @onclick="() => DeleteConversion(conversion.Id)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (isEditing)
+{
+    <EditForm Model="currentConversion" OnValidSubmit="SaveConversion">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label>Purchase UOM:</label>
+            <InputText class="form-control" @bind-Value="currentConversion.PUOM" />
+        </div>
+        <div class="form-group">
+            <label>Conversion Factor (Purchase Unit to Sold Unit):</label> <!-- New Field for CFPurSold -->
+            <InputNumber class="form-control" @bind-Value="currentConversion.CFPurSold" />
+        </div>
+        <div class="form-group">
+            <label>Sold UOM:</label>
+            <InputText class="form-control" @bind-Value="currentConversion.SUOM" />
+        </div>
+        <div class="form-group">
+            <label>Conversion Factor (Sold Unit to Quote Unit):</label>
+            <InputNumber class="form-control" @bind-Value="currentConversion.ConversionFactor" />
+        </div>
+        <div class="form-group">
+            <label>Quote UOM:</label>
+            <InputText class="form-control" @bind-Value="currentConversion.QUOM" />
+        </div>
+
+        <button class="btn btn-primary" type="submit">Save</button>
+        <button class="btn btn-secondary" type="button" @onclick="CancelEdit">Cancel</button>
+    </EditForm>
+}
+
+@code {
+    private List<UOMConversion> conversions = new();
+    private UOMConversion currentConversion = new();
+    private bool isEditing = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        conversions = await ConversionService.GetAllConversionsAsync();
+    }
+
+    private void AddNewConversion()
+    {
+        currentConversion = new UOMConversion();
+        isEditing = true;
+    }
+
+    private async Task EditConversion(int id)
+    {
+        currentConversion = await ConversionService.GetConversionByIdAsync(id);
+        isEditing = true;
+    }
+
+    private async Task SaveConversion()
+    {
+        if (currentConversion.Id == 0)
+        {
+            await ConversionService.AddConversionAsync(currentConversion);
+        }
+        else
+        {
+            await ConversionService.UpdateConversionAsync(currentConversion);
+        }
+        conversions = await ConversionService.GetAllConversionsAsync();
+        isEditing = false;
+    }
+
+    private async Task DeleteConversion(int id)
+    {
+        await ConversionService.DeleteConversionAsync(id);
+        conversions = await ConversionService.GetAllConversionsAsync();
+    }
+
+    private void CancelEdit()
+    {
+        isEditing = false;
+        currentConversion = new UOMConversion();
+    }
+}

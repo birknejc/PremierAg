@@ -21,6 +21,8 @@ namespace PAS.Models
 
         public Inventory Inventory { get; set; }
         public Quote Quote { get; set; }
+
+        public ICollection<Invoice> Invoices { get; set; }
     }
 
 

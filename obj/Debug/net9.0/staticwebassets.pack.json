@@ -61,6 +61,18 @@
       "PackagePath": "staticwebassets\\images\\logo.jpg"
     },
     {
+      "Id": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\js\\site.js",
+      "PackagePath": "staticwebassets\\js\\site.js"
+    },
+    {
+      "Id": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\print_invoicetemplate.html",
+      "PackagePath": "staticwebassets\\print_invoicetemplate.html"
+    },
+    {
+      "Id": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\print_loadmixtemplate.html",
+      "PackagePath": "staticwebassets\\print_loadmixtemplate.html"
+    },
+    {
       "Id": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\print_potemplate.html",
       "PackagePath": "staticwebassets\\print_potemplate.html"
     },

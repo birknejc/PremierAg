@@ -2,6 +2,7 @@
 @inject QuoteService QuoteService
 @inject CustomerService CustomerService
 @inject InventoryService InventoryService
+@inject ConversionService ConversionService
 @inject IJSRuntime JSRuntime
 @using PAS.Models
 @using PAS.Services
@@ -72,7 +73,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <label>Inventory Item:</label>
-                    <select class="form-control" value="@quoteInventory.InventoryId" @onchange="@(e => HandleInventoryChange(quoteInventory, e as ChangeEventArgs))">
+                    <select class="form-control" value="@quoteInventory.InventoryId" @onchange="@(async (ChangeEventArgs e) => HandleInventoryChange(quoteInventory, e))">
                         <option value="0">-- Select Inventory --</option>
                         @foreach (var inventory in Inventories)
                         {
@@ -83,25 +84,23 @@
 
                 <div class="col-md-6">
                     <label>EPA:</label>
-                    <InputText class="form-control" @bind-Value="quoteInventory.EPA" />
+                    <InputText class="form-control" @bind-Value="quoteInventory.EPA" readonly="true" />
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-md-6">
-                    <label>Price:</label>
-                    <InputNumber class="form-control" @bind-Value="quoteInventory.Price" />
+                    <label>Purchased Price:</label>
+                    <InputNumber class="form-control" @bind-Value="quoteInventory.Price" readonly="true" />
                 </div>
 
                 <div class="col-md-6">
                     <label>Unit of Measure:</label>
-                    <InputText class="form-control" @bind-Value="quoteInventory.UnitOfMeasure" />
+                    <InputText class="form-control" @bind-Value="quoteInventory.UnitOfMeasure" readonly="true" />
                 </div>
             </div>
 
-
-
-                <!-- New Fields: Actual quoted items, user input required -->
+            <!-- New Fields: Actual quoted items, user input required -->
             <style>
                 .dashed-line {
                     border: none;
@@ -121,7 +120,13 @@
 
                 <div class="col-md-6">
                     <label>Unit of Measure/Acre:</label>
-                    <InputText class="form-control" @bind-Value="quoteInventory.QuoteUnitOfMeasure" />
+                    <InputSelect class="form-control" @bind-Value="quoteInventory.QuoteUnitOfMeasure">
+                        <option value="">Select Unit of Measure</option>
+                        @foreach (var conversion in quomConversions)
+                        {
+                            <option value="@conversion.QUOM">@conversion.QUOM</option>
+                        }
+                    </InputSelect>
                 </div>
 
                 <div class="col-md-6">
@@ -131,10 +136,17 @@
 
                 <div class="row">
                     <div class="col-md-6">
-                        <button type="button" class="btn btn-danger" @onclick="() => RemoveInventory(quoteInventory)">Remove</button>
+                        <label>Estimated Acres:</label>
+                        <InputNumber class="form-control" @bind-Value="NewQuote.EstimatedAcres" />
                     </div>
                 </div>
 
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <button type="button" class="btn btn-danger" @onclick="() => RemoveInventory(quoteInventory)">Remove</button>
+                    </div>
+                </div>
             </div>
         }
 
@@ -156,7 +168,7 @@
             <th>Zipcode</th>
             <th>Phone</th>
             <th>Inventory</th>
-            <th>Price</th>
+            <th>Total</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -176,7 +188,7 @@
                         <div>@quoteInventory.Inventory.ChemicalName</div>
                     }
                 </td>
-                @*                 <td>@quote.QuotePrice</td> *@
+                <td>@quote.QuoteTotal</td>
                 <td>
                     <button @onclick="() => EditQuote(quote.Id)" class="btn btn-warning">Edit</button>
                     <button @onclick="() => DeleteQuote(quote.Id)" class="btn btn-danger">Delete</button>
@@ -190,7 +202,10 @@
     private List<Quote> Quotes = new();
     private List<Customer> Customers = new();
     private List<Inventory> Inventories = new();
+    private List<UOMConversion> quomConversions = new();
     private Quote NewQuote = new() { QuoteInventories = new List<QuoteInventory>() };
+    private List<UOMConversion> UOMConversions = new(); // List of unit of measure conversions
+    private decimal calculatedPurchasedPrice;
     private bool showQuoteForm = false;
 
     private int SelectedCustomerId
@@ -212,7 +227,7 @@
         }
     }
 
-    private void HandleInventoryChange(QuoteInventory quoteInventory, ChangeEventArgs e)
+    private async Task HandleInventoryChange(QuoteInventory quoteInventory, ChangeEventArgs e)
     {
         if (int.TryParse(e.Value?.ToString(), out int inventoryId))
         {
@@ -228,6 +243,9 @@
                 quoteInventory.EPA = selectedInventory.EPA;
                 quoteInventory.Price = selectedInventory.Price;
 
+                // Calculate and set the purchased price
+                calculatedPurchasedPrice = await GetCalculatedPurchasedPrice(quoteInventory);
+
                 // Log the selected inventory details
                 System.Diagnostics.Debug.WriteLine($"Inventory Selected: {selectedInventory.ChemicalName}");
             }
@@ -235,9 +253,6 @@
             StateHasChanged(); // Force the UI to refresh and reflect changes
         }
     }
-
-
-
 
     private async Task UpdateInventoryDetails(QuoteInventory quoteInventory)
     {
@@ -248,8 +263,6 @@
             quoteInventory.EPA = selectedInventory.EPA;
             quoteInventory.Price = selectedInventory.Price;
         }
-
-
 
         // New fields for user input
         quoteInventory.QuantityPerAcre = quoteInventory.QuantityPerAcre;
@@ -264,7 +277,7 @@
         var newInventory = new QuoteInventory
             {
                 InventoryId = -1, // Use a unique temporary ID for new items
-                Inventory = new Inventory(),  // Ensure the Inventory property is initialized
+                Inventory = new Inventory(), // Ensure the Inventory property is initialized
                 ChemicalName = "Default Chemical" // Add a default value for debugging
             };
         NewQuote.QuoteInventories.Add(newInventory);
@@ -272,33 +285,48 @@
         StateHasChanged(); // Force the UI to refresh and reflect changes
     }
 
-
-
-
-
-
     protected override async Task OnInitializedAsync()
     {
         Customers = await CustomerService.GetAllCustomersAsync();
         Inventories = await InventoryService.GetAllInventoriesAsync();
         Quotes = await QuoteService.GetQuotesAsync();
+        quomConversions = await ConversionService.GetAllConversionsAsync();
+        UOMConversions = await ConversionService.GetAllConversionsAsync(); // Load all unit of measure conversions
+
     }
 
     private void ToggleQuoteForm()
     {
-        showQuoteForm = !showQuoteForm;
-        StateHasChanged(); // Ensure the UI is updated to reflect changes
+        if (showQuoteForm)
+        {
+            // Form is currently open, so we'll close it
+            showQuoteForm = false;
+        }
+        else
+        {
+            // Form is currently closed, so we'll open it for adding a new quote
+            showQuoteForm = true;
+            NewQuote = new Quote() { QuoteInventories = new List<QuoteInventory>() };
+            StateHasChanged(); // Ensure the UI is updated to reflect changes
+        }
     }
 
     private async Task SaveQuote()
     {
-        // Debug check: Ensure ChemicalName is set for all inventories
         foreach (var qi in NewQuote.QuoteInventories)
         {
-            System.Diagnostics.Debug.WriteLine($"Before Save - InventoryId: {qi.InventoryId}, ChemicalName: {qi.ChemicalName}");
-            if (string.IsNullOrEmpty(qi.ChemicalName))
+            var inventory = await InventoryService.GetInventoryByIdAsync(qi.InventoryId);
+            if (inventory != null)
             {
-                throw new InvalidOperationException("ChemicalName must be set for all QuoteInventories.");
+                // Calculate ConversionFactor
+                var conversion = UOMConversions.FirstOrDefault(c => c.QUOM == qi.QuoteUnitOfMeasure && c.SUOM == inventory.UnitOfMeasure);
+                if (conversion != null && conversion.ConversionFactor != 0)
+                {
+                    var conversionFactor = conversion.ConversionFactor;
+                    // Update QuantityQuoted
+                    inventory.QuantityQuoted += (qi.QuantityPerAcre * NewQuote.EstimatedAcres) / conversionFactor;
+                    await InventoryService.UpdateInventoryAsync(inventory);
+                }
             }
         }
 
@@ -316,8 +344,6 @@
         showQuoteForm = false;
         StateHasChanged(); // Ensure the UI is updated to reflect changes
     }
-
-
 
 
     private async Task EditQuote(int id)
@@ -340,4 +366,32 @@
         StateHasChanged(); // Force the UI to refresh and reflect changes
     }
 
+    private async Task<decimal> GetCalculatedPurchasedPrice(QuoteInventory quoteInventory)
+    {
+        // Find the related inventory based on InventoryId
+        var inventory = Inventories.FirstOrDefault(i => i.Id == quoteInventory.InventoryId);
+
+        if (inventory != null)
+        {
+            // Fetch the appropriate conversion using UnitOfMeasurePurchase and UnitOfMeasure
+            var conversion = UOMConversions.FirstOrDefault(c => c.PUOM == inventory.UnitOfMeasurePurchase && c.SUOM == inventory.UnitOfMeasure);
+
+            if (conversion != null && conversion.CFPurSold != 0)
+            {
+
+                var calculatedPrice = quoteInventory.Price / conversion.CFPurSold;
+
+                // Save the calculated price to quoteInventory.Price
+                quoteInventory.Price = calculatedPrice;
+
+                return quoteInventory.Price;
+            }
+        }
+        else
+        {
+
+        }
+
+        return quoteInventory.Price;
+    }
 }

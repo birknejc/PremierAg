@@ -1,4 +1,4 @@
-﻿using Microsoft.JSInterop;
+﻿//using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,12 +12,12 @@ namespace PAS.Services
     public class InvoiceService
     {
         private readonly AppDbContext _context;
-        private readonly IJSRuntime _jsRuntime;
+        //private readonly IJSRuntime _jsRuntime;
 
-        public InvoiceService(AppDbContext context, IJSRuntime jsRuntime)
+        public InvoiceService(AppDbContext context)//, IJSRuntime jsRuntime)
         {
             _context = context;
-            _jsRuntime = jsRuntime; // Initialize JSRuntime
+            //_jsRuntime = jsRuntime; // Initialize JSRuntime
         }
 
         public async Task<List<Invoice>> GetInvoicesAsync()
@@ -141,20 +141,13 @@ namespace PAS.Services
                 .Where(lm => lm.QuoteId == null)
                 .ToListAsync();
 
-            // Check if LoadMixes are fetched
-            await _jsRuntime.InvokeVoidAsync("alert", $"Total LoadMixes without QuoteId: {loadMixes.Count}");
-
             foreach (var loadMix in loadMixes)
             {
                 // New logic for NoQuote scenario
-                await _jsRuntime.InvokeVoidAsync("alert", $"Processing LoadMix with Id: {loadMix.Id} and No QuoteId");
 
                 var loadMixDetails = await _context.LoadMixDetails
                     .Where(lmd => lmd.LoadMixId == loadMix.Id)
                     .ToListAsync();
-
-                // Add a debug alert to check if loadMixDetails are retrieved
-                await _jsRuntime.InvokeVoidAsync("alert", $"LoadMixDetails Count: {loadMixDetails.Count}");
 
                 if (loadMixDetails.Count > 0)
                 {
@@ -166,9 +159,6 @@ namespace PAS.Services
                             .Where(lf => lf.LoadMixId == loadMix.Id)
                             .Include(lf => lf.LoadMix)
                             .ToListAsync();
-
-                        // Add a debug alert to check if loadFields are retrieved
-                        await _jsRuntime.InvokeVoidAsync("alert", $"LoadFields Count: {loadFields.Count}");
 
                         var firstField = loadFields.FirstOrDefault();
                         Customer customer = null;
@@ -207,8 +197,6 @@ namespace PAS.Services
                                 decimal newRatePerAcre = (loadMix.LMRatePerAcre * field.FieldAcres) / conversionFactor.ConversionFactor;
                                 invoice.InvoiceRatePerAcre += newRatePerAcre;
 
-                                // Add a debug alert to check the calculation values
-                                await _jsRuntime.InvokeVoidAsync("alert", $"ratePerAcre: {loadMix.LMRatePerAcre}\nfield.FieldAcres: {field.FieldAcres}\nconversionFactor.ConversionFactor: {conversionFactor.ConversionFactor}\nnewRatePerAcre: {newRatePerAcre}\ninvoice.InvoiceRatePerAcre: {invoice.InvoiceRatePerAcre}");
                             }
                         }
 

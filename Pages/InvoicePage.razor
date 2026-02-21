@@ -1,198 +1,830 @@
 ﻿@page "/invoicepage"
 @using PAS.Models
 @using PAS.Services
+@using System.Collections
+@using System.Collections.Generic
+@using System.Text
 @inject InvoiceService InvoiceService
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
 
 <h3>Invoice Management</h3>
 
+<button class="btn btn-primary" style="margin-right: 10px;" @onclick="OpenDirectSaleModal">Direct Sale</button>
+
 <button class="btn btn-primary" style="margin-right: 10px;" @onclick="GenerateInvoices">Generate Invoices</button>
 <button class="btn btn-secondary" style="margin-right: 10px;" @onclick="ToggleDisplayAllInvoices">@((isDisplayingAllInvoices ? "Hide All Invoices" : "Display All Invoices"))</button>
+<button class="btn btn-warning" @onclick="OpenPrepaymentModal">
+    Record Prepayment
+</button>
+<button class="btn btn-info ms-2" @onclick="OpenStatementModal">
+    Generate Open Item Statement
+</button>
+
+<button class="btn btn-info ms-2" @onclick="() => OpenFullStatementModalOrPrint(selectedPrintedCustomerId)">
+    Generate Full Statement
+</button>
+
+@if (!string.IsNullOrEmpty(statementMessage))
+{
+    <div class="alert alert-warning mt-2">@statementMessage</div>
+}
 
 @if (!string.IsNullOrEmpty(generateMessage))
 {
     <div class="alert alert-info">@generateMessage</div>
 }
 
-@if (!invoicesWithQuote.Any() && !invoicesWithoutQuote.Any())
+@if (!invoicesWithQuote.Any())
 {
     <p>No invoices found.</p>
 }
 else
 {
     <!-- Buttons for Printing -->
-    <button class="btn btn-primary" style="margin-right: 10px;" @onclick="PrintAllInvoices">Print All</button>
-    <button class="btn btn-primary" style="margin-right: 10px;" @onclick="ReprintSelectedInvoices">Reprint Selected Invoices</button>
-
-    <!-- Table for Invoices with Quotes -->
-    <h4>Invoices with Quotes</h4>
-    @if (invoicesWithQuote.Any())
+    <button class="btn btn-primary" style="margin-right: 10px;" @onclick="PrintAllInvoices" disabled="@(!CanPrintAll)">
+        Print All
+    </button>
+    @if (!CanPrintAll)
     {
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Select</th>
-                    <th>Customer</th>
-                    <th>Quote ID</th>
-                    <th>Chemical Name</th>
-                    <th>Unit of Measure</th>
-                    <th>Price</th>
-                    <th>Rate Per Acre</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var invoice in invoicesWithQuote)
-                {
+        <div class="text-danger">⚠️ Cannot print: One or more customers have invoices with a price of $0.</div>
+    }
+
+    <button class="btn btn-primary" style="margin-right: 10px;" @onclick="ReprintSelectedInvoices" disabled="@(!CanReprintSelected)">
+        Reprint Selected Invoices
+    </button>
+    @if (!CanReprintSelected)
+    {
+        <div class="text-danger">⚠️ Cannot reprint: One or more selected customers have invoices with a price of $0.</div>
+    }
+
+
+     @if (invoicesWithQuote.Any())
+    {
+        @foreach (var group in invoicesWithQuote.GroupBy(i => i.InvoiceGroupId))
+        {
+            <h5>Customer: @(group.First().InvoiceHeader?.Customer?.CustomerBusinessName
+                ?? group.First().Customer.CustomerBusinessName)</h5>
+
+            <table class="table">
+                <thead>
                     <tr>
-                        <td>
-                            <input type="checkbox" @bind="invoice.IsGroupSelected" />
-                        </td>
-                        <td>@invoice.InvoiceCustomer</td>
-                        <td>@invoice.QuoteId</td>
-                        <td>@invoice.InvoiceChemicalName</td>
-                        <td>@invoice.InvoiceUnitOfMeasure</td>
-                        <td>@invoice.InvoicePrice</td>
-                        <td>@invoice.InvoiceRatePerAcre</td>
-                        <td>
-                            <button class="btn btn-danger" @onclick="() => DeleteInvoiceWithQuote(invoice.Id)">Delete</button>
-                        </td>
+                        <th>Select</th>
+                        <th>Group ID</th>
+                        <th>Quote ID</th>
+                        <th>Chemical Name</th>
+                        <th>Unit of Measure</th>
+                        <th>Price/Unit</th>
+                        <th>Total Units</th>
+                        <th>Charge Interest</th>
+                        <th>Interest Rate (%)</th>
+                        <th>Actions</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var invoice in group)
+                    {
+                        <tr class="@(invoice.InvoicePrice == 0 ? "table-danger" : "")">
+
+                            @* Group checkbox only on first row *@
+                            @if (group.First() == invoice)
+                            {
+                                <td rowspan="@group.Count()">
+                                    <input type="checkbox" @bind="group.First().IsGroupSelected" />
+                                </td>
+                            }
+
+                            <td>@invoice.GroupId</td>
+                            <td>@invoice.QuoteId</td>
+                            <td>@invoice.InvoiceChemicalName</td>
+
+                            <td>
+                                @if (invoice.QuoteId == null && invoice.AvailablePUOMs?.Any() == true)
+                                {
+                                    <select class="form-select" @onchange="e => OnPUOMSelected(invoice, e.Value?.ToString())">
+                                        <option value="">-- Select Unit --</option>
+                                        @foreach (var puom in invoice.AvailablePUOMs)
+                                        {
+                                            <option value="@puom" selected="@(puom == invoice.InvoiceUnitOfMeasure)">
+                                                @puom
+                                            </option>
+                                        }
+                                    </select>
+                                }
+                                else
+                                {
+                                    <span>@invoice.InvoiceUnitOfMeasure</span>
+                                }
+                            </td>
+
+                            <td>
+                                @if (invoice.QuoteId == null)
+                                {
+                                    <input type="number" step="0.01" class="form-control" style="width: 100px;"
+                                           @bind="invoice.InvoicePrice" />
+                                }
+                                else
+                                {
+                                    @invoice.InvoicePrice.ToString("F2")
+                                }
+                            </td>
+
+                            <td>@invoice.InvoiceRatePerAcre</td>
+
+                            @* ⭐ NEW: Charge Interest *@
+                            <td>
+                                <input type="checkbox" @bind="invoice.ChargeInterest" />
+                            </td>
+
+                            @* ⭐ NEW: Interest Rate (%) *@
+                            <td>
+                                <input type="number"
+                                       step="0.01"
+                                       class="form-control"
+                                       style="width: 100px;"
+                                       @bind="invoice.InterestRate" />
+                            </td>
+
+                            @* Delete button only on first row *@
+                            @if (group.First() == invoice)
+                            {
+                                <td rowspan="@group.Count()">
+                                    <button class="btn btn-danger"
+                                            @onclick="() => DeleteInvoicesWithQuote(group.Select(i => i.Id).ToList())">
+                                        Delete
+                                    </button>
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <button class="btn btn-success" @onclick="() => OnSaveClicked(group.ToList())">
+                Save Changes
+            </button>
+        }   <!-- Table for Invoices with Quotes -->
+    <h4>Invoices with Quotes</h4>
+
     }
     else
     {
         <p>No invoices with quotes found.</p>
     }
 
-    <!-- Table for Invoices without Quotes -->
-    <h4>Invoices without Quotes</h4>
-    @if (invoicesWithoutQuote.Any())
+
+
+}
+
+<hr />
+<h4>View Printed Invoices</h4>
+<label for="printedCustomerSelect">Select Customer:</label>
+<select id="printedCustomerSelect" class="form-select" @onchange="OnPrintedCustomerChanged">
+    <option value="">-- Select Customer --</option>
+    <option value="0">All Customers</option>
+    @foreach (var customer in customers)
     {
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Select</th>
-                    <th>Customer</th>
-                    <th>Chemical Name</th>
-                    <th>Unit of Measure</th>
-                    <th>Price</th>
-                    <th>Rate Per Acre</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var invoice in invoicesWithoutQuote)
-                {
-                    <tr>
-                        <td>
-                            <input type="checkbox" @bind="invoice.IsGroupSelected" />
-                        </td>
-                        <td>@invoice.InvoiceCustomer</td>
-                        <td>@invoice.InvoiceChemicalName</td>
-                        <td>@invoice.InvoiceUnitOfMeasure</td>
-                        <td>@invoice.InvoicePrice</td>
-                        <td>@invoice.InvoiceRatePerAcre</td>
-                        <td>
-                            <button class="btn btn-danger" @onclick="() => DeleteInvoiceWithoutQuote(invoice.Id)">Delete</button>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+        <option value="@customer.Id">@customer.CustomerBusinessName</option>
     }
-    else
+</select>
+
+@if (printedInvoices.Any())
+{
+    <h5>Printed Invoices for @customers.FirstOrDefault(c => c.Id == selectedPrintedCustomerId)?.CustomerBusinessName</h5>
+
+    @foreach (var invoiceGroup in printedInvoices.GroupBy(i => i.InvoiceGroupId))
     {
-        <p>No invoices without quotes found.</p>
+        var header = invoiceGroup.First().InvoiceHeader;
+
+        <div class="border rounded p-3 mb-3 d-flex gap-4 align-items-center">
+            <div><strong>Invoice #:</strong> @invoiceGroup.Key</div>
+            <div><strong>Created Date:</strong> @header?.CreatedDate.ToString("MM/dd/yyyy")</div>
+            <div><strong>Load Sheet:</strong> @string.Join(", ", invoiceGroup.Select(i => i.GroupId).Distinct())</div>
+            <button class="btn btn-primary btn-sm"
+                    @onclick="() => ViewPrintedInvoice(invoiceGroup.ToList())">
+                View / Print
+            </button>
+            <button class="btn btn-secondary btn-sm"
+                    @onclick="() => EditPrintedInvoice(invoiceGroup.ToList())">
+                Edit
+            </button>
+            <button class="btn btn-success btn-sm"
+                    @onclick="() => OpenPaymentModal(invoiceGroup.First())">
+                Apply Payment
+            </button>
+        </div>
     }
 }
 
+else if (selectedPrintedCustomerId != 0)
+{
+    <p>No printed invoices found for this customer.</p>
+}
+
+@if (showPaymentModal)
+{
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Apply Payment</h5>
+                    <button type="button" class="btn-close" @onclick="ClosePaymentModal"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <!-- ============================= -->
+                    <!-- 1. INVOICE LINE ITEMS (FIRST) -->
+                    <!-- ============================= -->
+                    <h6><strong>Invoice # @selectedInvoiceGroupId</strong></h6>
+
+                    @if (selectedInvoiceLines != null && selectedInvoiceLines.Any())
+                    {
+                        <table class="table table-sm table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Qty</th>
+                                    <th>Unit</th>
+                                    <th>Description</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var line in selectedInvoiceLines)
+                                {
+                                    <tr>
+                                        <td>@line.InvoiceRatePerAcre</td>
+                                        <td>@line.InvoiceUnitOfMeasure</td>
+                                        <td>@line.InvoiceChemicalName</td>
+                                        <td>@((line.InvoiceRatePerAcre * line.InvoicePrice).ToString("C"))</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Loading invoice items...</p>
+                    }
+
+                    <p><strong>Total Amount:</strong> @selectedInvoiceTotal.ToString("C")</p>
+                    <p><strong>Amount Paid:</strong> @selectedInvoiceAmountPaid.ToString("C")</p>
+                    <p><strong>Balance Due:</strong> @selectedInvoiceBalanceDue.ToString("C")</p>
+
+                    <hr />
+
+                    <!-- ======================================= -->
+                    <!-- 2. LIST ALL PREPAYMENTS (BEFORE PICKING) -->
+                    <!-- ======================================= -->
+                    <h6><strong>Available Prepayments</strong></h6>
+
+                    @if (customerPrepayments.Any())
+                    {
+                        <ul class="list-group mb-3">
+                            @foreach (var p in customerPrepayments)
+                            {
+                                <li class="list-group-item">
+                                    <strong>@p.Amount.ToString("C")</strong>
+                                    — @p.PaymentDate.ToShortDateString()
+                                    @if (!string.IsNullOrWhiteSpace(p.Note))
+                                    {
+                                        <div class="text-muted">Note: @p.Note</div>
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No prepayments available.</p>
+                    }
+
+                    <!-- ======================================= -->
+                    <!-- 3. SELECT WHICH PREPAYMENT TO APPLY      -->
+                    <!-- ======================================= -->
+                    @if (customerPrepayments.Any())
+                    {
+                        <label><strong>Select Prepayment</strong></label>
+                        <select class="form-select mb-3" @bind="selectedPrepaymentId">
+                            <option value="0">-- Select Prepayment --</option>
+                            @foreach (var p in customerPrepayments)
+                            {
+                                <option value="@p.Id">
+                                    @p.Amount.ToString("C") — @p.PaymentDate.ToShortDateString()
+                                </option>
+                            }
+                        </select>
+                    }
+
+                    <!-- ======================================= -->
+                    <!-- 4. SHOW SELECTED PREPAYMENT DETAILS      -->
+                    <!-- ======================================= -->
+                    @if (selectedPrepaymentId > 0)
+                    {
+                        var selected = customerPrepayments.FirstOrDefault(x => x.Id == selectedPrepaymentId);
+
+                        if (selected != null)
+                        {
+                            <div class="alert alert-secondary">
+                                <strong>Selected Prepayment</strong><br />
+                                Amount Available: @selected.Amount.ToString("C")<br />
+                                @if (!string.IsNullOrWhiteSpace(selected.Note))
+                                {
+                                    <span>Note: @selected.Note</span>
+                                }
+                            </div>
+                        }
+                    }
+
+                    <hr />
+
+                    <!-- ======================================= -->
+                    <!-- 5. EXISTING PAYMENT TYPE + AMOUNT INPUT  -->
+                    <!-- ======================================= -->
+                    <label><strong>Payment Type</strong></label>
+                    <select class="form-select" @bind="paymentType">
+                        <option value="new">New Payment</option>
+                        <option value="prepay">Use Selected Prepayment</option>
+                    </select>
+
+                    <label class="mt-3"><strong>Amount to Apply</strong></label>
+                    <input type="number" step="0.01" class="form-control"
+                           @bind="paymentAmount" />
+
+                    @if (paymentError != null)
+                    {
+                        <div class="text-danger mt-2">@paymentError</div>
+                    }
+
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="ClosePaymentModal">Cancel</button>
+                    <button class="btn btn-primary" @onclick="ApplyPayment">Apply</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+
+
+@if (showPrepaymentModal)
+{
+    <div class="modal-backdrop fade show"></div>
+
+    <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Record Prepayment</h5>
+                    <button type="button" class="btn-close" @onclick="ClosePrepaymentModal"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <label><strong>Select Customer</strong></label>
+                    <select class="form-select" @bind="prepayCustomerId">
+                        <option value="">-- Select Customer --</option>
+                        @foreach (var c in customers)
+                        {
+                            <option value="@c.Id">@c.CustomerBusinessName</option>
+                        }
+                    </select>
+
+                    <label class="mt-3"><strong>Amount</strong></label>
+                    <input type="number" step="0.01" class="form-control"
+                           @bind="prepayAmount" />
+
+                    <label class="mt-3"><strong>Method</strong></label>
+                    <input type="text" class="form-control"
+                           @bind="prepayMethod" placeholder="Check, Cash, ACH..." />
+
+                    <label class="mt-3"><strong>Note</strong></label>
+                    <textarea class="form-control"
+                           @bind="prepayNote"
+                           placeholder="Optional instructions (e.g., 'Apply to fertilizer only')">
+                    </textarea>
+
+                    @if (prepayError != null)
+                    {
+                        <div class="text-danger mt-2">@prepayError</div>
+                    }
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="ClosePrepaymentModal">Cancel</button>
+                    <button class="btn btn-primary" @onclick="SavePrepayment">Save</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+
+@if (showStatementModal)
+{
+    <div class="modal-backdrop fade show"></div>
+
+    <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                <div class="modal-body">
+
+                    @if (statementViewModels != null && statementViewModels.Any())
+                    {
+                        foreach (var vm in statementViewModels)
+                        {
+                            <div class="mb-5">
+
+                                <p><strong>Customer:</strong> @vm.CustomerName</p>
+                                <p><strong>Statement Date:</strong> @vm.StatementDate.ToShortDateString()</p>
+                                <p><strong>Prepayment Balance:</strong> @vm.PrepaymentBalance.ToString("C")</p>
+
+                                <table class="table table-sm table-bordered mt-3">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Invoice #</th>
+                                            <th>Total</th>
+                                            <th>Paid</th>
+                                            <th>Balance</th>
+                                            <th>Current</th>
+                                            <th>31–60</th>
+                                            <th>61–90</th>
+                                            <th>91–120</th>
+                                            <th>120+</th>
+                                            <th>Interest</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        @foreach (var line in vm.Lines)
+                                        {
+                                            <tr>
+                                                <td>@line.InvoiceDate.ToShortDateString()</td>
+                                                <td>@line.InvoiceGroupId</td>
+                                                <td>@line.TotalAmount.ToString("C")</td>
+                                                <td>@line.AmountPaid.ToString("C")</td>
+                                                <td>@line.BalanceDue.ToString("C")</td>
+                                                <td>@line.Current.ToString("C")</td>
+                                                <td>@line.Days30.ToString("C")</td>
+                                                <td>@line.Days60.ToString("C")</td>
+                                                <td>@line.Days90.ToString("C")</td>
+                                                <td>@line.Days120Plus.ToString("C")</td>
+                                                <td>
+                                                    @{
+                                                        decimal interest = 0;
+                                                        vm.InterestByGroup.TryGetValue(line.InvoiceGroupId, out interest);
+                                                    }
+                                                    @interest.ToString("C")
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+
+                                    <tfoot>
+                                        <tr>
+                                            <th colspan="4">Totals</th>
+                                            <th>@vm.TotalBalance.ToString("C")</th>
+                                            <th>@vm.CurrentTotal.ToString("C")</th>
+                                            <th>@vm.Days30Total.ToString("C")</th>
+                                            <th>@vm.Days60Total.ToString("C")</th>
+                                            <th>@vm.Days90Total.ToString("C")</th>
+                                            <th>@vm.Days120PlusTotal.ToString("C")</th>
+                                            <th>@vm.TotalInterestDue.ToString("C")</th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+
+                                @if (vm.TotalInterestDue > 0)
+                                {
+                                    <div class="mt-3">
+                                        <strong>Total Interest Due:</strong> @vm.TotalInterestDue.ToString("C")
+                                    </div>
+
+                                    <div>
+                                        <strong>Grand Total (Principal + Interest):</strong>
+                                        @vm.GrandTotalWithInterest.ToString("C")
+                                    </div>
+                                }
+
+                                <hr />
+                            </div>
+                        }
+                    }
+                    else if (statementViewModel != null)
+                    {
+                        <p><strong>Customer:</strong> @statementViewModel.CustomerName</p>
+                        <p><strong>Statement Date:</strong> @statementViewModel.StatementDate.ToShortDateString()</p>
+                        <p><strong>Prepayment Balance:</strong> @statementViewModel.PrepaymentBalance.ToString("C")</p>
+
+                        <table class="table table-sm table-bordered mt-3">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Invoice #</th>
+                                    <th>Total</th>
+                                    <th>Paid</th>
+                                    <th>Balance</th>
+                                    <th>Current</th>
+                                    <th>31–60</th>
+                                    <th>61–90</th>
+                                    <th>91–120</th>
+                                    <th>120+</th>
+                                    <th>Interest</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                @foreach (var line in statementViewModel.Lines)
+                                {
+                                    <tr>
+                                        <td>@line.InvoiceDate.ToShortDateString()</td>
+                                        <td>@line.InvoiceGroupId</td>
+                                        <td>@line.TotalAmount.ToString("C")</td>
+                                        <td>@line.AmountPaid.ToString("C")</td>
+                                        <td>@line.BalanceDue.ToString("C")</td>
+                                        <td>@line.Current.ToString("C")</td>
+                                        <td>@line.Days30.ToString("C")</td>
+                                        <td>@line.Days60.ToString("C")</td>
+                                        <td>@line.Days90.ToString("C")</td>
+                                        <td>@line.Days120Plus.ToString("C")</td>
+                                        <td>
+                                            @{
+                                                decimal interest = 0;
+                                                statementViewModel.InterestByGroup.TryGetValue(line.InvoiceGroupId, out interest);
+                                            }
+                                            @interest.ToString("C")
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+
+                            <tfoot>
+                                <tr>
+                                    <th colspan="4">Totals</th>
+                                    <th>@statementViewModel.TotalBalance.ToString("C")</th>
+                                    <th>@statementViewModel.CurrentTotal.ToString("C")</th>
+                                    <th>@statementViewModel.Days30Total.ToString("C")</th>
+                                    <th>@statementViewModel.Days60Total.ToString("C")</th>
+                                    <th>@statementViewModel.Days90Total.ToString("C")</th>
+                                    <th>@statementViewModel.Days120PlusTotal.ToString("C")</th>
+                                    <th>@statementViewModel.TotalInterestDue.ToString("C")</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        @if (statementViewModel.TotalInterestDue > 0)
+                        {
+                            <div class="mt-3">
+                                <strong>Total Interest Due:</strong> @statementViewModel.TotalInterestDue.ToString("C")
+                            </div>
+
+                            <div>
+                                <strong>Grand Total (Principal + Interest):</strong>
+                                @statementViewModel.GrandTotalWithInterest.ToString("C")
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p>No data available.</p>
+                    }
+
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseStatementModal">Close</button>
+                    <button class="btn btn-primary" @onclick="PrintStatement">Print</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+
+@if (ShowDirectSaleModal)
+{
+    <div class="modal-backdrop fade show"></div>
+
+    <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Direct Sale</h5>
+                    <button type="button" class="btn-close" @onclick="CloseDirectSaleModal"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <EditForm Model="DirectSaleModel" OnValidSubmit="SaveDirectSale">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <!-- CUSTOMER -->
+                        <div class="mb-3">
+                            <label>Customer</label>
+                            <InputSelect class="form-control" @bind-Value="DirectSaleModel.CustomerId">
+                                <option value="">-- Select Customer --</option>
+                                @foreach (var c in customers)
+                                {
+                                    <option value="@c.Id">@c.CustomerBusinessName</option>
+                                }
+                            </InputSelect>
+                        </div>
+
+
+                        <!-- PRODUCT LINES -->
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Description</th>
+                                    <th>Unit</th>
+                                    <th>Qty</th>
+                                    <th>Price</th>
+                                    <th>Total</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in DirectSaleModel.Items)
+                                {
+                                    <tr>
+                                        <td>
+                                            <InputSelect class="form-control" @bind-Value="item.ChemicalName" @onchange="(e) => OnProductSelected(item, e.Value?.ToString())">
+                                                <option value="">-- Select Product --</option>
+                                                @foreach (var p in products)
+                                                {
+                                                    <option value="@p.Name">@p.Name</option>
+                                                }
+                                            </InputSelect>
+                                        </td>
+                                        <td><InputText class="form-control" @bind-Value="item.UnitOfMeasure" /></td>
+                                        <td><InputNumber class="form-control" @bind-Value="item.Quantity" @onchange="RecalculateDirectSaleTotals" /></td>
+                                        <td><InputNumber class="form-control" @bind-Value="item.Price" @onchange="RecalculateDirectSaleTotals" /></td>
+                                        <td>@((item.Quantity * item.Price).ToString("C"))</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-danger" @onclick="@(() => RemoveDirectSaleItem(item))">X</button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+
+                        <button class="btn btn-secondary mb-3" @onclick="AddDirectSaleItem">Add Line</button>
+
+                        <div class="mt-3 text-end">
+                            <p><strong>Total:</strong> @DirectSaleModel.TotalAmount.ToString("C")</p>
+                        </div>
+
+                        <button class="btn btn-success">Save & Generate Invoice</button>
+                        <button type="button" class="btn btn-secondary ms-2" @onclick="CloseDirectSaleModal">Cancel</button>
+
+                    </EditForm>
+
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+
 @code {
     private List<Invoice> invoicesWithQuote = new();
-    private List<NoQuoteInvoice> invoicesWithoutQuote = new();
     private bool isDisplayingAllInvoices = false;
     private string generateMessage = string.Empty;
+    private List<Customer> customers = new();
+    private int selectedPrintedCustomerId = -1;
+    private List<Invoice> printedInvoices = new();
+    // Payment modal state
+    private bool showPaymentModal = false;
+    private int selectedInvoiceGroupId;
+    private decimal selectedInvoiceTotal;
+    private decimal selectedInvoiceAmountPaid;
+    private decimal selectedInvoiceBalanceDue;
+    private decimal customerPrepaymentBalance;
+    private bool showStatementModal = false;
+    private OpenItemStatementViewModel? statementViewModel;
+    private List<OpenItemStatementViewModel> statementViewModels = new();
+    private string paymentType = "new"; // "new" or "prepay"
+    private decimal paymentAmount;
+    private string paymentError;
+    // Prepayment modal
+    private bool showPrepaymentModal = false;
+    private int prepayCustomerId;
+    private decimal prepayAmount;
+    private string prepayMethod = "";
+    private string prepayError;
+    private string statementMessage = string.Empty;
+    private string prepayNote = "";
+    private List<Payment> customerPrepayments = new();
+    private int _selectedPrepaymentId;
+    //Direct Sale modal
+    private bool ShowDirectSaleModal = false;
+    private DirectSaleDto DirectSaleModel = new();
+    private List<Customer> Customers = new();
+    private List<Product> products = new();
+
+
+
+    public int selectedPrepaymentId
+    {
+        get => _selectedPrepaymentId;
+        set
+        {
+            _selectedPrepaymentId = value;
+
+            // ⭐ Auto-toggle payment type
+            if (_selectedPrepaymentId > 0)
+                paymentType = "prepay";
+            else
+                paymentType = "new";
+        }
+    }
+
+    private List<Invoice> selectedInvoiceLines = new();
+
+
+
+    // Customers with at least one $0 invoice
+    private HashSet<int> BlockedCustomerIds => invoicesWithQuote
+        .GroupBy(i => i.CustomerId)
+        .Where(g => g.Any(i => i.InvoicePrice == 0))
+        .Select(g => g.Key)
+        .ToHashSet();
+
+    // Can we print all?
+    private bool CanPrintAll => invoicesWithQuote
+        .Where(i => !i.IsPrinted)
+        .GroupBy(i => i.CustomerId)
+        .All(g => !BlockedCustomerIds.Contains(g.Key));
+
+    // Can we reprint selected?
+    private bool CanReprintSelected => invoicesWithQuote
+        .GroupBy(i => i.CustomerId)
+        .Where(g => g.First().IsGroupSelected)
+        .All(g => !BlockedCustomerIds.Contains(g.Key));
+
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadInvoices();
+        // Do nothing here related to loading invoices
+        customers = await InvoiceService.GetAllCustomersAsync();
+        products = await InvoiceService.GetAllProductsAsync();
     }
 
     private async Task LoadInvoices()
     {
-        invoicesWithQuote.Clear();
-        invoicesWithoutQuote.Clear();
+        var allInvoices = await InvoiceService.GetInvoicesAsync();
+        invoicesWithQuote = allInvoices.Where(i => !i.IsPrinted).ToList();
 
-        // Retrieve invoices with and without quotes
-        var (withQuote, withoutQuote) = await InvoiceService.GenerateInvoicesAsync();
-
-        invoicesWithQuote.AddRange(withQuote);
-        invoicesWithoutQuote.AddRange(withoutQuote);
+        if (!invoicesWithQuote.Any())
+        {
+            generateMessage = "No invoices found.";
+        }
     }
 
     private async Task GenerateInvoices()
     {
         generateMessage = string.Empty;
 
-        // Retrieve existing invoices
-        var existingInvoices = await InvoiceService.GetAllInvoicesAsync();
-        var (newWithQuote, newWithoutQuote) = await InvoiceService.GenerateInvoicesAsync();
+        // ❗ Clear UI invoice list BEFORE generating
+        invoicesWithQuote.Clear();
 
-        // Filter new invoices with quotes
-        var invoicesToAddWithQuote = newWithQuote.Where(newInvoice =>
-            !existingInvoices.Any(existingInvoice =>
-                existingInvoice.InvoiceCustomer == newInvoice.InvoiceCustomer &&
-                existingInvoice.InvoiceChemicalName == newInvoice.InvoiceChemicalName &&
-                existingInvoice.InvoiceRatePerAcre == newInvoice.InvoiceRatePerAcre &&
-                existingInvoice.InvoiceUnitOfMeasure == newInvoice.InvoiceUnitOfMeasure &&
-                existingInvoice.InvoicePrice == newInvoice.InvoicePrice
-            )).ToList();
+        // ❗ Now generate fresh invoices
+        var newInvoices = await InvoiceService.GenerateInvoicesAsync();
 
-        // Filter new invoices without quotes
-        var invoicesToAddWithoutQuote = newWithoutQuote.Where(newInvoice =>
-            !existingInvoices.Any(existingInvoice =>
-                existingInvoice.InvoiceCustomer == newInvoice.InvoiceCustomer &&
-                existingInvoice.InvoiceChemicalName == newInvoice.InvoiceChemicalName &&
-                existingInvoice.InvoiceRatePerAcre == newInvoice.InvoiceRatePerAcre &&
-                existingInvoice.InvoiceUnitOfMeasure == newInvoice.InvoiceUnitOfMeasure &&
-                existingInvoice.InvoicePrice == newInvoice.InvoicePrice
-            )).ToList();
-
-        if (!invoicesToAddWithQuote.Any() && !invoicesToAddWithoutQuote.Any())
+        if (!newInvoices.Any())
         {
             generateMessage = "No new invoices to generate.";
             return;
         }
 
-        // Add invoices with quotes
-        foreach (var invoice in invoicesToAddWithQuote)
-        {
-            await InvoiceService.AddInvoiceAsync(invoice);
-        }
+        var groupCount = newInvoices.GroupBy(i => i.CustomerId).Count();
+        generateMessage = $"{groupCount} new invoice(s) generated successfully.";
 
-        // Add invoices without quotes
-        foreach (var invoice in invoicesToAddWithoutQuote)
-        {
-            await InvoiceService.AddNoQuoteInvoiceAsync(invoice);
-        }
-
-        generateMessage = $"{invoicesToAddWithQuote.Count + invoicesToAddWithoutQuote.Count} new invoices generated successfully.";
+        // Load fresh invoices AFTER generation
         await LoadInvoices();
+        ToggleDisplayAllInvoices();
     }
 
-    private async Task DeleteInvoiceWithQuote(int invoiceId)
-    {
-        await InvoiceService.DeleteInvoiceAsync(invoiceId);
-        invoicesWithQuote.RemoveAll(i => i.Id == invoiceId);
-    }
 
-    private async Task DeleteInvoiceWithoutQuote(int invoiceId)
+
+
+    private async Task DeleteInvoicesWithQuote(List<int> invoiceIds)
     {
-        await InvoiceService.DeleteNoQuoteInvoiceAsync(invoiceId);
-        invoicesWithoutQuote.RemoveAll(i => i.Id == invoiceId);
+        foreach (var invoiceId in invoiceIds)
+        {
+            await InvoiceService.DeleteInvoiceAsync(invoiceId);
+            invoicesWithQuote.RemoveAll(i => i.Id == invoiceId);
+        }
+
     }
 
     private async Task ToggleDisplayAllInvoices()
@@ -201,148 +833,846 @@ else
 
         if (isDisplayingAllInvoices)
         {
-            await LoadInvoices();
+            await LoadInvoices(); // This now only loads unprinted invoices
         }
         else
         {
             invoicesWithQuote.Clear();
-            invoicesWithoutQuote.Clear();
         }
     }
 
     private async Task PrintAllInvoices()
     {
-        var allUnprintedInvoicesWithQuote = invoicesWithQuote.Where(i => !i.IsPrinted).ToList();
-        var allUnprintedInvoicesWithoutQuote = invoicesWithoutQuote.Where(i => !i.IsPrinted).ToList();
+        var allInvoices = await InvoiceService.GetInvoicesAsync();
+        invoicesWithQuote = allInvoices.Where(i => !i.IsPrinted).ToList();
 
-        if (!allUnprintedInvoicesWithQuote.Any() && !allUnprintedInvoicesWithoutQuote.Any())
+        var allUnprintedInvoicesWithQuote = invoicesWithQuote
+            .Where(i => !i.IsPrinted && !BlockedCustomerIds.Contains(i.CustomerId))
+            .ToList();
+
+        if (!allUnprintedInvoicesWithQuote.Any())
         {
-            generateMessage = "No unprinted invoices to print.";
+            generateMessage = "No printable invoices available. Some may have a price of $0.";
             return;
         }
 
-        var allContent = new System.Text.StringBuilder();
+        var groups = allUnprintedInvoicesWithQuote.GroupBy(i => i.InvoiceGroupId);
 
-        if (allUnprintedInvoicesWithQuote.Any())
-        {
-            BuildPrintContent(allUnprintedInvoicesWithQuote.GroupBy(i => i.CustomerId), allContent);
-        }
+        // Multi-invoice template (no footer)
+        var html = await InvoiceService.BuildMultiInvoiceHtmlAsync(groups);
 
-        if (allUnprintedInvoicesWithoutQuote.Any())
-        {
-            BuildPrintContent(allUnprintedInvoicesWithoutQuote.GroupBy(i => i.CustomerId), allContent);
-        }
+        await JSRuntime.InvokeVoidAsync("openPrintWindow", html);
 
-        // Open the print window
-        var finalContent = await GetFinalPrintContent(allContent.ToString());
-        await JSRuntime.InvokeVoidAsync("openPrintWindow", finalContent);
-
-        // Mark all invoices as printed
         var printedInvoiceIds = allUnprintedInvoicesWithQuote.Select(i => i.Id).ToList();
-        var printedNoQuoteInvoiceIds = allUnprintedInvoicesWithoutQuote.Select(i => i.Id).ToList();
-
         await InvoiceService.MarkInvoicesAsPrintedAsync(printedInvoiceIds);
-        await InvoiceService.MarkNoQuoteInvoicesAsPrintedAsync(printedNoQuoteInvoiceIds);
     }
 
     private async Task ReprintSelectedInvoices()
     {
-        var selectedGroupsWithQuote = invoicesWithQuote.GroupBy(i => i.CustomerId)
-                                                       .Where(group => group.First().IsGroupSelected)
-                                                       .ToList();
+        var selectedGroupsWithQuote = invoicesWithQuote
+            .GroupBy(i => i.InvoiceGroupId)
+            .Where(group => group.First().IsGroupSelected && !BlockedCustomerIds.Contains(group.First().CustomerId))
+            .ToList();
 
-        var selectedGroupsWithoutQuote = invoicesWithoutQuote.GroupBy(i => i.CustomerId)
-                                                             .Where(group => group.First().IsGroupSelected)
-                                                             .ToList();
-
-        if (!selectedGroupsWithQuote.Any() && !selectedGroupsWithoutQuote.Any())
+        if (!selectedGroupsWithQuote.Any())
         {
-            generateMessage = "No invoice groups selected for reprinting.";
+            generateMessage = "No eligible invoices selected for reprinting. Some may have a price of $0.";
             return;
         }
 
-        var allContent = new System.Text.StringBuilder();
+        // Multi-invoice template (no footer)
+        var html = await InvoiceService.BuildMultiInvoiceHtmlAsync(selectedGroupsWithQuote);
 
-        if (selectedGroupsWithQuote.Any())
-        {
-            BuildPrintContent(selectedGroupsWithQuote, allContent);
-        }
-
-        if (selectedGroupsWithoutQuote.Any())
-        {
-            BuildPrintContent(selectedGroupsWithoutQuote, allContent);
-        }
-
-        // Open the print window
-        var finalContent = await GetFinalPrintContent(allContent.ToString());
-        await JSRuntime.InvokeVoidAsync("openPrintWindow", finalContent);
+        await JSRuntime.InvokeVoidAsync("openPrintWindow", html);
     }
 
-    private void BuildPrintContent<T>(IEnumerable<IGrouping<int, T>> groupedInvoices, System.Text.StringBuilder allContent) where T : class
+    private async Task<string> BuildPrintContent<T>(IEnumerable<IGrouping<int, T>> groupedInvoices) where T : class
     {
+        var allInvoicesHtml = new System.Text.StringBuilder();
+        int invoiceCount = groupedInvoices.Count();
+        int currentInvoice = 0;
+
         foreach (var group in groupedInvoices)
         {
-            var customerName = (group.First() as Invoice)?.InvoiceCustomer ?? (group.First() as NoQuoteInvoice)?.InvoiceCustomer;
-            var invoiceDate = DateTime.Now.ToString("MM/dd/yyyy");
-            var totalAmount = group.Sum(i =>
+            currentInvoice++;
+
+            var first = group.First() as Invoice;
+            var header = first?.InvoiceHeader;
+
+            var invoiceDate = first?.InvoiceDate.ToString("MM/dd/yyyy") ?? "Unknown";
+            var invoiceGroupId = first?.InvoiceGroupId.ToString() ?? "Unknown";
+            var dueDate = header?.DueDate.ToString("MM/dd/yyyy") ?? "";
+
+            var customerName = header?.Customer?.CustomerBusinessName
+                ?? first?.Customer?.CustomerBusinessName
+                ?? "Unknown";
+
+            var streetAddress = header?.Customer?.CustomerStreet ?? "";
+            var city = header?.Customer?.CustomerCity ?? "";
+            var state = header?.Customer?.CustomerState ?? "";
+            var zipCode = header?.Customer?.CustomerZipCode ?? "";
+
+            string totalAmount = "$" + group.Sum(i =>
             {
-                if (i is Invoice invoiceWithQuote)
-                {
-                    return invoiceWithQuote.InvoiceRatePerAcre * invoiceWithQuote.InvoicePrice;
-                }
-                if (i is NoQuoteInvoice invoiceWithoutQuote)
-                {
-                    return invoiceWithoutQuote.InvoiceRatePerAcre * invoiceWithoutQuote.InvoicePrice;
-                }
+                if (i is Invoice inv)
+                    return inv.InvoiceRatePerAcre * inv.InvoicePrice;
+                if (i is NoQuoteInvoice nq)
+                    return nq.InvoiceRatePerAcre * nq.InvoicePrice;
                 return 0;
             }).ToString("F2");
 
             var itemsHtml = string.Join("", group.Select(i =>
             {
-                if (i is Invoice invoiceWithQuote)
+                if (i is Invoice inv)
                 {
-                    var amount = (invoiceWithQuote.InvoiceRatePerAcre * invoiceWithQuote.InvoicePrice).ToString("F2");
-                    return $"<tr><td>{invoiceWithQuote.InvoiceRatePerAcre}</td><td>{invoiceWithQuote.UnitOfMeasure}</td><td>{invoiceWithQuote.InvoiceChemicalName}</td><td>{invoiceWithQuote.InvoicePrice}</td><td>{amount}</td></tr>";
+                    var amount = $"${(inv.InvoiceRatePerAcre * inv.InvoicePrice).ToString("F2")}";
+                    var pricePerUnit = $"${inv.InvoicePrice.ToString("F2")}";
+                    return $"<tr><td>{inv.InvoiceRatePerAcre}</td><td>{inv.UnitOfMeasure}</td><td>{inv.InvoiceChemicalName}</td><td>{pricePerUnit}</td><td>{amount}</td></tr>";
                 }
-                if (i is NoQuoteInvoice invoiceWithoutQuote)
+                if (i is NoQuoteInvoice nq)
                 {
-                    var amount = (invoiceWithoutQuote.InvoiceRatePerAcre * invoiceWithoutQuote.InvoicePrice).ToString("F2");
-                    return $"<tr><td>{invoiceWithoutQuote.InvoiceRatePerAcre}</td><td>{invoiceWithoutQuote.UnitOfMeasure}</td><td>{invoiceWithoutQuote.InvoiceChemicalName}</td><td>{invoiceWithoutQuote.InvoicePrice}</td><td>{amount}</td></tr>";
+                    var amount = $"${(nq.InvoiceRatePerAcre * nq.InvoicePrice).ToString("F2")}";
+                    var pricePerUnit = $"${nq.InvoicePrice.ToString("F2")}";
+                    return $"<tr><td>{nq.InvoiceRatePerAcre}</td><td>{nq.UnitOfMeasure}</td><td>{nq.InvoiceChemicalName}</td><td>{pricePerUnit}</td><td>{amount}</td></tr>";
                 }
                 return string.Empty;
             }));
 
-            var customerContent = $@"
-            <div class='print-container'>
-                <h1>Invoice for {customerName}</h1>
-                <p><strong>Invoice Date:</strong> {invoiceDate}</p>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Qty</th>
-                            <th>Unit</th>
-                            <th>Description</th>
-                            <th>Price/Unit</th>
-                            <th>Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                {itemsHtml}
-                    </tbody>
-                </table>
-                <p><strong>Total Amount:</strong> {totalAmount}</p>
-            </div>";
+            var groupHtml = $@"
+// <div>
+//     <div class='header-row'>
+//         <img src='images/logo.jpg' alt='Premier Ag Solution, LLC Logo' class='logo'>
+//         <div>
+//             <h2>INVOICE</h2>
+//             <p><strong>Date:</strong> {invoiceDate}</p>
+//             <p><strong>Invoice #:</strong> {invoiceGroupId}</p>
+//             <p><strong>Due Date:</strong> {dueDate}</p>
+//         </div>
+//     </div>
 
-            allContent.Append(customerContent);
+//     <div class='content-row'>
+//         <div class='content-column1'>
+//             <h4>Bill To:</h4>
+//             <p>{customerName}</p>
+//             <p>{streetAddress}</p>
+//             <p>{city}, {state} {zipCode}</p>
+//         </div>
+//         <div class='content-column2'>
+//             <p>Commercial Pesticide Applicator</p>
+//             <p>Eugene M Joos Cert # 51088 (Expires 2026-12-31)</p>
+//             <p>Lincoln Joos Cert # 57071 (Expires 2024-12-31)</p>
+//             <p>Pesticide Applicator License #09344-001 (Expires 2024-12-31)</p>
+//         </div>
+//     </div>
 
-            allContent.Append("<div class='page-break'></div>");
+//     <table>
+//         <thead>
+//             <tr>
+//                 <th>Qty</th>
+//                 <th>Unit</th>
+//                 <th>Description</th>
+//                 <th>Price/Unit</th>
+//                 <th>Amount</th>
+//             </tr>
+//         </thead>
+//         <tbody>
+// {itemsHtml}
+//         </tbody>
+//     </table>
+
+//     <div class='total-amount'>
+//         <p><strong>Total Amount:</strong> {totalAmount}</p>
+//     </div>
+// </div>";
+
+            // ⭐ Pass DueDate into GetFinalPrintContent
+            var finalHtml = await GetFinalPrintContent(groupHtml, invoiceDate, invoiceGroupId, totalAmount, dueDate);
+            allInvoicesHtml.Append(finalHtml);
+
+            if (currentInvoice < invoiceCount)
+            {
+                allInvoicesHtml.Append("<div style='page-break-after: always;'></div>");
+            }
+        }
+
+        return allInvoicesHtml.ToString();
+    }
+
+    private async Task<string> GetFinalPrintContent(string allContent, string invoiceDate, string invoiceGroupId, string totalAmount, string dueDate)
+    {
+        var templatePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "print_invoicetemplate.html");
+        var templateContent = await File.ReadAllTextAsync(templatePath);
+
+        return templateContent
+            .Replace("{{InvoicesContent}}", allContent)
+            .Replace("{{InvoiceDate}}", invoiceDate)
+            .Replace("{{InvoiceGroupId}}", invoiceGroupId)
+            .Replace("{{TotalAmount}}", totalAmount)
+            .Replace("{{DueDate}}", dueDate);
+    }
+
+    private async Task<string> GetFinalStatementPrintContent(string statementHtml, DateTime statementDate, decimal totalBalance)
+    {
+        var templatePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "print_statementtemplate.html");
+        var templateContent = await File.ReadAllTextAsync(templatePath);
+
+        return templateContent
+            .Replace("{{StatementContent}}", statementHtml)
+            .Replace("{{StatementDate}}", statementDate.ToString("MM/dd/yyyy"))
+            .Replace("{{TotalBalance}}", totalBalance.ToString("C"));
+    }
+
+
+    private async Task SaveInvoiceGroup(List<Invoice> group)
+    {
+        // ⭐ Add this as the FIRST line
+        await JSRuntime.InvokeVoidAsync("console.log", "🔥 SaveInvoiceGroup WAS CALLED");
+
+        foreach (var invoice in group)
+        {
+            await InvoiceService.UpdateInvoiceAsync(invoice);
+        }
+
+        await InvoiceService.RecalculateInvoiceHeaderTotalAsync(group.First().InvoiceGroupId);
+
+        generateMessage = "Invoice updates saved.";
+        await LoadInvoices();
+    }
+
+    private async Task OnPUOMSelected(Invoice invoice, string selectedPUOM)
+    {
+        await InvoiceService.UpdateInvoiceUnitAsync(invoice, selectedPUOM);
+        await LoadInvoices(); // ⭐ REQUIRED
+        StateHasChanged();
+    }
+
+    private async Task OnPrintedCustomerChanged(ChangeEventArgs e)
+    {
+        // ---------------------------------------
+        // Manual refresh (e == null)
+        // ---------------------------------------
+        if (e == null)
+        {
+            if (selectedPrintedCustomerId > 0)
+            {
+                printedInvoices = (await InvoiceService.GetInvoicesAsync())
+                    .Where(i => i.CustomerId == selectedPrintedCustomerId && i.IsPrinted)
+                    .ToList();
+            }
+            else if (selectedPrintedCustomerId == 0)
+            {
+                // All customers
+                printedInvoices = (await InvoiceService.GetInvoicesAsync())
+                    .Where(i => i.IsPrinted)
+                    .ToList();
+            }
+            else
+            {
+                printedInvoices.Clear();
+            }
+
+            return;
+        }
+
+        // ---------------------------------------
+        // UI dropdown change
+        // ---------------------------------------
+        var rawValue = e.Value?.ToString();
+
+        // No selection
+        if (string.IsNullOrWhiteSpace(rawValue))
+        {
+            selectedPrintedCustomerId = -1;
+            printedInvoices.Clear();
+            return;
+        }
+
+        // Parse selection
+        if (!int.TryParse(rawValue, out int customerId))
+        {
+            selectedPrintedCustomerId = -1;
+            printedInvoices.Clear();
+            return;
+        }
+
+        selectedPrintedCustomerId = customerId;
+
+        // All Customers
+        if (customerId == 0)
+        {
+            printedInvoices = (await InvoiceService.GetInvoicesAsync())
+                .Where(i => i.IsPrinted)
+                .ToList();
+            return;
+        }
+
+        // Specific customer
+        printedInvoices = (await InvoiceService.GetInvoicesAsync())
+            .Where(i => i.CustomerId == customerId && i.IsPrinted)
+            .ToList();
+    }
+
+
+    private async Task OnSaveClicked(List<Invoice> group)
+    {
+        await JSRuntime.InvokeVoidAsync("console.log", "🟢 BUTTON CLICKED");
+        await SaveInvoiceGroup(group);
+    }
+
+
+    private async Task ViewPrintedInvoice(List<Invoice> group)
+    {
+        var invoiceGroupId = group.First().InvoiceGroupId;
+
+        // Build full single-invoice HTML using the original template
+        var html = await InvoiceService.BuildSingleInvoiceHtmlAsync(group);
+
+        await JSRuntime.InvokeVoidAsync("openPrintWindow", html);
+    }
+
+
+    private class SimpleGrouping<TKey, TElement> : IGrouping<TKey, TElement>
+    {
+        public TKey Key { get; }
+        private readonly IEnumerable<TElement> _elements;
+
+        public SimpleGrouping(TKey key, IEnumerable<TElement> elements)
+        {
+            Key = key;
+            _elements = elements;
+        }
+
+        public IEnumerator<TElement> GetEnumerator() => _elements.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => _elements.GetEnumerator();
+    }
+
+    private async Task EditPrintedInvoice(List<Invoice> group)
+    {
+
+        // Load ONLY this invoice group into the editable invoice section
+        invoicesWithQuote = group;
+
+        // Force the editable section to appear
+        isDisplayingAllInvoices = true;
+
+        await JSRuntime.InvokeVoidAsync("console.log",
+            $"🟦 EditPrintedInvoice triggered for group {group.First().InvoiceGroupId}");
+    }
+
+    private async Task OpenPaymentModal(Invoice invoice)
+    {
+        showPaymentModal = true;
+
+        selectedInvoiceGroupId = invoice.InvoiceGroupId;
+
+        // ⭐ Reload header fresh from DB
+        var header = await InvoiceService.GetInvoiceHeaderAsync(invoice.InvoiceGroupId);
+
+        selectedInvoiceTotal = header.TotalAmount;
+        selectedInvoiceAmountPaid = header.AmountPaid;
+        selectedInvoiceBalanceDue = selectedInvoiceTotal - selectedInvoiceAmountPaid;
+
+        // ⭐ Reload invoice lines fresh from DB
+        selectedInvoiceLines = (await InvoiceService.GetInvoicesAsync())
+            .Where(i => i.InvoiceGroupId == invoice.InvoiceGroupId)
+            .ToList();
+
+        // ⭐ Reload prepayments fresh from DB
+        customerPrepayments = (await InvoiceService.GetPaymentsForCustomerAsync(invoice.CustomerId))
+            .Where(p => p.InvoiceGroupId == null)
+            .OrderByDescending(p => p.PaymentDate)
+            .ToList();
+
+        selectedPrepaymentId = 0;
+        paymentAmount = 0;
+        paymentError = null;
+
+        StateHasChanged();
+    }
+
+
+    private void ClosePaymentModal()
+    {
+        showPaymentModal = false;
+        paymentError = null;
+    }
+
+    private async Task ApplyPayment()
+    {
+        paymentError = null;
+
+        // ============================
+        // 1. Validate amount > 0
+        // ============================
+        if (paymentAmount <= 0)
+        {
+            paymentError = "Amount must be greater than zero.";
+            return;
+        }
+
+        // ============================
+        // 2. NEW PAYMENT (simple case)
+        // ============================
+        if (paymentType == "new")
+        {
+            if (paymentAmount > selectedInvoiceBalanceDue)
+            {
+                paymentError = "Amount exceeds the invoice balance.";
+                return;
+            }
+
+            await InvoiceService.ApplyPaymentAsync(
+                selectedInvoiceGroupId,
+                paymentAmount,
+                "Payment"
+            );
+
+            ClosePaymentModal();
+            await OnPrintedCustomerChanged(null);
+            return;
+        }
+
+        // ============================
+        // 3. PREPAYMENT VALIDATION
+        // ============================
+        if (paymentType == "prepay")
+        {
+            // Must select a prepayment
+            if (selectedPrepaymentId == 0)
+            {
+                paymentError = "Please select a prepayment.";
+                return;
+            }
+
+            var selected = customerPrepayments
+                .FirstOrDefault(p => p.Id == selectedPrepaymentId);
+
+            if (selected == null)
+            {
+                paymentError = "Selected prepayment not found.";
+                return;
+            }
+
+            // Cannot exceed prepayment balance
+            if (paymentAmount > selected.Amount)
+            {
+                paymentError = "Amount exceeds the selected prepayment balance.";
+                return;
+            }
+
+            // Cannot exceed invoice balance
+            if (paymentAmount > selectedInvoiceBalanceDue)
+            {
+                paymentError = "Amount exceeds the invoice balance.";
+                return;
+            }
+
+            // ============================
+            // 4. APPLY THE PREPAYMENT
+            // ============================
+            await InvoiceService.ApplySpecificPrepaymentAsync(
+                selectedPrepaymentId,
+                selectedInvoiceGroupId,
+                paymentAmount
+            );
+
+            ClosePaymentModal();
+            await OnPrintedCustomerChanged(null);
         }
     }
 
-    private async Task<string> GetFinalPrintContent(string allContent)
+
+
+    private void OpenPrepaymentModal()
     {
-        var templatePath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "print_invoicetemplate.html");
-        var templateContent = await System.IO.File.ReadAllTextAsync(templatePath);
-        return templateContent.Replace("{{InvoicesContent}}", allContent);
+        prepayCustomerId = 0;
+        prepayAmount = 0;
+        prepayMethod = "";
+        prepayError = null;
+
+        showPrepaymentModal = true;
     }
+
+    private void ClosePrepaymentModal()
+    {
+        showPrepaymentModal = false;
+        prepayError = null;
+    }
+
+    private async Task SavePrepayment()
+    {
+        prepayError = null;
+
+        if (prepayCustomerId == 0)
+        {
+            prepayError = "Please select a customer.";
+            return;
+        }
+
+        if (prepayAmount <= 0)
+        {
+            prepayError = "Amount must be greater than zero.";
+            return;
+        }
+
+        await InvoiceService.AddPrepaymentAsync(prepayCustomerId, prepayAmount, prepayMethod, prepayNote);
+
+        showPrepaymentModal = false;
+
+        // Reload customers so prepayment balances update
+        customers = await InvoiceService.GetAllCustomersAsync();
+    }
+
+    private async Task OpenStatementModal()
+    {
+        statementMessage = string.Empty;
+        showStatementModal = false;
+
+        var asOfDate = DateTime.Today;
+
+        // 1. No selection
+        if (selectedPrintedCustomerId == -1)
+        {
+            statementMessage = "Please select a customer.";
+            return;
+        }
+
+        // 2. ALL CUSTOMERS selected
+        if (selectedPrintedCustomerId == 0)
+        {
+            var allStatements = await InvoiceService.GetAllOpenItemStatementsAsync(asOfDate);
+
+            if (allStatements == null || !allStatements.Any())
+            {
+                statementMessage = "No open items found.";
+                return;
+            }
+
+            // Show ALL statements
+            statementViewModels = allStatements;
+            statementViewModel = null; // ensure single mode is cleared
+            showStatementModal = true;
+            return;
+        }
+
+        // 3. INDIVIDUAL CUSTOMER selected
+        var interestResults = await InvoiceService.CalculateInterestForCustomerAsync(
+            selectedPrintedCustomerId,
+            asOfDate
+        );
+
+        var singleStatement = await InvoiceService.GetOpenItemStatementAsync(
+            selectedPrintedCustomerId,
+            asOfDate,
+            interestResults
+        );
+
+        if (singleStatement == null || !singleStatement.Lines.Any())
+        {
+            statementMessage = "No open items found.";
+            return;
+        }
+
+        // Show ONE statement
+        statementViewModel = singleStatement;
+        statementViewModels = new List<OpenItemStatementViewModel>(); // clear multi mode
+        showStatementModal = true;
+    }
+
+    private void CloseStatementModal()
+    {
+        showStatementModal = false;
+    }
+
+    private async Task PrintStatement()
+    {
+        // MULTI-CUSTOMER MODE
+        if (statementViewModels != null && statementViewModels.Any())
+        {
+            var pages = new StringBuilder();
+
+            foreach (var vm in statementViewModels)
+            {
+                var innerHtml = BuildStatementInnerHtml(vm);
+
+                pages.Append($@"
+                <div class='page'>
+                    <div class='content'>
+                    {innerHtml}
+                    </div>
+
+                    <div class='footer'>
+                        <h4>Remittance</h4>
+                        <table>
+                            <tr>
+                                <td><strong>Date:</strong></td>
+                                <td>{vm.StatementDate:MM/dd/yyyy}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Amount Due:</strong></td>
+                                <td>{vm.TotalBalance:C}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Amount Enclosed:</strong></td>
+                                <td></td>
+                            </tr>
+                        </table>
+
+                        // <p>Thank you for your business!</p>
+                        // <p>Make all checks payable to Premier Ag Solution, LLC</p>
+                        // <p>Premier Ag Solution, LLC 17564 Nuthatch Ave. Bloomfield, IOWA 52537 641-777-5997/641-777-2968</p>
+                    </div>
+                </div>
+            ");
+            }
+
+            var templatePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "print_statementtemplate_multi.html");
+            var template = await File.ReadAllTextAsync(templatePath);
+
+            var finalHtml = template.Replace("{{Pages}}", pages.ToString());
+
+            await JSRuntime.InvokeVoidAsync("openPrintWindow", finalHtml);
+            return;
+        }
+
+        // SINGLE-CUSTOMER MODE (unchanged)
+        if (statementViewModel == null)
+            return;
+
+        var singleInnerHtml = BuildStatementInnerHtml(statementViewModel);
+
+        var singleFinalHtml = await GetFinalStatementPrintContent(
+            singleInnerHtml,
+            statementViewModel.StatementDate,
+            statementViewModel.TotalBalance
+        );
+
+        await JSRuntime.InvokeVoidAsync("openPrintWindow", singleFinalHtml);
+    }
+
+
+    private string BuildStatementInnerHtml(OpenItemStatementViewModel vm)
+    {
+        var sb = new StringBuilder();
+
+        sb.Append($@"
+        <img src='images/logo.jpg' alt='Premier Ag Solution, LLC Logo' class='logo'>
+        <h3>Customer: {vm.CustomerName}</h3>
+        <p><strong>Statement Date:</strong> {vm.StatementDate:MM/dd/yyyy}</p>
+        <p><strong>Prepayment Balance:</strong> {vm.PrepaymentBalance:C}</p>
+
+        <table style='width:100%; border-collapse:collapse;' border='1' cellpadding='4'>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Invoice #</th>
+                    <th>Total</th>
+                    <th>Paid</th>
+                    <th>Balance</th>
+                    <th>Current</th>
+                    <th>31–60</th>
+                    <th>61–90</th>
+                    <th>91–120</th>
+                    <th>120+</th>
+                    <th>Interest</th>
+                </tr>
+            </thead>
+            <tbody>
+    ");
+
+        foreach (var line in vm.Lines)
+        {
+            vm.InterestByGroup.TryGetValue(line.InvoiceGroupId, out var interest);
+
+            sb.Append($@"
+            <tr>
+                <td>{line.InvoiceDate:MM/dd/yyyy}</td>
+                <td>{line.InvoiceGroupId}</td>
+                <td>{line.TotalAmount:C}</td>
+                <td>{line.AmountPaid:C}</td>
+                <td>{line.BalanceDue:C}</td>
+                <td>{line.Current:C}</td>
+                <td>{line.Days30:C}</td>
+                <td>{line.Days60:C}</td>
+                <td>{line.Days90:C}</td>
+                <td>{line.Days120Plus:C}</td>
+                <td>{interest:C}</td>
+            </tr>
+        ");
+        }
+
+        sb.Append($@"
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan='4'>Totals</th>
+                    <th>{vm.TotalBalance:C}</th>
+                    <th>{vm.CurrentTotal:C}</th>
+                    <th>{vm.Days30Total:C}</th>
+                    <th>{vm.Days60Total:C}</th>
+                    <th>{vm.Days90Total:C}</th>
+                    <th>{vm.Days120PlusTotal:C}</th>
+                    <th>{vm.TotalInterestDue:C}</th>
+                </tr>
+            </tfoot>
+        </table>
+    ");
+
+        if (vm.TotalInterestDue > 0)
+        {
+            sb.Append($@"
+            <p><strong>Total Interest Due:</strong> {vm.TotalInterestDue:C}</p>
+            <p><strong>Grand Total (Principal + Interest):</strong> {vm.GrandTotalWithInterest:C}</p>
+        ");
+        }
+
+        return sb.ToString();
+    }
+
+
+    private string BuildStatementInnerHtml()
+    {
+        // If the modal hasn't been populated yet, return empty HTML
+        if (statementViewModel == null)
+            return string.Empty;
+
+        // Reuse the batch-printing version by passing the page's ViewModel
+        return BuildStatementInnerHtml(statementViewModel);
+    }
+
+    private string BuildFullStatementInnerHtml(FullCustomerStatementViewModel vm)
+    {
+        var sb = new StringBuilder();
+
+        sb.AppendLine("<h2>Premier Ag Solution, L.L.C.</h2>");
+        sb.AppendLine($"<p><strong>Customer:</strong> {vm.CustomerName}</p>");
+        sb.AppendLine($"<p><strong>Statement Date:</strong> {vm.StatementDate:MM/dd/yyyy}</p>");
+        sb.AppendLine($"<p><strong>Starting Balance:</strong> {vm.StartingBalance:C}</p>");
+        sb.AppendLine($"<p><strong>Ending Balance:</strong> {vm.EndingBalance:C}</p>");
+        sb.AppendLine("<br />");
+        sb.AppendLine("<table>");
+        sb.AppendLine("  <thead>");
+        sb.AppendLine("    <tr>");
+        sb.AppendLine("      <th>Date</th>");
+        sb.AppendLine("      <th>Type</th>");
+        sb.AppendLine("      <th>Reference</th>");
+        sb.AppendLine("      <th>Description</th>");
+        sb.AppendLine("      <th>Invoice</th>");
+        sb.AppendLine("      <th>Payment</th>");
+        sb.AppendLine("      <th>Prepayment</th>");
+        sb.AppendLine("      <th>Interest</th>");
+        sb.AppendLine("      <th>Running Balance</th>");
+        sb.AppendLine("    </tr>");
+        sb.AppendLine("  </thead>");
+        sb.AppendLine("  <tbody>");
+
+        foreach (var line in vm.Lines)
+        {
+            var invoiceText = line.InvoiceAmount != 0 ? line.InvoiceAmount.ToString("C") : string.Empty;
+            var paymentText = line.PaymentAmount != 0 ? line.PaymentAmount.ToString("C") : string.Empty;
+            var prepaymentText = line.PrepaymentAmount != 0 ? line.PrepaymentAmount.ToString("C") : string.Empty;
+            var interestText = line.InterestAmount != 0 ? line.InterestAmount.ToString("C") : string.Empty;
+
+            sb.AppendLine("    <tr>");
+            sb.AppendLine($"      <td>{line.Date:MM/dd/yyyy}</td>");
+            sb.AppendLine($"      <td>{line.DocumentType}</td>");
+            sb.AppendLine($"      <td>{line.Reference}</td>");
+            sb.AppendLine($"      <td>{line.Description}</td>");
+            sb.AppendLine($"      <td>{invoiceText}</td>");
+            sb.AppendLine($"      <td>{paymentText}</td>");
+            sb.AppendLine($"      <td>{prepaymentText}</td>");
+            sb.AppendLine($"      <td>{interestText}</td>");
+            sb.AppendLine($"      <td>{line.RunningBalance:C}</td>");
+            sb.AppendLine("    </tr>");
+        }
+
+        sb.AppendLine("  </tbody>");
+        sb.AppendLine("</table>");
+
+        return sb.ToString();
+    }
+
+    private async Task PrintFullStatement(int customerId)
+    {
+        var vm = await InvoiceService.GetFullCustomerStatementAsync(customerId, DateTime.Today);
+
+        var innerHtml = BuildFullStatementInnerHtml(vm);
+
+        var templatePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "print_fullstatement_single.html");
+        var template = await File.ReadAllTextAsync(templatePath);
+
+        var finalHtml = template.Replace("{{StatementContent}}", innerHtml);
+
+        await JSRuntime.InvokeVoidAsync("openPrintWindow", finalHtml);
+    }
+
+    private async Task OpenFullStatementModalOrPrint(int customerId)
+    {
+        // No selection
+        if (customerId < 0)
+        {
+            statementMessage = "Please select a customer.";
+            return;
+        }
+
+        // All Customers selected (0)
+        if (customerId == 0)
+        {
+            statementMessage = "Please select a single customer.";
+            return;
+        }
+
+        await PrintFullStatement(customerId);
+    }
+
+    private void OpenDirectSaleModal()
+    {
+        DirectSaleModel = new DirectSaleDto();
+        DirectSaleModel.Items.Add(new DirectSaleItemDto());
+        ShowDirectSaleModal = true;
+    }
+
+    private void CloseDirectSaleModal()
+    {
+        ShowDirectSaleModal = false;
+    }
+
+    private void AddDirectSaleItem()
+    {
+        DirectSaleModel.Items.Add(new DirectSaleItemDto());
+    }
+
+    private void RemoveDirectSaleItem(DirectSaleItemDto item)
+    {
+        DirectSaleModel.Items.Remove(item);
+        RecalculateDirectSaleTotals();
+    }
+
+    private void RecalculateDirectSaleTotals()
+    {
+        DirectSaleModel.TotalAmount =
+            DirectSaleModel.Items.Sum(i => i.Quantity * i.Price);
+    }
+
+    private async Task SaveDirectSale()
+    {
+        var invoiceGroupId = await InvoiceService.CreateDirectSaleInvoiceAsync(DirectSaleModel);
+
+        ShowDirectSaleModal = false;
+
+        await LoadInvoices(); // refresh InvoicePage
+    }
+
+    private void OnProductSelected(DirectSaleItemDto item, string productName)
+    {
+        var product = products.FirstOrDefault(p => p.Name == productName);
+        if (product == null)
+            return;
+
+        item.ChemicalName = product.Name;
+        item.UnitOfMeasure = product.DefaultUnitOfMeasure;
+
+        RecalculateDirectSaleTotals();
+    }
+
 }

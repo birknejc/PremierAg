@@ -1,0 +1,392 @@
+﻿@page "/purchaseorder2page"
+@using PAS.Models
+@using PAS.Services
+@using PAS.DBContext
+@using Microsoft.EntityFrameworkCore
+
+@inject PurchaseOrderService PurchaseOrderService
+@inject VendorService VendorService
+@inject ProductInventoryService ProductService
+@inject AppDbContext Db
+@inject IJSRuntime JSRuntime
+
+<h3>Purchase Order (New Product-Based Workflow)</h3>
+
+<div class="d-flex gap-2 mb-3">
+    <button class="btn btn-primary" @onclick="ToggleForm">Add Purchase Order</button>
+
+    <a href="/receivepurchaseorder" class="btn btn-success">
+        Receive Purchase Order
+    </a>
+
+    <a href="/returnpurchaseorder" class="btn btn-danger">
+        Return / Undo Receiving
+    </a>
+</div>
+
+@if (showForm)
+{
+    <div class="mt-3">
+        <EditForm Model="NewPurchaseOrder" OnValidSubmit="AddPurchaseOrder">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="container">
+
+                <!-- PO Header -->
+                <div class="form-group">
+                    <label>Purchase Order Number</label>
+                    <InputText @bind-Value="NewPurchaseOrder.PONumber" class="form-control" readonly />
+                </div>
+
+                <div class="form-group">
+                    <label>Order Date (MM/DD/YYYY)</label>
+                    <InputText @bind-Value="OrderDateFormatted" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label>Payment Due Date (MM/DD/YYYY)</label>
+                    <InputText @bind-Value="PaymentDueDateFormatted" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label>Delivery/Pick Up Date (MM/DD/YYYY)</label>
+                    <InputText @bind-Value="DeliveryPickUpDateFormatted" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label>Pick Up Location</label>
+                    <InputText @bind-Value="NewPurchaseOrder.PickUpLocation" class="form-control" />
+                </div>
+
+                <!-- Vendor -->
+                <div class="form-group">
+                    <label>Vendor</label>
+                    <InputSelect @bind-Value="SelectedVendorId" class="form-control">
+                        <option value="">-- Select Vendor --</option>
+                        @foreach (var v in Vendors.OrderBy(v => v.BusinessName))
+                        {
+                            <option value="@v.Id">@v.BusinessName</option>
+                        }
+                    </InputSelect>
+                </div>
+
+                <!-- Items Section -->
+                <h5 class="mt-4">Items</h5>
+
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>EPA</th>
+                            <th>UOM</th>
+                            <th>Price</th>
+                            <th>Qty Ordered</th>
+                            <th>Total</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in NewPurchaseOrder.Items)
+                        {
+                            <tr>
+                                <td>@item.ProductName</td>
+                                <td>@item.EPANumber</td>
+                                <td>@item.UnitOfMeasurePurchase</td>
+                                <td>@item.Price.ToString("0.00")</td>
+                                <td>@item.QuantityOrdered</td>
+                                <td>@(item.Price * item.QuantityOrdered).ToString("0.00")</td>
+                                <td>
+                                    <button class="btn btn-danger btn-sm" @onclick="() => RemoveItem(item)">Remove</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <!-- New Item Entry -->
+                <div class="form-group mt-3">
+                    <label>Select Product</label>
+                    <InputSelect int? @bind-Value="SelectedProductId" class="form-control">
+                        <option value="">-- Select Product --</option>
+                        @foreach (var p in FilteredProducts)
+                        {
+                            <option value="@p.Id">@p.Name (@p.EPA)</option>
+                        }
+                    </InputSelect>
+                </div>
+
+                <div class="form-group mt-2">
+                    <label>EPA Number</label>
+                    <InputText @bind-Value="NewItem.EPANumber" class="form-control" readonly />
+                </div>
+
+                <div class="form-group mt-2">
+                    <label>Unit of Measure (Purchased)</label>
+                    <InputText @bind-Value="NewItem.UnitOfMeasurePurchase" class="form-control" readonly />
+                </div>
+
+                <div class="form-group mt-2">
+                    <label>Weighted Average Price (Reference)</label>
+                    <InputNumber @bind-Value="ReferenceWeightedAveragePrice" class="form-control" readonly />
+                </div>
+
+                <div class="form-group mt-2">
+                    <label>Purchase Price</label>
+                    <InputNumber @bind-Value="NewItem.Price" class="form-control" />
+                </div>
+
+                <div class="form-group mt-2">
+                    <label>Quantity Ordered</label>
+                    <InputNumber @bind-Value="NewItem.QuantityOrdered" class="form-control" />
+                </div>
+
+                <button type="button" class="btn btn-secondary mt-2" @onclick="AddItem">Add Item</button>
+            </div>
+
+            <button type="submit" class="btn btn-primary mt-3">
+                @(NewPurchaseOrder.Id == 0 ? "Add Purchase Order" : "Update Purchase Order")
+            </button>
+        </EditForm>
+    </div>
+}
+
+<hr />
+
+<h4>Purchase Orders</h4>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>P.O. Number</th>
+            <th>Order Date</th>
+            <th>Vendor</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var po in PurchaseOrders.OrderByDescending(po => int.TryParse(po.PONumber, out var n) ? n : 0))
+        {
+            <tr>
+                <td>@po.PONumber</td>
+                <td>@(po.OrderDate == DateTime.MinValue ? "" : po.OrderDate.ToString("MM/dd/yyyy"))</td>
+                <td>@po.BusinessName</td>
+                <td>
+                    <button class="btn btn-info btn-sm" @onclick="() => PrintPurchaseOrder(po.Id)">Print</button>
+                    <button class="btn btn-primary btn-sm" @onclick="() => EditPurchaseOrder(po.Id)">Edit</button>
+                    <button class="btn btn-danger btn-sm" @onclick="() => DeletePurchaseOrder(po.Id)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<PurchaseOrder> PurchaseOrders = new();
+    private List<Vendor> Vendors = new();
+    private List<Product> Products = new();
+
+    private PurchaseOrder NewPurchaseOrder = new() { Items = new List<PurchaseOrderItem>() };
+    private PurchaseOrderItem NewItem = new();
+
+    private bool showForm = false;
+
+    private int _selectedVendorId;
+    private int SelectedVendorId
+    {
+        get => _selectedVendorId;
+        set
+        {
+            _selectedVendorId = value;
+            OnVendorChanged(value);
+        }
+    }
+
+    private int? _selectedProductId;
+    private int? SelectedProductId
+    {
+        get => _selectedProductId;
+        set
+        {
+            _selectedProductId = value;
+            OnProductChanged(value);
+        }
+    }
+
+    private decimal ReferenceWeightedAveragePrice { get; set; }
+
+    private List<Product> FilteredProducts =>
+        SelectedVendorId == 0
+            ? new List<Product>()
+            : Products
+                .Where(p => p.ProductVendors.Any(pv => pv.VendorId == SelectedVendorId))
+                .OrderBy(p => p.Name)
+                .ToList();
+
+    private string OrderDateFormatted
+    {
+        get => NewPurchaseOrder.OrderDate == DateTime.MinValue ? "" : NewPurchaseOrder.OrderDate.ToString("MM/dd/yyyy");
+        set => NewPurchaseOrder.OrderDate = DateTime.TryParse(value, out var d)
+            ? DateTime.SpecifyKind(d, DateTimeKind.Utc)
+            : DateTime.MinValue;
+    }
+
+    private string PaymentDueDateFormatted
+    {
+        get => NewPurchaseOrder.PaymentDueDate == DateTime.MinValue ? "" : NewPurchaseOrder.PaymentDueDate.ToString("MM/dd/yyyy");
+        set => NewPurchaseOrder.PaymentDueDate = DateTime.TryParse(value, out var d)
+            ? DateTime.SpecifyKind(d, DateTimeKind.Utc)
+            : DateTime.MinValue;
+    }
+
+    private string DeliveryPickUpDateFormatted
+    {
+        get => NewPurchaseOrder.DeliveryPickUpDate == DateTime.MinValue ? "" : NewPurchaseOrder.DeliveryPickUpDate.ToString("MM/dd/yyyy");
+        set => NewPurchaseOrder.DeliveryPickUpDate = DateTime.TryParse(value, out var d)
+            ? DateTime.SpecifyKind(d, DateTimeKind.Utc)
+            : DateTime.MinValue;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        PurchaseOrders = await PurchaseOrderService.GetPurchaseOrdersAsync();
+        Vendors = await VendorService.GetVendorsAsync();
+
+        Products = await Db.Products
+            .Include(p => p.ProductVendors)
+            .ToListAsync();
+    }
+
+    private void ToggleForm()
+    {
+        showForm = !showForm;
+
+        if (showForm)
+        {
+            NewPurchaseOrder = new PurchaseOrder { Items = new List<PurchaseOrderItem>() };
+            NewItem = new PurchaseOrderItem();
+            SelectedVendorId = 0;
+            SelectedProductId = null;
+            ReferenceWeightedAveragePrice = 0;
+
+            var last = PurchaseOrders.OrderByDescending(po => po.Id).FirstOrDefault();
+            var nextPoNumber = last != null && int.TryParse(last.PONumber, out var lastNum)
+                ? lastNum + 1
+                : 1;
+            NewPurchaseOrder.PONumber = nextPoNumber.ToString();
+        }
+    }
+
+    private void OnVendorChanged(int vendorId)
+    {
+        var vendor = Vendors.FirstOrDefault(v => v.Id == vendorId);
+
+        NewPurchaseOrder.VendorId = vendorId;                     // NEW
+        NewPurchaseOrder.BusinessName = vendor?.BusinessName ?? ""; // Snapshot
+
+        SelectedProductId = null;
+        ReferenceWeightedAveragePrice = 0;
+        NewItem = new PurchaseOrderItem();
+    }
+
+
+    private void OnProductChanged(int? productId)
+    {
+        if (productId == null)
+        {
+            NewItem = new PurchaseOrderItem();
+            ReferenceWeightedAveragePrice = 0;
+            return;
+        }
+
+        var product = Products.FirstOrDefault(p => p.Id == productId);
+        if (product != null)
+        {
+            NewItem.ProductId = product.Id;
+
+            // Product snapshot fields
+            NewItem.ProductName = product.Name;
+            NewItem.ProductEPA = product.EPA;
+            NewItem.ProductUOM = product.DefaultUnitOfMeasure;
+
+            // Legacy compatibility
+            NewItem.ChemicalName = product.Name;
+            NewItem.UnitOfMeasurePurchase = product.DefaultUnitOfMeasure;
+            NewItem.EPANumber = product.EPA;
+
+            // Pricing
+            ReferenceWeightedAveragePrice = product.WeightedAveragePrice;
+            NewItem.Price = 0;
+            NewItem.ProductPurchasePrice = 0;
+        }
+    }
+
+
+    private void AddItem()
+    {
+        if (SelectedVendorId == 0 || SelectedProductId == null)
+        {
+            JSRuntime.InvokeVoidAsync("alert", "Please select a vendor and a product.");
+            return;
+        }
+
+        if (NewItem.QuantityOrdered <= 0 || NewItem.Price <= 0)
+        {
+            JSRuntime.InvokeVoidAsync("alert", "Please enter a valid quantity and price.");
+            return;
+        }
+
+        // Add the item to the purchase order
+        NewPurchaseOrder.Items.Add(NewItem);
+
+        // Reset the item entry fields
+        NewItem = new PurchaseOrderItem();
+        NewItem.ProductPurchasePrice = NewItem.Price;
+        SelectedProductId = null;
+        ReferenceWeightedAveragePrice = 0;
+    }
+
+
+    private void RemoveItem(PurchaseOrderItem item)
+    {
+        NewPurchaseOrder.Items.Remove(item);
+    }
+
+    private async Task AddPurchaseOrder()
+    {
+        if (!NewPurchaseOrder.Items.Any())
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Please add at least one item.");
+            return;
+        }
+
+        if (NewPurchaseOrder.Id == 0)
+            await PurchaseOrderService.AddPurchaseOrderAsync(NewPurchaseOrder);
+        else
+            await PurchaseOrderService.UpdatePurchaseOrderAsync(NewPurchaseOrder);
+
+        PurchaseOrders = await PurchaseOrderService.GetPurchaseOrdersAsync();
+        showForm = false;
+    }
+
+    private async Task EditPurchaseOrder(int purchaseOrderId)
+    {
+        var po = await PurchaseOrderService.GetPurchaseOrderByIdAsync(purchaseOrderId);
+        if (po != null)
+        {
+            NewPurchaseOrder = po;
+            showForm = true;
+        }
+    }
+
+    private async Task DeletePurchaseOrder(int purchaseOrderId)
+    {
+        await PurchaseOrderService.DeletePurchaseOrderAsync(purchaseOrderId);
+        PurchaseOrders = await PurchaseOrderService.GetPurchaseOrdersAsync();
+    }
+
+    private async Task PrintPurchaseOrder(int purchaseOrderId)
+    {
+        var html = await PurchaseOrderService.BuildPurchaseOrderPrintHtmlAsync(purchaseOrderId);
+        await JSRuntime.InvokeVoidAsync("openPrintWindow", html);
+    }
+}

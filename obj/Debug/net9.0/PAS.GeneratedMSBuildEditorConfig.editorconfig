@@ -32,6 +32,10 @@ build_property.EnableCodeStyleSeverity =
 build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/birkn/Documents/Premier Ag Solution\, L.L.C/PAS/Pages/ApplicatorLicensePage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQXBwbGljYXRvckxpY2Vuc2VQYWdlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/birkn/Documents/Premier Ag Solution\, L.L.C/PAS/Pages/ConversionPage.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udmVyc2lvblBhZ2UucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
@@ -48,6 +52,14 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRmV0Y2hEYXRhLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/birkn/Documents/Premier Ag Solution\, L.L.C/PAS/Pages/FieldInformation2Component.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRmllbGRJbmZvcm1hdGlvbjJDb21wb25lbnQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/birkn/Documents/Premier Ag Solution\, L.L.C/PAS/Pages/FieldInformationComponent.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRmllbGRJbmZvcm1hdGlvbkNvbXBvbmVudC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/birkn/Documents/Premier Ag Solution\, L.L.C/PAS/Pages/FieldPage.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRmllbGRQYWdlLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
@@ -56,24 +68,40 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5kZXgucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/birkn/Documents/Premier Ag Solution\, L.L.C/PAS/Pages/InventoryPage.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW52ZW50b3J5UGFnZS5yYXpvcg==
-build_metadata.AdditionalFiles.CssScope = 
-
 [C:/Users/birkn/Documents/Premier Ag Solution\, L.L.C/PAS/Pages/InvoicePage.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW52b2ljZVBhZ2UucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/birkn/Documents/Premier Ag Solution\, L.L.C/PAS/Pages/LoadMixPage.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTG9hZE1peFBhZ2UucmF6b3I=
+[C:/Users/birkn/Documents/Premier Ag Solution\, L.L.C/PAS/Pages/LoadMix2Page.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTG9hZE1peDJQYWdlLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/birkn/Documents/Premier Ag Solution\, L.L.C/PAS/Pages/PurchaseOrderPage.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHVyY2hhc2VPcmRlclBhZ2UucmF6b3I=
+[C:/Users/birkn/Documents/Premier Ag Solution\, L.L.C/PAS/Pages/LoadMixDetailsComponent.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTG9hZE1peERldGFpbHNDb21wb25lbnQucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/birkn/Documents/Premier Ag Solution\, L.L.C/PAS/Pages/QuotePage.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUXVvdGVQYWdlLnJhem9y
+[C:/Users/birkn/Documents/Premier Ag Solution\, L.L.C/PAS/Pages/ProductPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJvZHVjdFBhZ2UucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/birkn/Documents/Premier Ag Solution\, L.L.C/PAS/Pages/ProductSelectionComponent.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJvZHVjdFNlbGVjdGlvbkNvbXBvbmVudC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/birkn/Documents/Premier Ag Solution\, L.L.C/PAS/Pages/PurchaseOrder2Page.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHVyY2hhc2VPcmRlcjJQYWdlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/birkn/Documents/Premier Ag Solution\, L.L.C/PAS/Pages/Quote2Page.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUXVvdGUyUGFnZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/birkn/Documents/Premier Ag Solution\, L.L.C/PAS/Pages/ReceivePurchaseOrderPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUmVjZWl2ZVB1cmNoYXNlT3JkZXJQYWdlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/birkn/Documents/Premier Ag Solution\, L.L.C/PAS/Pages/ReturnPurchaseOrder.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUmV0dXJuUHVyY2hhc2VPcmRlci5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/birkn/Documents/Premier Ag Solution\, L.L.C/PAS/Pages/VendorPage.razor]

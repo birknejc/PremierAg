@@ -1,4 +1,7 @@
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\wwwroot\css\open-iconic\font\css\open-iconic-bootstrap.min.css
+C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\wwwroot\print_quotetemplate.html
+C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\wwwroot\print_statementtemplate.html
+C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\wwwroot\print_fullstatement_single.html
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\wwwroot\css\bootstrap\bootstrap.min.css.map
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\wwwroot\js\site.js
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\wwwroot\css\site.css
@@ -7,7 +10,10 @@ C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\wwwroot\print_invoicetem
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\wwwroot\print_potemplate.html
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\wwwroot\css\open-iconic\font\fonts\open-iconic.otf
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\wwwroot\css\bootstrap\bootstrap.min.css
+C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\wwwroot\print_invoicetemplate_multi.html
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\wwwroot\css\open-iconic\README.md
+C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\wwwroot\print_customerlist.html
+C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\wwwroot\print_statementtemplate_multi.html
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\wwwroot\print_loadmixtemplate.html
 wwwroot\css\bootstrap\bootstrap.min.css
 wwwroot\css\bootstrap\bootstrap.min.css.map
@@ -24,6 +30,12 @@ wwwroot\css\site.css
 wwwroot\favicon.png
 wwwroot\images\logo.jpg
 wwwroot\js\site.js
+wwwroot\print_customerlist.html
+wwwroot\print_fullstatement_single.html
 wwwroot\print_invoicetemplate.html
+wwwroot\print_invoicetemplate_multi.html
 wwwroot\print_loadmixtemplate.html
 wwwroot\print_potemplate.html
+wwwroot\print_quotetemplate.html
+wwwroot\print_statementtemplate.html
+wwwroot\print_statementtemplate_multi.html

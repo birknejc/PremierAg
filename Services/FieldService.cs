@@ -52,5 +52,11 @@ namespace PAS.Services
                 await _context.SaveChangesAsync();
             }
         }
+        public async Task AddCustomerFieldAsync(CustomerField customerField)
+        {
+            _context.CustomerFields.Add(customerField);
+            await _context.SaveChangesAsync();
+        }
+
     }
 }

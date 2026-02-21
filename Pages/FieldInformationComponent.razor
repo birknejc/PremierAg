@@ -1,0 +1,189 @@
+﻿@using PAS.Models
+@inject IJSRuntime JSRuntime
+
+@code {
+    [Parameter] public List<LoadFields> LoadFields { get; set; }
+    [Parameter] public EventCallback OnAddField { get; set; }
+    [Parameter] public EventCallback<LoadFields> OnRemoveField { get; set; }
+    [Parameter] public bool IsEditingLoadMix { get; set; }
+    [Parameter] public EventCallback OnAddCustomerApplied { get; set; }
+    [Parameter] public List<Customer> Customers { get; set; }
+
+
+    private List<Field> allFields = new();
+
+    protected override void OnParametersSet()
+    {
+        if (IsEditingLoadMix && LoadFields != null)
+        {
+            foreach (var field in LoadFields)
+            {
+                field.DropdownFields = field.DropdownFields ?? new List<Field>();
+            }
+        }
+    }
+
+    private async Task OnFieldIdChanged(LoadFields field, ChangeEventArgs e, List<Field> specificCustomerFields)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int selectedId))
+        {
+            field.SelectedFieldId = selectedId;
+        }
+
+        await JSRuntime.InvokeVoidAsync("console.log", $"OnFieldIdChanged invoked: SelectedFieldId={field.SelectedFieldId}");
+
+        var selectedField = specificCustomerFields.FirstOrDefault(f => f.Id == field.SelectedFieldId);
+        if (selectedField != null)
+        {
+            field.FieldName = selectedField.FieldName;
+            field.CustomerId = selectedField.CustomerId;
+            await JSRuntime.InvokeVoidAsync("console.log", $"Selected Field: FieldName={selectedField.FieldName}, CustomerId={selectedField.CustomerId}, FieldId={selectedField.Id}");
+        }
+        else
+        {
+            field.FieldName = "Unassigned Field";
+            field.CustomerId = 0;
+            await JSRuntime.InvokeVoidAsync("console.log", $"No matching field found for FieldId={field.SelectedFieldId}");
+        }
+
+        StateHasChanged();
+    }
+
+    private void RecalculateCustomerAppliedAcres(LoadFields field)
+    {
+        if (field.FieldAverageRate > 0)
+            field.FieldAcres = field.FieldTotalGallons / field.FieldAverageRate;
+        else
+            field.FieldAcres = 0;
+    }
+
+}
+
+<h4>Field Information</h4>
+
+@if (LoadFields != null && LoadFields.Any())
+{
+    @foreach (var field in LoadFields)
+    {
+        @if (!field.IsCustomerApplied)
+        {
+            <!-- NORMAL FIELD FORM -->
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Field Name (Select from list):</label>
+                    <select class="form-control"
+                            value="@field.SelectedFieldId.ToString()"
+                            @onchange="@(e => OnFieldIdChanged(field, e, field.DropdownFields))">
+                        <option value="0">Select Field</option>
+                        @foreach (var dropdownField in field.DropdownFields
+                       .OrderBy(f => f.Customer?.CustomerBusinessName)
+                       .ThenBy(f => f.FieldName))
+                        {
+                            <option value="@dropdownField.Id.ToString()">
+                                @(dropdownField.Customer?.CustomerBusinessName ?? "Unknown Customer") - @dropdownField.FieldName
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label>Average Rate:</label>
+                    <InputNumber class="form-control" @bind-Value="field.FieldAverageRate" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Total Gallons:</label>
+                    <InputNumber class="form-control" @bind-Value="field.FieldTotalGallons" />
+                </div>
+                <div class="col-md-6">
+                    <label>Field Acres:</label>
+                    <InputNumber class="form-control" @bind-Value="field.FieldAcres" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <button class="btn btn-danger" @onclick="() => OnRemoveField.InvokeAsync(field)">Remove Field</button>
+                </div>
+            </div>
+
+            <hr />
+        }
+        @if (field.IsCustomerApplied)
+        {
+            <!-- CUSTOMER APPLIED FORM -->
+            <div class="card mt-3 p-3" style="border:1px solid #ccc;">
+                <h5>Applied by Customer</h5>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label>Select Customer:</label>
+                        <select class="form-control" @bind="field.CustomerId">
+                            <option value="0">Select Customer</option>
+                            @foreach (var cust in Customers.OrderBy(c => c.CustomerBusinessName))
+                            {
+                                <option value="@cust.Id">@cust.CustomerBusinessName</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row mt-2">
+                    <div class="col-md-4">
+                        <label>Total Gallons:</label>
+                        <InputNumber class="form-control"
+                                     @bind-Value="field.FieldTotalGallons"
+                                     @oninput="(e =>
+                                    {
+                                     var raw = e.Value?.ToString();
+                                     if (decimal.TryParse(raw, out var val))
+                                         field.FieldTotalGallons = val;
+                                     else
+                                         field.FieldTotalGallons = 0;
+
+                                     RecalculateCustomerAppliedAcres(field);
+                                    })" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label>Average Rate:</label>
+                        <InputNumber class="form-control"
+                                     @bind-Value="field.FieldAverageRate"
+                                     @oninput="(e =>
+                                     {
+                                         var raw = e.Value?.ToString();
+                                         if (decimal.TryParse(raw, out var val))
+                                             field.FieldAverageRate = val;
+                                         else
+                                             field.FieldAverageRate = 0;
+
+                                         RecalculateCustomerAppliedAcres(field);
+                                     })" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label>Field Acres:</label>
+                        <InputNumber class="form-control" @bind-Value="field.FieldAcres" />
+                    </div>
+                </div>
+
+                <div class="row mt-2">
+                    <div class="col-md-12">
+                        <button class="btn btn-danger" @onclick="() => OnRemoveField.InvokeAsync(field)">Remove</button>
+                    </div>
+                </div>
+            </div>
+
+            <hr />
+        }
+    }
+}
+else
+{
+    <p>No fields found for this load mix.</p>
+}
+
+<button class="btn btn-primary" @onclick="() => OnAddField.InvokeAsync()">Add Field</button>
+<button class="btn btn-secondary ms-2" @onclick="() => OnAddCustomerApplied.InvokeAsync()">Customer Applied</button>

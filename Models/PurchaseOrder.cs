@@ -5,13 +5,20 @@
         public int Id { get; set; }
         public string PONumber { get; set; }
         public DateTime OrderDate { get; set; }
-        public DateTime? ReceivedDate { get; set; } // Nullable if not received yet
-        public string BusinessName { get; set; } // Vendor's business name
+        public DateTime? ReceivedDate { get; set; }
+
+        // NEW — required FK
+        public int VendorId { get; set; }
+        public Vendor Vendor { get; set; }
+
+        // Snapshot for printing
+        public string BusinessName { get; set; }
+
         public DateTime PaymentDueDate { get; set; }
         public DateTime DeliveryPickUpDate { get; set; }
         public string PickUpLocation { get; set; }
 
-        // Navigation property for related items
-        public List<PurchaseOrderItem> Items { get; set; } = new List<PurchaseOrderItem>();
+        public List<PurchaseOrderItem> Items { get; set; } = new();
     }
+
 }

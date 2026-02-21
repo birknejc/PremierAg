@@ -1,0 +1,359 @@
+﻿@page "/quote2page"
+@inject Quote2Service Quote2Service
+@inject CustomerService CustomerService
+@inject ConversionService ConversionService
+@inject IJSRuntime JSRuntime
+@inject ProductInventoryService ProductInventoryService
+@using PAS.Models
+@using PAS.Services
+
+<h3>Quote Management</h3>
+
+<button class="btn btn-primary" @onclick="ToggleQuoteForm">Add Quote</button>
+
+@if (showQuoteForm)
+{
+    <EditForm Model="NewQuote" OnValidSubmit="SaveQuote">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <!-- First Row: Customer and Phone (2 columns) -->
+        <div class="row">
+            <div class="col-md-6">
+                <label>Customer:</label>
+                <InputSelect class="form-control" @bind-Value="SelectedCustomerId">
+                    <option value="0">-- Select Customer --</option>
+                    @foreach (var customer in Customers)
+                    {
+                        <option value="@customer.Id">@customer.CustomerBusinessName</option>
+                    }
+                </InputSelect>
+            </div>
+
+            <div class="col-md-6">
+                <label>Phone:</label>
+                <InputText class="form-control" @bind-Value="NewQuote.QuotePhone" />
+            </div>
+        </div>
+
+        <!-- Second Row: Street, City, State, Zipcode (4 columns) -->
+        <div class="row">
+            <div class="col-md-3">
+                <label>Street:</label>
+                <InputText class="form-control" @bind-Value="NewQuote.QuoteStreet" />
+            </div>
+
+            <div class="col-md-3">
+                <label>City:</label>
+                <InputText class="form-control" @bind-Value="NewQuote.QuoteCity" />
+            </div>
+
+            <div class="col-md-3">
+                <label>State:</label>
+                <InputText class="form-control" @bind-Value="NewQuote.QuoteState" />
+            </div>
+
+            <div class="col-md-3">
+                <label>Zipcode:</label>
+                <InputText class="form-control" @bind-Value="NewQuote.QuoteZipcode" />
+            </div>
+        </div>
+
+        <!-- Date Field -->
+        <div class="row">
+            <div class="col-md-6">
+                <label>Date:</label>
+                <InputDate class="form-control" @bind-Value="NewQuote.QuoteDate" />
+            </div>
+        </div>
+
+        <!-- Product Items -->
+        @foreach (var quoteInventory in NewQuote.QuoteInventories)
+        {
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Product Item:</label>
+                    <select class="form-control" value="@quoteInventory.ProductId"
+                            @onchange="@(async (ChangeEventArgs e) => HandleProductChange(quoteInventory, e))">
+                        <option value="0">-- Select Product --</option>
+                        @foreach (var product in Products)
+                        {
+                            <option value="@product.Id">@product.Name</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label>EPA:</label>
+                    <InputText class="form-control" @bind-Value="quoteInventory.ProductEPA" readonly="true" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Purchased Price:</label>
+                    <InputNumber class="form-control" @bind-Value="quoteInventory.ProductWeightedAveragePrice" readonly="true" />
+                </div>
+
+                <div class="col-md-6">
+                    <label>Unit of Measure:</label>
+                    <InputText class="form-control" @bind-Value="quoteInventory.ProductUOM" readonly="true" />
+                </div>
+            </div>
+
+            <!-- New Fields: Actual quoted items, user input required -->
+            <style>
+                .dashed-line {
+                    border: none;
+                    border-top: 3px dashed red;
+                    width: 100%;
+                    margin: 10px 0;
+                }
+            </style>
+            <div>
+                <hr class="dashed-line" />
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Quote Price:</label>
+                    <InputNumber @bind-Value="quoteInventory.QuotePrice"
+                                 TValue="decimal"
+                                 class="form-control" />
+                </div>
+
+                <div class="col-md-6">
+                    <label>Unit of Measure/Acre:</label>
+                    <InputSelect class="form-control" @bind-Value="quoteInventory.QuoteUnitOfMeasure">
+                        <option value="">Select Unit of Measure</option>
+                        @foreach (var conversion in quomConversions)
+                        {
+                            <option value="@conversion.QUOM">@conversion.QUOM</option>
+                        }
+                    </InputSelect>
+                </div>
+
+                <div class="col-md-6">
+                    <label>Quantity Per Acre:</label>
+                    <InputNumber class="form-control" @bind-Value="quoteInventory.QuantityPerAcre" />
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label>Estimated Acres (Used to calculate inventory qty quoted):</label>
+                        <InputNumber class="form-control" @bind-Value="NewQuote.EstimatedAcres" />
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <button type="button" class="btn btn-danger" @onclick="() => RemoveQuoteItem(quoteInventory)">Remove</button>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <button type="button" class="btn btn-secondary" @onclick="AddNewInventory">Add Product</button>
+        <button type="submit" class="btn btn-success">Save Quote</button>
+    </EditForm>
+}
+
+<hr />
+
+<h3>Existing Quotes</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Customer</th>
+            <th>Street</th>
+            <th>City</th>
+            <th>State</th>
+            <th>Zipcode</th>
+            <th>Phone</th>
+            <th>Product</th>
+            <th>Total</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var quote in Quotes)
+        {
+            <tr>
+                <td>@quote.Customer?.CustomerBusinessName</td>
+                <td>@quote.QuoteStreet</td>
+                <td>@quote.QuoteCity</td>
+                <td>@quote.QuoteState</td>
+                <td>@quote.QuoteZipcode</td>
+                <td>@quote.QuotePhone</td>
+                <td>
+                    @foreach (var quoteInventory in quote.QuoteInventories)
+                    {
+                        <div>@quoteInventory.ProductName</div>
+                    }
+                </td>
+                <td>@quote.QuoteTotal</td>
+                <td>
+                    <button @onclick="() => EditQuote(quote.Id)" class="btn btn-warning">Edit</button>
+                    <button @onclick="() => DeleteQuote(quote.Id)" class="btn btn-danger">Delete</button>
+                    <button class="btn btn-secondary" @onclick="() => PrintQuote(quote.Id)">Print</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<Quote> Quotes = new();
+    private List<Customer> Customers = new();
+    private List<UOMConversion> quomConversions = new();
+    private Quote NewQuote = new() { QuoteInventories = new List<QuoteInventory>() };
+    private List<UOMConversion> UOMConversions = new(); // List of unit of measure conversions
+    private bool showQuoteForm = false;
+    private List<Product> Products = new();
+
+
+    private int SelectedCustomerId
+    {
+        get => NewQuote.CustomerId;
+        set
+        {
+            NewQuote.CustomerId = value;
+            var selectedCustomer = Customers.FirstOrDefault(c => c.Id == value);
+            if (selectedCustomer != null)
+            {
+                NewQuote.CustomerBusinessName = selectedCustomer.CustomerBusinessName;
+                NewQuote.QuoteStreet = selectedCustomer.CustomerStreet;
+                NewQuote.QuoteCity = selectedCustomer.CustomerCity;
+                NewQuote.QuoteState = selectedCustomer.CustomerState;
+                NewQuote.QuoteZipcode = selectedCustomer.CustomerZipCode;
+                NewQuote.QuotePhone = selectedCustomer.CustomerPhone;
+            }
+        }
+    }
+
+    private void AddNewInventory()
+    {
+        var newItem = new QuoteInventory
+            {
+                ProductId = null,
+                Product = null,
+                ProductName = "",
+                ProductEPA = "",
+                ProductUOM = "",
+                ProductWeightedAveragePrice = 0
+            };
+
+        NewQuote.QuoteInventories.Add(newItem);
+        StateHasChanged();
+    }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        Customers = await CustomerService.GetAllCustomersAsync();
+        Products = await ProductInventoryService.GetAllProductsAsync();
+        Quotes = await Quote2Service.GetQuotesAsync();
+
+        // QUOM conversions for the QuoteUnitOfMeasure dropdown
+        quomConversions = await ConversionService.GetAllConversionsAsync();
+
+        // Full conversion list for conversion math (LoadMix2 compatibility)
+        UOMConversions = await ConversionService.GetAllConversionsAsync();
+    }
+
+
+    private void ToggleQuoteForm()
+    {
+        if (showQuoteForm)
+        {
+            // Form is currently open, so we'll close it
+            showQuoteForm = false;
+        }
+        else
+        {
+            // Form is currently closed, so we'll open it for adding a new quote
+            showQuoteForm = true;
+            NewQuote = new Quote() { QuoteInventories = new List<QuoteInventory>() };
+            StateHasChanged(); // Ensure the UI is updated to reflect changes
+        }
+    }
+
+    private async Task SaveQuote()
+    {
+        // Quote2 is fully Product-based — no legacy Inventory logic remains
+
+        if (NewQuote.Id == 0)
+        {
+            await Quote2Service.AddQuoteAsync(NewQuote);
+        }
+        else
+        {
+            await Quote2Service.UpdateQuoteAsync(NewQuote);
+        }
+
+        // Reset form
+        NewQuote = new Quote() { QuoteInventories = new List<QuoteInventory>() };
+        Quotes = await Quote2Service.GetQuotesAsync();
+        showQuoteForm = false;
+
+        StateHasChanged();
+    }
+
+    private async Task EditQuote(int id)
+    {
+        NewQuote = await Quote2Service.GetQuoteByIdAsync(id);
+        showQuoteForm = true;
+        StateHasChanged();
+    }
+
+    private async Task DeleteQuote(int id)
+    {
+        await Quote2Service.DeleteQuoteAsync(id);
+        Quotes = await Quote2Service.GetQuotesAsync();
+        StateHasChanged(); // Ensure the UI is updated to reflect changes
+    }
+
+    private void RemoveQuoteItem(QuoteInventory quoteInventory)
+    {
+        NewQuote.QuoteInventories.Remove(quoteInventory);
+        StateHasChanged(); // Force the UI to refresh and reflect changes
+    }
+
+
+    private async Task HandleProductChange(QuoteInventory qi, ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int productId))
+        {
+            qi.ProductId = productId;
+
+            var product = Products.FirstOrDefault(p => p.Id == productId);
+            if (product != null)
+            {
+                qi.ProductId = product.Id;
+                qi.Product = product;
+
+                qi.ProductName = product.Name;
+                qi.ProductEPA = product.EPA;
+                qi.ProductUOM = product.DefaultUnitOfMeasure;
+                qi.ProductWeightedAveragePrice = product.WeightedAveragePrice;
+
+                // For backward compatibility during migration:
+                qi.ChemicalName = product.Name;
+                qi.EPA = product.EPA;
+                qi.UnitOfMeasure = product.DefaultUnitOfMeasure;
+                qi.Price = product.WeightedAveragePrice;
+
+            }
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task PrintQuote(int quoteId)
+    {
+        var finalHtml = await Quote2Service.BuildQuotePrintHtmlAsync(quoteId);
+        await JSRuntime.InvokeVoidAsync("openPrintWindow", finalHtml);
+    }
+
+
+}

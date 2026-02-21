@@ -1,4 +1,6 @@
-﻿namespace PAS.Models
+﻿using PAS.Models;
+
+namespace PAS.Models
 {
     public class Quote
     {
@@ -23,6 +25,8 @@
 
         //LoadMix
         public List<LoadMix> LoadMixes { get; set; } = new List<LoadMix>();
+        //public List<LoadMix2> LoadMix2s { get; set; } = new();
+
     }
 
 }

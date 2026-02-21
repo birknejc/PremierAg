@@ -1,40 +1,53 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using PAS.Models;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 
-namespace PAS.Models
+public class Invoice
 {
-    public class Invoice
-    {
-        public int Id { get; set; } // Primary key
+    public int Id { get; set; } // Primary key
 
-        [Required]
-        public string InvoiceCustomer { get; set; } // Customer Business Name
+    // FK to InvoiceHeader
+    public int InvoiceGroupId { get; set; }
+    public InvoiceHeader InvoiceHeader { get; set; }
 
-        [Required]
-        public decimal InvoiceRatePerAcre { get; set; } // Rate per Acre
+    // Line item fields
+    public DateTime InvoiceDate { get; set; }
 
-        [Required]
-        public string InvoiceUnitOfMeasure { get; set; } // Quote Unit of Measure
-        public string UnitOfMeasure { get; set; }
+    [Required]
+    public string InvoiceChemicalName { get; set; }
 
-        [Required]
-        public string InvoiceChemicalName { get; set; } // Chemical Name
+    [Required]
+    public decimal InvoiceRatePerAcre { get; set; }
 
-        [Required]
-        [Column(TypeName = "decimal(18, 2)")]
-        public decimal InvoicePrice { get; set; } // Price
+    [Required]
+    public string InvoiceUnitOfMeasure { get; set; }
+    public string UnitOfMeasure { get; set; }
 
-        public bool IsPrinted { get; set; }
-        public bool IsGroupSelected { get; set; } // New property for selecting groups of invoices
+    [Required]
+    [Column(TypeName = "decimal(18, 2)")]
+    public decimal InvoicePrice { get; set; }
 
-        // Foreign keys for QuoteInventory
-        public int QuoteId { get; set; }
-        public int InventoryId { get; set; }
-        public QuoteInventory QuoteInventory { get; set; } // Navigation property
+    // Optional: computed line total
+    [NotMapped]
+    public decimal LineTotal => InvoiceRatePerAcre * InvoicePrice;
 
-        // Foreign key for Customer
-        public int CustomerId { get; set; }
-        public Customer Customer { get; set; } // Navigation property
-    }
+    public bool IsPrinted { get; set; }
+    public bool IsGroupSelected { get; set; }
+
+    public int? QuoteId { get; set; }
+    public QuoteInventory QuoteInventory { get; set; }
+
+    public int CustomerId { get; set; }
+    public Customer Customer { get; set; }
+
+    [NotMapped]
+    public List<string> AvailablePUOMs { get; set; }
+
+    public int GroupId { get; set; } // LoadMixId
+
+    public bool ChargeInterest { get; set; } = true;   // default: interest applies
+    public decimal? InterestRate { get; set; }         // null = use customer default
+
+    public int? QuoteInventoryId { get; set; }   // NEW FK
+  
 }

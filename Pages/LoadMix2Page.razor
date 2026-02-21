@@ -1,0 +1,1637 @@
+﻿@page "/loadmix2page"
+@using PAS.Models
+@using PAS.Services
+@inject CustomerService CustomerService
+@inject Quote2Service Quote2Service
+@inject LoadMix2Service LoadMix2Service
+@* @inject InventoryService InventoryService *@
+@inject FieldService FieldService
+@inject ConversionService ConversionService
+@inject ProductInventoryService ProductInventoryService
+@inject ILogger<LoadMix2Page> Logger
+@inject IJSRuntime JSRuntime
+
+
+
+<h3>Load Mix Management</h3>
+
+<button class="btn btn-primary" @onclick="ToggleLoadMixForm">Add Load Sheet</button>
+
+@if (!isAddingLoadSheet && !isEditingLoadMix)
+{
+    <!-- Initially hidden, displayed when "Add Load Sheet" is clicked -->
+}
+else if (isAddingLoadSheet)
+{
+    <div class="row">
+        <div class="col-md-6">
+            <label>Quote:</label>
+            <select class="form-control" @onchange="@(async (ChangeEventArgs e) => await OnQuoteChanged(e))">
+                <option value="0">Select Quote</option>
+                <option value="-1">No Quote</option>
+                @foreach (var quote in quotes)
+                {
+                    <option value="@quote.Id">Quote #@quote.Id - @quote.CustomerBusinessName</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label>Include No Quote:</label>
+            <input type="checkbox" @bind="includeNoQuote" />
+        </div>
+    </div>
+}
+
+@if (showAddQuoteDropdown)
+{
+    <div class="row">
+        <div class="col-md-6">
+            <label>Select Additional Quote:</label>
+            <select class="form-control" @onchange="@(async (ChangeEventArgs e) => await OnAdditionalQuoteSelected(e))">
+                <option value="0">Select Quote</option>
+                @foreach (var quote in matchingQuotes)
+                {
+                    <option value="@quote.Id">Quote #@quote.Id - @quote.CustomerBusinessName</option>
+                }
+            </select>
+        </div>
+    </div>
+}
+
+@if (selectedQuoteId > 0)
+{
+    <div class="row">
+        <div class="col-md-6">
+            <button class="btn btn-secondary" @onclick="ShowAddQuoteDropdown">Add Quote</button>
+        </div>
+    </div>
+}
+
+@if (selectedQuoteIds != null && selectedQuoteIds.Count > 0 || includeNoQuote || includeWater)
+{
+    <h4>Selected Quotes</h4>
+    @foreach (var quoteId in selectedQuoteIds)
+    {
+        var quote = quotes.FirstOrDefault(q => q.Id == quoteId);
+        if (quote != null)
+        {
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Quote:</label>
+                    <input type="text" class="form-control" value="Quote #@quote.Id - @quote.CustomerBusinessName" readonly="true" />
+                </div>
+            </div>
+        }
+    }
+
+    @if (includeNoQuote)
+    {
+        <div class="row">
+            <div class="col-md-6">
+                <label>No Quote:</label>
+                <input type="text" class="form-control" value="No Quote" readonly="true" />
+            </div>
+        </div>
+    }
+}
+
+@if (showLoadMixForm)
+{
+    <LoadMixDetailsComponent NewLoadMix="newLoadMix"
+                             LoadTimeString="@loadTimeString"
+                             OnLoadTimeChanged="UpdateLoadTimeString"
+                             OnTotalGallonsChanged="@OnTotalGallonsChanged"
+                             OnTotalAcresChanged="@OnTotalAcresChanged"
+                             IncludeWater="@includeWater" />
+
+    <div class="col-md-6">
+        <label>Include Water:</label>
+        <input type="checkbox" @onchange="@(async (ChangeEventArgs e) => await HandleIncludeWaterChanged(e))" />
+    </div>
+}
+
+
+@if (showLoadMixForm && quoteInventories.Any())
+{
+    <div class="row">
+        <div class="col-md-12">
+            <h4>Products, Rates, and Totals</h4>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Select Item</th>
+                        <th>Product</th>
+                        <th>Rate/Acre</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @* @foreach (var qi in quoteInventories.Where(q => q.Selected)) *@
+                    @foreach (var qi in quoteInventories)
+                    {
+                        // Determine conversion factor
+                        var conversionFactor = UOMConversions
+                        .FirstOrDefault(c =>
+                        c.SUOM == qi.ProductUOM &&
+                        c.QUOM == qi.QuoteUnitOfMeasure)
+                        ?.ConversionFactor ?? 1M;
+
+                        // Calculate total
+                        var total = qi.ProductName == "Water"
+                        ? newLoadMix.TotalGallons
+                        : Math.Round(
+                        (newLoadMix.TotalAcres * qi.QuantityPerAcre) / conversionFactor,
+                        1);
+
+                        <tr>
+                            <td>
+                                <input type="checkbox"
+                                       checked="@qi.Selected"
+                                       @onchange="(e) => OnProductSelectionChanged(qi, e)" />
+                            </td>
+
+                            <td>@qi.ProductName</td>
+
+                            <td>@($"{qi.QuantityPerAcre} {qi.QuoteUnitOfMeasure}")</td>
+
+                            <td>@($"{total} {qi.ProductUOM}")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+
+@if (includeNoQuote || selectedQuoteId == -1)
+{
+    <ProductSelectionComponent ManualProducts="manualProducts"
+                               Products="products"
+                               OnRemove="RemoveProduct"
+                               OnAdd="AddNewProduct"
+                               OnProductChange="HandleProductChange"
+                               IncludeNoQuote="includeNoQuote"
+                               QuomConversions="UOMConversions" />
+}
+
+
+@if (showLoadMixForm)
+{
+    <FieldInformationComponent LoadFields="loadFields"
+                               Customers="customers"
+                               OnAddField="AddField"
+                               OnAddCustomerApplied="AddCustomerApplied"
+                               OnRemoveField="RemoveField"
+                               IsEditingLoadMix="isEditingLoadMix" />
+}
+
+@if (showLoadMixForm)
+{
+    @* <button class="btn btn-primary" @onclick="AddField">Add Field</button> *@
+    <button class="btn btn-success" @onclick="SaveLoadMix">Save Load Mix</button>
+}
+
+<hr />
+
+<h4 class="no-print">Saved Load Mixes</h4>
+<table class="table table-striped no-print">
+    <thead>
+        <tr>
+            <th>Load #</th>
+            <th>Customer</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Crop</th>
+            <th>Total Gallons</th>
+            <th>Total Acres</th>
+            <th>Rate Per Acre</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var group in groupedLoadMixes)
+        {
+            <tr>
+                <td>@group.LoadMixId</td>
+                <td>@string.Join(", ", group.LoadMixes.Select(lm => lm.Quote?.CustomerBusinessName ?? "No Quote"))</td>
+                <td>@group.LoadMixes.First().LoadDate.ToString("yyyy-MM-dd")</td>
+                <td>@group.LoadMixes.First().LoadTime</td>
+                <td>@group.LoadMixes.First().Crop</td>
+                <td>@group.LoadMixes.First().TotalGallons</td>
+                <td>@group.LoadMixes.First().TotalAcres</td>
+                <td>@group.LoadMixes.First().LMRatePerAcre</td>
+                <td>
+                    <button class="btn btn-primary btn-sm no-print" @onclick="() => EditLoadMix(group.LoadMixId)">Edit</button>
+                    <button class="btn btn-danger btn-sm no-print" @onclick="() => DeleteLoadMix(group.LoadMixId)">Delete</button>
+                    <button class="btn btn-secondary btn-sm no-print" @onclick="() => PrintLoadMix(group.LoadMixId)">Print Load Mix</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<Quote> quotes = new();
+    private List<QuoteInventory> quoteInventories = new();
+    private List<LoadMix> loadMixList = new();
+    private LoadMix newLoadMix = new();
+    private List<LoadFields> loadFields = new();
+    private bool showLoadMixForm = false;
+    private string loadTimeString;
+    private int selectedQuoteId;
+    private List<Field> customerFields = new();
+    private List<QuoteInventory> manualProducts = new(); // List of inventory items for "No Quote"
+    // private List<Inventory> Inventories = new(); // List of all inventory items
+    private List<UOMConversion> UOMConversions = new(); // List of unit of measure conversions
+    private decimal calculatedPurchasedPrice;
+    private bool isEditingLoadMix = false;
+    private bool isAddingLoadSheet = false;
+    private List<int> selectedQuoteIds = new(); // List of selected quote IDs
+    private List<Quote> matchingQuotes = new(); // List of quotes matching the original quote's inventory
+    private bool showAddQuoteDropdown = false;  // Controls whether the "Add Quote" dropdown is visible
+    private List<LoadMixGroupViewModel> groupedLoadMixes = new();
+    private int fieldCounter = 0; // Initialize the counter
+    private bool includeNoQuote = false;
+    private LoadMixType loadMixType;
+    private bool includeWater = false;
+    private List<Field> allFields = new();
+    private bool showCustomerAppliedForm = false;
+    private List<Customer> customers = new();
+    private List<Product> products = new();
+
+
+
+
+    private enum LoadMixType
+    {
+        SingleQuote,
+        MultiQuote,
+        NoQuote,
+        SingleQuoteAndNoQuote,
+        MultiQuoteAndNoQuote
+    }
+
+    private async Task HandleIncludeWaterChanged(ChangeEventArgs e)
+    {
+        if (bool.TryParse(e.Value.ToString(), out bool value))
+        {
+            includeWater = value;
+            UpdateWaterDisplay();
+        }
+    }
+
+    private async Task UpdateLoadTimeString(string value)
+    {
+        loadTimeString = value;
+        StateHasChanged(); // Ensure the UI is updated to reflect changes
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        allFields = (await FieldService.GetAllFieldsAsync()).ToList();
+
+        // Set default values for loadTimeString
+        loadTimeString = newLoadMix.LoadTime != default
+            ? newLoadMix.LoadTime.ToString(@"hh\:mm\:ss")
+            : "00:00:00";
+
+        quotes = await Quote2Service.GetQuotesAsync();
+        // Inventories = await InventoryService.GetAllInventoriesAsync();
+        products = await ProductInventoryService.GetAllProductsAsync();
+        UOMConversions = await ConversionService.GetAllConversionsAsync();
+
+        customers = await CustomerService.GetAllCustomersAsync();
+
+        // Initialize grouped load mixes
+        var loadMixes = await LoadMix2Service.GetAllLoadMixesAsync();
+        groupedLoadMixes = loadMixes
+            .GroupBy(lm => lm.LoadMixId)
+            .Select(g => new LoadMixGroupViewModel
+                {
+                    LoadMixId = g.Key,
+                    LoadMixes = g.ToList()
+                })
+            .ToList();
+
+        StateHasChanged();
+    }
+
+    private class LoadMixGroupViewModel
+    {
+        public int LoadMixId { get; set; }
+        public List<LoadMix> LoadMixes { get; set; }
+    }
+
+    private async Task OnQuoteChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value.ToString(), out int quoteId))
+        {
+            selectedQuoteId = quoteId;
+
+            if (quoteId == -1) // "No Quote" option selected
+            {
+                quoteInventories = new List<QuoteInventory>();
+                customerFields = await LoadAllFields();
+                manualProducts = new List<QuoteInventory>();
+                showLoadMixForm = true;
+                isEditingLoadMix = false;
+
+                // Debugging statement
+                await JSRuntime.InvokeVoidAsync("console.log", $"OnQuoteChanged: No Quote selected, customerFields count={customerFields.Count}");
+            }
+            else
+            {
+                await LoadQuoteInventories();
+
+                // Add the initial quote to the list if not already added
+                if (!selectedQuoteIds.Contains(quoteId))
+                {
+                    selectedQuoteIds.Add(quoteId);
+                }
+
+                // Debugging statement
+                await JSRuntime.InvokeVoidAsync("console.log", $"OnQuoteChanged: Quote selected, quoteId={quoteId}, selectedQuoteIds count={selectedQuoteIds.Count}");
+            }
+
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadQuoteInventories()
+    {
+        var quote = await Quote2Service.GetQuoteByIdAsync(selectedQuoteId);
+        if (quote != null && quote.QuoteInventories.Any())
+        {
+            quoteInventories = quote.QuoteInventories.ToList();
+            customerFields = await GetCustomerFields(quote.CustomerId);
+            showLoadMixForm = true; // Ensure the form is displayed
+        }
+        else
+        {
+            quoteInventories = new List<QuoteInventory>();
+            customerFields = new List<Field>();
+            showLoadMixForm = false; // Ensure the form is hidden
+        }
+
+        // Update "Water" in the inventories based on the checkbox state
+        UpdateWaterDisplay();
+
+        StateHasChanged();
+    }
+
+    private void AddNewProduct()
+    {
+        var newProduct = new QuoteInventory
+            {
+                ProductId = null,          // No product selected yet
+                ProductName = "",          // Empty until user selects
+                ProductUOM = "",           // Filled when user selects a product
+                EPA = "",
+                Price = 0,
+                Selected = true
+            };
+
+        // Always add to manualProducts
+        manualProducts.Add(newProduct);
+
+        // If editing a quote+no-quote scenario, also add to quoteInventories
+        if (selectedQuoteIds.Count > 0 && (includeNoQuote || selectedQuoteId == -1))
+        {
+            // Only add if not already present (avoid duplicates)
+            if (!quoteInventories.Any(qi =>
+                qi.ProductName == newProduct.ProductName &&
+                qi.ProductId == newProduct.ProductId))
+            {
+                newProduct.Selected = true;
+                quoteInventories.Add(newProduct);
+            }
+        }
+
+        StateHasChanged();
+    }
+
+
+
+    private Task HandleProductChange((QuoteInventory qi, ChangeEventArgs e) args)
+    {
+        var (qi, e) = args;
+
+        if (!int.TryParse(e.Value?.ToString(), out int productId))
+            return Task.CompletedTask;
+
+        qi.ProductId = productId;
+
+        var product = products.FirstOrDefault(p => p.Id == productId);
+        if (product == null)
+            return Task.CompletedTask;
+
+        qi.ProductName = product.Name;
+        qi.EPA = product.EPA;
+        qi.Price = product.WeightedAveragePrice;
+        qi.ProductUOM = product.DefaultUnitOfMeasure;
+
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+
+    private async void RemoveProduct(QuoteInventory qi)
+    {
+        var productsToCheck = selectedQuoteId == -1 ? manualProducts : quoteInventories;
+
+        if (productsToCheck.Count <= 1)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "At least one product is required. Cannot remove the last item.");
+            return;
+        }
+
+        // New, unsaved product row
+        if (qi.ProductId == null || qi.ProductId == 0)
+        {
+            manualProducts.Remove(qi);
+        }
+        else
+        {
+            // Remove from manualProducts
+            manualProducts.RemoveAll(p => p.ProductName == qi.ProductName);
+
+            // Deselect in quoteInventories (so it disappears from the totals grid)
+            var quoteItem = quoteInventories.FirstOrDefault(p => p.ProductName == qi.ProductName);
+            if (quoteItem != null)
+                quoteItem.Selected = false;
+
+            // Remove from DB (legacy LoadMixDetails.Product column)
+            await LoadMix2Service.RemoveLoadMixDetailsAsync(newLoadMix.Id, qi.ProductName);
+        }
+
+        StateHasChanged();
+    }
+
+
+    private async Task<List<Field>> LoadAllFields()
+    {
+        return await FieldService.GetAllFieldsAsync();
+    }
+
+    private async Task<List<Field>> GetCustomerFields(int customerId)
+    {
+        var fields = await Quote2Service.GetFieldsByCustomerIdAsync(customerId);
+        return fields;
+    }
+
+    private async Task OnTotalGallonsChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value.ToString(), out int value))
+        {
+            newLoadMix.TotalGallons = value;
+            CalculateLMRatePerAcre();
+        }
+    }
+
+    private async Task OnTotalAcresChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value.ToString(), out int value))
+        {
+            newLoadMix.TotalAcres = value;
+            CalculateLMRatePerAcre();
+        }
+    }
+
+    private void CalculateLMRatePerAcre()
+    {
+        if (newLoadMix.TotalAcres != 0)
+        {
+            newLoadMix.LMRatePerAcre = newLoadMix.TotalGallons / newLoadMix.TotalAcres;
+        }
+        else
+        {
+            newLoadMix.LMRatePerAcre = 0;
+        }
+
+        // Update "Water" entry in quoteInventories
+        var waterEntry = quoteInventories.FirstOrDefault(i => i.ProductName == "Water");
+        if (waterEntry != null)
+        {
+            waterEntry.QuantityPerAcre = newLoadMix.LMRatePerAcre;
+        }
+
+        StateHasChanged();
+    }
+
+    private async void AddField()
+    {
+        try
+        {
+            List<Field> availableFields = new List<Field>();
+
+            if (selectedQuoteId == -1 || includeNoQuote) // No Quote or mixed scenario
+            {
+                availableFields = await LoadAllFields();
+                await JSRuntime.InvokeVoidAsync("console.log", $"AddField: No Quote scenario, availableFields count={availableFields.Count}");
+            }
+            else
+            {
+                foreach (var quoteId in selectedQuoteIds)
+                {
+                    var quote = await Quote2Service.GetQuoteByIdAsync(quoteId);
+                    if (quote != null)
+                    {
+                        var fieldsForCustomer = await Quote2Service.GetFieldsByCustomerIdAsync(quote.CustomerId);
+                        availableFields.AddRange(fieldsForCustomer);
+                    }
+                }
+
+                // Deduplicate
+                availableFields = availableFields
+                    .GroupBy(f => f.Id)
+                    .Select(g => g.First())
+                    .ToList();
+
+                await JSRuntime.InvokeVoidAsync("console.log", $"AddField: Quote scenario, availableFields count={availableFields.Count}");
+            }
+
+            // 🛠 Add just one blank field input form
+            var newField = new LoadFields
+                {
+                    SelectedFieldId = 0,
+                    FieldName = "",
+                    DropdownFields = availableFields,
+                    CustomerId = 0,
+                    FieldAcres = 0,
+                    FieldAverageRate = 0,
+                    FieldTotalGallons = 0
+                };
+
+            loadFields.Add(newField);
+
+            await JSRuntime.InvokeVoidAsync("console.log", $"AddField: Empty field input form added. Dropdown options count={availableFields.Count}");
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("console.error", $"Error adding field: {ex.Message}");
+        }
+    }
+
+
+
+    private async void RemoveField(LoadFields field)
+    {
+        if (loadFields.Contains(field))
+        {
+            loadFields.Remove(field);
+
+            // Remove the field from the database
+            try
+            {
+                await LoadMix2Service.RemoveLoadFieldAsync(field.Id);
+            }
+            catch (Exception ex)
+            {
+                await JSRuntime.InvokeVoidAsync("console.error", $"Error removing field: {ex.Message}");
+            }
+
+            StateHasChanged();
+        }
+    }
+
+    private async Task SaveLoadMix()
+    {
+        // Parse and set the load time
+        if (TimeSpan.TryParse(loadTimeString, out var parsedTime))
+        {
+            newLoadMix.LoadTime = parsedTime;
+        }
+
+        // Convert the load date to UTC
+        newLoadMix.LoadDate = newLoadMix.LoadDate.ToUniversalTime();
+
+        // Calculate the rate per acre
+        CalculateLMRatePerAcre();
+
+        if (string.IsNullOrEmpty(newLoadMix.Crop))
+        {
+            newLoadMix.Crop = "Default Crop";
+        }
+
+        // Validate selected quotes
+        if (!await ValidateSelectedQuotes())
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "One or more selected quotes have mismatched inventory items. Please ensure all selected quotes are compatible.");
+            return;
+        }
+
+        var existingLoadMix = await LoadMix2Service.GetLoadMixByIdAsync(newLoadMix.Id);
+        if (existingLoadMix != null)
+        {
+            // Update base data
+            existingLoadMix.LoadDate = newLoadMix.LoadDate;
+            existingLoadMix.LoadTime = newLoadMix.LoadTime;
+            existingLoadMix.Crop = newLoadMix.Crop;
+            existingLoadMix.TotalGallons = newLoadMix.TotalGallons;
+            existingLoadMix.TotalAcres = newLoadMix.TotalAcres;
+            existingLoadMix.LMRatePerAcre = newLoadMix.LMRatePerAcre;
+
+            try
+            {
+                await LoadMix2Service.UpdateLoadMixAsync(existingLoadMix);
+            }
+            catch (Exception ex)
+            {
+                var inner = ex.InnerException?.Message ?? "No inner exception";
+                throw new Exception($"Error Updating LoadMix: {ex.Message}, Inner Exception: {inner}");
+            }
+
+            // Get all related mixes via LoadMixId
+            var loadMixes = await LoadMix2Service.GetLoadMixesByLoadMixIdAsync(existingLoadMix.LoadMixId);
+
+            // Map QuoteId to LoadMix.Id
+            var quoteLoadMixMap = new Dictionary<int, int>();
+            foreach (var mix in loadMixes)
+            {
+                if (mix.QuoteId.HasValue)
+                {
+                    quoteLoadMixMap[mix.QuoteId.Value] = mix.Id;
+                }
+            }
+
+            await UpdateLoadMixDetails(quoteLoadMixMap);
+
+            // Handle manual mix update
+            var manualMix = loadMixes.FirstOrDefault(m => !m.QuoteId.HasValue);
+            // if (manualMix != null)
+            // {
+            //     await UpdateManualLoadMixDetails(manualMix.Id);
+            // }
+            if (manualMix != null)
+            {
+                SyncManualProductsWithQuoteInventories();
+                await UpdateManualLoadMixDetails(manualMix.Id);
+            }
+
+            // Save fields for all customers/quotes in the group
+            foreach (var mix in loadMixes)
+            {
+                if (mix.QuoteId.HasValue)
+                {
+                    var quote = quotes.FirstOrDefault(q => q.Id == mix.QuoteId.Value);
+                    if (quote != null)
+                    {
+                        customerFields = await GetCustomerFields(quote.CustomerId);
+                        await SaveLoadFields(mix.Id, quote.CustomerId);
+                    }
+                }
+            }
+            if (manualMix != null)
+            {
+                customerFields = allFields;
+                await SaveLoadFields(manualMix.Id, -1);
+            }
+        }
+        else
+        {
+            // NEW LoadMix scenario
+            var loadMixId = await LoadMix2Service.GenerateNewLoadMixId();
+
+            foreach (var selectedQuoteId in selectedQuoteIds)
+            {
+                var selectedQuote = await Quote2Service.GetQuoteByIdAsync(selectedQuoteId);
+                if (selectedQuote != null)
+                {
+                    var loadMixToSave = new LoadMix
+                        {
+                            LoadDate = newLoadMix.LoadDate,
+                            LoadTime = newLoadMix.LoadTime,
+                            Crop = newLoadMix.Crop,
+                            TotalGallons = newLoadMix.TotalGallons,
+                            TotalAcres = newLoadMix.TotalAcres,
+                            LMRatePerAcre = newLoadMix.LMRatePerAcre,
+                            QuoteId = selectedQuoteId,
+                            LoadMixId = loadMixId //group id
+                        };
+
+                    try
+                    {
+                        await LoadMix2Service.AddLoadMixAsync(loadMixToSave);
+                        // Save fields for this customer, using the unique LoadMix.Id
+                        await SaveLoadFields(loadMixToSave.Id, selectedQuote.CustomerId);
+                    }
+                    catch (Exception ex)
+                    {
+                        var inner = ex.InnerException?.Message ?? "No inner exception";
+                        throw new Exception($"Error Adding LoadMix: {ex.Message}, Inner Exception: {inner}");
+                    }
+
+                    customerFields = await GetCustomerFields(selectedQuote.CustomerId);
+                    await SaveLoadMixDetails(loadMixToSave.Id);
+                    await SaveLoadFields(loadMixToSave.Id, selectedQuote.CustomerId);
+
+                    newLoadMix.Id = loadMixToSave.Id;
+                }
+            }
+
+            // Handle no-quote (manual)
+            if (selectedQuoteId == -1 || includeNoQuote)
+            {
+                var loadMixToSave = new LoadMix
+                    {
+                        LoadDate = newLoadMix.LoadDate,
+                        LoadTime = newLoadMix.LoadTime,
+                        Crop = newLoadMix.Crop,
+                        TotalGallons = newLoadMix.TotalGallons,
+                        TotalAcres = newLoadMix.TotalAcres,
+                        LMRatePerAcre = newLoadMix.LMRatePerAcre,
+                        LoadMixId = loadMixId
+                    };
+
+                try
+                {
+                    await LoadMix2Service.AddLoadMixAsync(loadMixToSave);
+                }
+                catch (Exception ex)
+                {
+                    var inner = ex.InnerException?.Message ?? "No inner exception";
+                    throw new Exception($"Error Adding LoadMix (No Quote): {ex.Message}, Inner Exception: {inner}");
+                }
+
+                await SaveLoadMixDetails(loadMixToSave.Id);
+                await SaveLoadFields(loadMixToSave.Id, -1);
+
+                newLoadMix.Id = loadMixToSave.Id;
+            }
+        }
+
+        // Refresh list
+        var allLoadMixes = await LoadMix2Service.GetAllLoadMixesAsync();
+        groupedLoadMixes = allLoadMixes
+            .GroupBy(lm => lm.LoadMixId)
+            .Select(g => new LoadMixGroupViewModel
+                {
+                    LoadMixId = g.Key,
+                    LoadMixes = g.ToList()
+                })
+            .ToList();
+
+        ResetFormFields();
+        StateHasChanged();
+    }
+
+
+    private async Task SaveLoadMixDetails(int loadMixId)
+    {
+        // Remove any existing details for this LoadMix
+        var existing = await LoadMix2Service.GetLoadMixDetailsByLoadMixIdAsync(loadMixId);
+        if (existing.Any())
+            await LoadMix2Service.RemoveLoadMixDetailsAsync(loadMixId, null); // null = remove all
+
+        // Build the list of selected items
+        var selectedItems = new List<QuoteInventory>();
+
+        // Quote items
+        selectedItems.AddRange(quoteInventories.Where(q => q.Selected));
+
+        // Manual items (No Quote)
+        if (includeNoQuote || selectedQuoteId == -1)
+            selectedItems.AddRange(manualProducts.Where(m => m.Selected));
+
+        // Water
+        if (includeWater)
+        {
+            selectedItems.Add(new QuoteInventory
+                {
+                    ProductName = "Water",
+                    ProductUOM = "gal",
+                    QuoteUnitOfMeasure = "gal",
+                    QuantityPerAcre = newLoadMix.LMRatePerAcre,
+                    Price = 0,
+                    QuotePrice = 0
+                });
+        }
+
+        // Deduplicate by ProductName
+        selectedItems = selectedItems
+            .GroupBy(i => i.ProductName)
+            .Select(g => g.First())
+            .ToList();
+
+        // Save each item
+        foreach (var qi in selectedItems)
+        {
+            // Compute conversion factor
+            var suom = qi.ProductUOM?.ToLower().Trim();
+            var quom = qi.QuoteUnitOfMeasure?.ToLower().Trim();
+
+            var conversion = UOMConversions.FirstOrDefault(c =>
+                c.SUOM.ToLower().Trim() == suom &&
+                c.QUOM.ToLower().Trim() == quom);
+
+            var conversionFactor = conversion?.ConversionFactor ?? 1M;
+
+            // Compute total
+            var total = qi.ProductName == "Water"
+                ? newLoadMix.TotalGallons
+                : Math.Round((newLoadMix.TotalAcres * qi.QuantityPerAcre) / conversionFactor, 1);
+
+            var detail = new LoadMixDetails
+                {
+                    LoadMixId = loadMixId,
+                    Product = qi.ProductName,
+                    RatePerAcre = $"{qi.QuantityPerAcre} {qi.QuoteUnitOfMeasure}",
+                    Total = $"{total} {qi.ProductUOM}",
+                    EPA = qi.EPA,
+                    Price = qi.Price,
+                    QuotePrice = qi.QuotePrice
+                };
+
+            await LoadMix2Service.AddLoadMixDetailsAsync(detail);
+        }
+    }
+
+
+
+    private async Task SaveLoadFields(int loadMixId, int quoteId)
+    {
+        var uniqueFieldKeys = new HashSet<string>();
+
+        // Log selectedQuoteIds and quoteId
+        await JSRuntime.InvokeVoidAsync("console.log", $"selectedQuoteIds: {string.Join(", ", selectedQuoteIds)}, quoteId: {quoteId}");
+
+        // Log loadFields before filtering
+        await JSRuntime.InvokeVoidAsync("console.log", $"LoadFields count before filtering: {loadFields.Count}");
+        foreach (var field in loadFields)
+        {
+            await JSRuntime.InvokeVoidAsync("console.log", $"LoadField: {field.FieldName}, CustomerId: {field.CustomerId}, SelectedFieldId: {field.SelectedFieldId}");
+        }
+
+        var filteredFields = quoteId == -1
+            // Only fields NOT associated with any selected quote customer
+            ? loadFields.Where(f => !selectedQuoteIds
+                .Select(qid => quotes.FirstOrDefault(q => q.Id == qid)?.CustomerId)
+                .Contains(f.CustomerId)).ToList()
+            // Only fields for this quote's customer
+            : loadFields.Where(f => f.CustomerId == quoteId).ToList();
+
+        await JSRuntime.InvokeVoidAsync("console.log", $"Filtered fields count: {filteredFields.Count}");
+
+        foreach (var field in filteredFields)
+        {
+            var fieldKey = $"{field.SelectedFieldId}-{field.CustomerId}-{field.FieldName}";
+
+            if (!uniqueFieldKeys.Contains(fieldKey))
+            {
+                uniqueFieldKeys.Add(fieldKey);
+
+                // CUSTOMER APPLIED ROW (SelectedFieldId == 0)
+                if (field.SelectedFieldId == 0 && field.FieldName == "Applied by customer")
+                {
+                    var newField = new LoadFields
+                        {
+                            LoadMixId = loadMixId,
+                            FieldName = "Applied by customer",
+                            CustomerId = field.CustomerId,
+                            FieldAcres = field.FieldAcres,
+                            FieldAverageRate = field.FieldAverageRate,
+                            FieldTotalGallons = field.FieldTotalGallons,
+                            SelectedFieldId = 0,
+                            Id = 0,
+                            IsCustomerApplied = true
+                        };
+
+                    await LoadMix2Service.AddLoadFieldAsync(newField);
+                    await JSRuntime.InvokeVoidAsync("console.log", $"Customer Applied saved: {newField.CustomerId}, Acres={newField.FieldAcres}");
+                    continue; // IMPORTANT: skip normal-field logic
+                }
+
+
+                Field selectedField = null;
+
+                if (quoteId == -1) // No Quote scenario
+                {
+                    selectedField = allFields.FirstOrDefault(f => f.Id == field.SelectedFieldId);
+                }
+                else
+                {
+                    selectedField = customerFields.FirstOrDefault(f =>
+                        f.Id == field.SelectedFieldId &&
+                        f.CustomerId == quoteId);
+                }
+
+                if (selectedField != null)
+                {
+                    field.FieldName = selectedField.FieldName;
+                    field.CustomerId = selectedField.CustomerId;
+
+                    await JSRuntime.InvokeVoidAsync("console.log", $"SaveLoadFields: fieldName={field.FieldName}, customerId={field.CustomerId}, loadMixId={loadMixId}");
+
+                    // Check if the field already exists for this LoadMix and SelectedFieldId
+                    var existingField = (await LoadMix2Service.GetLoadFieldsByLoadMixIdAsync(loadMixId))
+                        .FirstOrDefault(f => f.SelectedFieldId == field.SelectedFieldId);
+
+                    if (existingField != null)
+                    {
+                        // Update the existing field
+                        existingField.FieldName = field.FieldName;
+                        existingField.CustomerId = field.CustomerId;
+                        existingField.FieldAcres = field.FieldAcres;
+                        existingField.FieldAverageRate = field.FieldAverageRate;
+                        existingField.FieldTotalGallons = field.FieldTotalGallons;
+                        await LoadMix2Service.UpdateLoadFieldAsync(existingField);
+                        await JSRuntime.InvokeVoidAsync("console.log", $"Field updated: {existingField.FieldName}, LoadMixId: {existingField.LoadMixId}");
+                    }
+                    else
+                    {
+                        // Add new field
+                        var newField = new LoadFields
+                            {
+                                LoadMixId = loadMixId,
+                                FieldName = field.FieldName,
+                                CustomerId = field.CustomerId,
+                                FieldAcres = field.FieldAcres,
+                                FieldAverageRate = field.FieldAverageRate,
+                                FieldTotalGallons = field.FieldTotalGallons,
+                                SelectedFieldId = field.SelectedFieldId,
+                                Id = 0
+                            };
+
+                        await LoadMix2Service.AddLoadFieldAsync(newField);
+                        await JSRuntime.InvokeVoidAsync("console.log", $"Field saved: {newField.FieldName}, LoadMixId: {newField.LoadMixId}");
+                    }
+
+                }
+                else
+                {
+                    await JSRuntime.InvokeVoidAsync("console.log", $"SaveLoadFields: No match for SelectedFieldId={field.SelectedFieldId}, skipping field.");
+                }
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("console.log", $"SaveLoadFields: Duplicate fieldKey={fieldKey} detected, skipping save.");
+            }
+        }
+    }
+
+
+
+    private async Task EditLoadMix(int loadMixId)
+    {
+        // Load the load mixes
+        var loadMixes = await LoadMix2Service.GetLoadMixesByLoadMixIdAsync(loadMixId);
+
+        if (!loadMixes.Any())
+            return;
+
+        newLoadMix = loadMixes.First();
+        selectedQuoteId = newLoadMix.QuoteId ?? -1;
+        loadTimeString = newLoadMix.LoadTime.ToString(@"hh\:mm\:ss");
+        isEditingLoadMix = true;
+        showLoadMixForm = true;
+
+        selectedQuoteIds = loadMixes
+            .Where(lm => lm.QuoteId.HasValue)
+            .Select(lm => lm.QuoteId.Value)
+            .ToList();
+
+        // Determine load mix type
+        if (selectedQuoteIds.Count == 1 && selectedQuoteId != -1 && !includeNoQuote)
+            loadMixType = LoadMixType.SingleQuote;
+        else if (selectedQuoteIds.Count > 1 && !includeNoQuote)
+            loadMixType = LoadMixType.MultiQuote;
+        else if (selectedQuoteId == -1 && loadMixes.Any(lm => !lm.QuoteId.HasValue))
+        {
+            loadMixType = LoadMixType.NoQuote;
+            includeNoQuote = true;
+        }
+        else if (selectedQuoteIds.Count == 1 && loadMixes.Any(lm => !lm.QuoteId.HasValue))
+        {
+            loadMixType = LoadMixType.SingleQuoteAndNoQuote;
+            includeNoQuote = true;
+        }
+        else if (selectedQuoteIds.Count > 1 && loadMixes.Any(lm => !lm.QuoteId.HasValue))
+        {
+            loadMixType = LoadMixType.MultiQuoteAndNoQuote;
+            includeNoQuote = true;
+        }
+
+        // Load fields
+        loadFields = loadMixes.SelectMany(lm => lm.LoadFields).ToList();
+
+        foreach (var f in loadFields)
+        {
+            if (f.SelectedFieldId == 0 && f.FieldName == "Applied by customer")
+                f.IsCustomerApplied = true;
+        }
+
+        // Load quote‑based inventories if there are quotes
+        if (selectedQuoteIds.Any())
+        {
+            await LoadQuoteInventories();
+        }
+
+        // --- REBUILD MANUAL PRODUCTS FROM LoadMixDetails (No‑Quote part) ---
+        var manualMix = loadMixes.FirstOrDefault(m => !m.QuoteId.HasValue);
+        if (manualMix != null)
+        {
+            includeNoQuote = true;
+
+            manualProducts = manualMix.LoadMixDetails
+                .Where(d => d.Product != "Water")
+                .Select(d => new QuoteInventory
+                    {
+                        ProductName = d.Product,
+                        ProductUOM = ExtractUnit(d.Total),
+                        QuantityPerAcre = ParseRate(d.RatePerAcre),
+                        QuoteUnitOfMeasure = d.QuoteUnitOfMeasure,
+
+                        // ✅ hydrate both EPA fields
+                        EPA = d.EPA,
+                        ProductEPA = d.EPA,
+
+                        // ✅ price fields
+                        Price = d.Price ?? 0,
+                        ProductWeightedAveragePrice = d.Price ?? 0,
+                        QuotePrice = d.QuotePrice ?? 0,
+
+                        Selected = true
+                    })
+                .ToList();
+        }
+
+        // Ensure products list is loaded (for matching)
+        if (products == null || !products.Any())
+        {
+            products = await ProductInventoryService.GetAllProductsAsync();
+        }
+
+        // 🔧 Match manual products to Product list (not Inventory)
+        foreach (var mp in manualProducts)
+        {
+            if (mp.ProductId == null || mp.ProductId == 0)
+            {
+                var matched = products.FirstOrDefault(p =>
+                    p.Name.Equals(mp.ProductName, StringComparison.OrdinalIgnoreCase));
+
+                if (matched != null)
+                {
+                    mp.ProductId = matched.Id;
+                    mp.ProductUOM = matched.DefaultUnitOfMeasure;
+                    mp.ProductEPA = matched.EPA;
+                    mp.ProductWeightedAveragePrice = matched.WeightedAveragePrice;
+                }
+            }
+        }
+
+        // Reload dropdown fields
+        foreach (var field in loadFields)
+        {
+            field.DropdownFields = await LoadAllFields();
+        }
+
+        // Mark quote inventories as selected based on LoadMixDetails (for quote‑based mixes)
+        foreach (var qi in quoteInventories)
+        {
+            qi.Selected = loadMixes.Any(lm =>
+                lm.LoadMixDetails.Any(d => d.Product == qi.ProductName));
+        }
+
+        // Handle Water
+        includeWater = loadMixes.Any(lm => lm.LoadMixDetails.Any(d => d.Product == "Water"));
+        UpdateWaterDisplay();
+
+        if (includeWater && selectedQuoteId == -1)
+        {
+            var waterDetail = manualMix?.LoadMixDetails.FirstOrDefault(d => d.Product == "Water");
+            if (waterDetail != null && !quoteInventories.Any(i => i.ProductName == "Water"))
+            {
+                quoteInventories.Add(new QuoteInventory
+                    {
+                        ProductName = "Water",
+                        QuantityPerAcre = ParseRate(waterDetail.RatePerAcre),
+                        ProductUOM = ExtractUnit(waterDetail.Total),
+                        Selected = true
+                    });
+            }
+        }
+
+        var waterEntry = quoteInventories.FirstOrDefault(i => i.ProductName == "Water");
+        if (waterEntry != null)
+        {
+            waterEntry.Selected = true;
+        }
+
+        StateHasChanged();
+    }
+
+
+    private decimal ParseRate(string ratePerAcre)
+    {
+        if (string.IsNullOrWhiteSpace(ratePerAcre)) return 0;
+        var parts = ratePerAcre.Split(' ');
+        return decimal.TryParse(parts[0], out var value) ? value : 0;
+    }
+
+    private string ExtractUnit(string total)
+    {
+        if (string.IsNullOrWhiteSpace(total)) return "";
+        var parts = total.Split(' ');
+        return parts.Length > 1 ? parts[1] : "";
+    }
+
+
+    private async Task UpdateLoadMixDetails(Dictionary<int, int> quoteLoadMixMap)
+    {
+        foreach (var kvp in quoteLoadMixMap)
+        {
+            int quoteId = kvp.Key;
+            int loadMixId = kvp.Value;
+
+            // Remove all existing details for this LoadMix
+            var existing = await LoadMix2Service.GetLoadMixDetailsByLoadMixIdAsync(loadMixId);
+            if (existing.Any())
+            {
+                foreach (var detail in existing)
+                    await LoadMix2Service.RemoveLoadMixDetailsAsync(loadMixId, detail.Product);
+            }
+
+            // Build selected items for THIS quote
+            var selectedItems = new List<QuoteInventory>();
+
+            // Quote items for this quote only
+            selectedItems.AddRange(
+                quoteInventories
+                    .Where(q => q.Selected && q.QuoteId == quoteId)
+            );
+
+            // Water (if included)
+            if (includeWater)
+            {
+                selectedItems.Add(new QuoteInventory
+                    {
+                        ProductName = "Water",
+                        ProductUOM = "gal",
+                        QuoteUnitOfMeasure = "gal",
+                        QuantityPerAcre = newLoadMix.LMRatePerAcre,
+                        Price = 0,
+                        QuotePrice = 0
+                    });
+            }
+
+            // Deduplicate by ProductName
+            selectedItems = selectedItems
+                .GroupBy(i => i.ProductName)
+                .Select(g => g.First())
+                .ToList();
+
+            // Save each item
+            foreach (var qi in selectedItems)
+            {
+                // Compute conversion factor
+                var suom = qi.ProductUOM?.ToLower().Trim();
+                var quom = qi.QuoteUnitOfMeasure?.ToLower().Trim();
+
+                var conversion = UOMConversions.FirstOrDefault(c =>
+                    c.SUOM.ToLower().Trim() == suom &&
+                    c.QUOM.ToLower().Trim() == quom);
+
+                var conversionFactor = conversion?.ConversionFactor ?? 1M;
+
+                // Compute total
+                var total = qi.ProductName == "Water"
+                    ? newLoadMix.TotalGallons
+                    : Math.Round((newLoadMix.TotalAcres * qi.QuantityPerAcre) / conversionFactor, 1);
+
+                var detail = new LoadMixDetails
+                    {
+                        LoadMixId = loadMixId,
+                        Product = qi.ProductName,
+                        RatePerAcre = $"{qi.QuantityPerAcre} {qi.QuoteUnitOfMeasure}",
+                        Total = $"{total} {qi.ProductUOM}",
+                        EPA = qi.EPA,
+                        Price = qi.Price,
+                        QuotePrice = qi.QuotePrice
+                    };
+
+                await LoadMix2Service.AddLoadMixDetailsAsync(detail);
+            }
+        }
+    }
+
+
+    private async Task UpdateManualLoadMixDetails(int manualLoadMixId)
+    {
+        // 1️⃣ Remove all existing details for this manual LoadMix
+        var existing = await LoadMix2Service.GetLoadMixDetailsByLoadMixIdAsync(manualLoadMixId);
+        if (existing.Any())
+        {
+            foreach (var detail in existing)
+                await LoadMix2Service.RemoveLoadMixDetailsAsync(manualLoadMixId, detail.Product);
+        }
+
+        // 2️⃣ Build selected manual items
+        var selectedItems = new List<QuoteInventory>();
+
+        // Manual products only
+        selectedItems.AddRange(manualProducts.Where(m => m.Selected));
+
+        // Water (if included)
+        if (includeWater)
+        {
+            selectedItems.Add(new QuoteInventory
+                {
+                    ProductName = "Water",
+                    ProductUOM = "gal",
+                    QuoteUnitOfMeasure = "gal",
+                    QuantityPerAcre = newLoadMix.LMRatePerAcre,
+                    Price = 0,
+                    QuotePrice = 0
+                });
+        }
+
+        // 3️⃣ Deduplicate by ProductName
+        selectedItems = selectedItems
+            .GroupBy(i => i.ProductName)
+            .Select(g => g.First())
+            .ToList();
+
+        // 4️⃣ Save each item exactly once
+        foreach (var qi in selectedItems)
+        {
+            // Compute conversion factor
+            var suom = qi.ProductUOM?.ToLower().Trim();
+            var quom = qi.QuoteUnitOfMeasure?.ToLower().Trim();
+
+            var conversion = UOMConversions.FirstOrDefault(c =>
+                c.SUOM.ToLower().Trim() == suom &&
+                c.QUOM.ToLower().Trim() == quom);
+
+            var conversionFactor = conversion?.ConversionFactor ?? 1M;
+
+            // Compute total
+            var total = qi.ProductName == "Water"
+                ? newLoadMix.TotalGallons
+                : Math.Round((newLoadMix.TotalAcres * qi.QuantityPerAcre) / conversionFactor, 1);
+
+            var detail = new LoadMixDetails
+                {
+                    LoadMixId = manualLoadMixId,
+                    Product = qi.ProductName,
+                    RatePerAcre = $"{qi.QuantityPerAcre} {qi.QuoteUnitOfMeasure}",
+                    Total = $"{total} {qi.ProductUOM}",
+                    EPA = qi.EPA,
+                    Price = qi.Price,
+                    QuotePrice = qi.QuotePrice
+                };
+
+            await LoadMix2Service.AddLoadMixDetailsAsync(detail);
+        }
+    }
+
+
+    private async Task UpdateLoadFields(int loadMixId, int quoteId)
+    {
+        var existingFields = await LoadMix2Service.GetLoadFieldsByLoadMixIdAsync(loadMixId);
+
+        foreach (var field in existingFields)
+        {
+            var selectedField = loadFields.FirstOrDefault(f => f.SelectedFieldId == field.SelectedFieldId);
+            if (selectedField != null)
+            {
+                field.FieldName = selectedField.FieldName;
+                field.CustomerId = selectedField.CustomerId;
+                field.FieldAcres = selectedField.FieldAcres;
+                field.FieldAverageRate = selectedField.FieldAverageRate;
+                field.FieldTotalGallons = selectedField.FieldTotalGallons;
+
+                await LoadMix2Service.UpdateLoadFieldAsync(field);
+            }
+        }
+    }
+
+    private async Task DeleteLoadMix(int loadMixId)
+    {
+        var loadMixes = await LoadMix2Service.GetLoadMixesByLoadMixIdAsync(loadMixId);
+        foreach (var loadMix in loadMixes)
+        {
+            await LoadMix2Service.DeleteLoadMixAsync(loadMix.Id);
+        }
+        groupedLoadMixes = groupedLoadMixes.Where(g => g.LoadMixId != loadMixId).ToList();
+        StateHasChanged();
+    }
+
+    private async Task PrintLoadMix(int loadMixId)
+    {
+        var html = await LoadMix2Service.BuildLoadMixPrintHtmlAsync(loadMixId);
+        await JSRuntime.InvokeVoidAsync("openPrintWindow", html);
+    }
+
+
+    private async Task ToggleLoadMixForm()
+    {
+        showLoadMixForm = !showLoadMixForm;
+        isAddingLoadSheet = showLoadMixForm;
+        isEditingLoadMix = false;
+
+        if (showLoadMixForm)
+        {
+            includeNoQuote = true; // Automatically check the checkbox
+            loadTimeString = "00:00:00"; // Ensure a valid value
+        }
+        else
+        {
+            ResetFormFields(); // Reset the form fields only when hiding the form
+        }
+
+        StateHasChanged(); // Ensure the UI is updated to reflect changes
+    }
+
+    private void UpdateWaterDisplay()
+    {
+        if (includeWater)
+        {
+            // Add water to the list (Product-based)
+            if (!quoteInventories.Any(i =>
+                i.ProductName.Equals("Water", StringComparison.OrdinalIgnoreCase)))
+            {
+                quoteInventories.Add(new QuoteInventory
+                    {
+                        ProductName = "Water",
+                        ProductUOM = "gal",
+                        QuantityPerAcre = newLoadMix.LMRatePerAcre,
+                        QuoteUnitOfMeasure = "gal",
+                        Selected = true
+                    });
+            }
+            else
+            {
+                // Update existing Water entry
+                var water = quoteInventories.First(i =>
+                    i.ProductName.Equals("Water", StringComparison.OrdinalIgnoreCase));
+
+                water.QuantityPerAcre = newLoadMix.LMRatePerAcre;
+                water.Selected = true;
+            }
+        }
+        else
+        {
+            // Remove water from the list
+            quoteInventories.RemoveAll(i =>
+                i.ProductName.Equals("Water", StringComparison.OrdinalIgnoreCase));
+        }
+
+        StateHasChanged();
+    }
+
+
+    private async Task ShowAddQuoteDropdown()
+    {
+        if (selectedQuoteId > 0)
+        {
+            var initialQuote = await Quote2Service.GetQuoteByIdAsync(selectedQuoteId);
+
+            if (initialQuote != null && initialQuote.QuoteInventories.Any())
+            {
+                // Extract ProductIds from the initial quote
+                var initialProductIds = initialQuote.QuoteInventories
+                    .Select(i => i.ProductId)
+                    .OrderBy(id => id)
+                    .ToList();
+
+                // Find quotes with matching ProductId sets
+                matchingQuotes = quotes
+                    .Where(q =>
+                    {
+                        var quoteProductIds = q.QuoteInventories
+                            .Select(i => i.ProductId)
+                            .OrderBy(id => id)
+                            .ToList();
+
+                        return quoteProductIds.SequenceEqual(initialProductIds);
+                    })
+                    .Where(q => !selectedQuoteIds.Contains(q.Id))
+                    .ToList();
+            }
+
+            // Show dropdown only if matches exist
+            showAddQuoteDropdown = matchingQuotes.Any();
+
+            if (!showAddQuoteDropdown)
+            {
+                await JSRuntime.InvokeVoidAsync("alert",
+                    "No additional quotes found with matching products.");
+            }
+
+            StateHasChanged();
+        }
+    }
+
+    private async Task OnAdditionalQuoteSelected(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int additionalQuoteId) && additionalQuoteId > 0)
+        {
+            var additionalQuote = await Quote2Service.GetQuoteByIdAsync(additionalQuoteId);
+
+            if (additionalQuote != null && additionalQuote.QuoteInventories.Any())
+            {
+                var initialQuote = await Quote2Service.GetQuoteByIdAsync(selectedQuoteId);
+
+                // Validate product consistency
+                bool isConsistent = additionalQuote.QuoteInventories.All(i =>
+                    initialQuote.QuoteInventories.Any(ii => ii.ProductId == i.ProductId));
+
+                if (isConsistent)
+                {
+                    // Add the quote to the list if it hasn't been selected already
+                    if (!selectedQuoteIds.Contains(additionalQuoteId))
+                    {
+                        selectedQuoteIds.Add(additionalQuoteId);
+                    }
+
+                    // Reset the dropdown and hide it
+                    showAddQuoteDropdown = false;
+
+                    // Load inventories for the additional quote
+                    await LoadQuoteInventoriesForAdditionalQuote(additionalQuoteId);
+                }
+                else
+                {
+                    await JSRuntime.InvokeVoidAsync("alert",
+                        "The selected quote's products do not match the initial quote's products.");
+                }
+            }
+
+            StateHasChanged(); // Update the UI
+        }
+    }
+
+
+    private async Task LoadQuoteInventoriesForAdditionalQuote(int quoteId)
+    {
+        var quote = await Quote2Service.GetQuoteByIdAsync(quoteId);
+        if (quote != null && quote.QuoteInventories.Any())
+        {
+            foreach (var inventory in quote.QuoteInventories)
+            {
+                inventory.QuoteId = quoteId; // Track the quote ID for each inventory item
+                quoteInventories.Add(inventory);
+            }
+        }
+
+        StateHasChanged(); // Ensure UI is updated
+    }
+
+    private async Task<bool> ValidateSelectedQuotes()
+    {
+        if (selectedQuoteIds.Count > 1)
+        {
+            var initialQuote = await Quote2Service.GetQuoteByIdAsync(selectedQuoteId);
+
+            foreach (var quoteId in selectedQuoteIds)
+            {
+                var quote = await Quote2Service.GetQuoteByIdAsync(quoteId);
+
+                bool isConsistent = quote.QuoteInventories.All(i =>
+                    initialQuote.QuoteInventories.Any(ii => ii.ProductId == i.ProductId));
+
+                if (!isConsistent)
+                {
+                    await JSRuntime.InvokeVoidAsync("alert",
+                        $"Quote ID {quoteId} has mismatched products.");
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+
+    private void ResetFormFields()
+    {
+        newLoadMix = new LoadMix();
+        loadFields = new List<LoadFields>();
+        quoteInventories = new List<QuoteInventory>();
+        manualProducts = new List<QuoteInventory>();
+        loadTimeString = "00:00:00"; // Set default time or clear it
+        selectedQuoteId = 0;
+        selectedQuoteIds.Clear();
+        showAddQuoteDropdown = false;
+        includeWater = false;
+        includeNoQuote = false;
+        showLoadMixForm = false;
+        isAddingLoadSheet = false;
+        isEditingLoadMix = false;
+
+        foreach (var quote in quotes)
+        {
+            foreach (var inventory in quote.QuoteInventories)
+            {
+                inventory.Selected = false;
+            }
+        }
+
+        StateHasChanged(); // Ensure the UI is updated to reflect changes
+    }
+
+
+    private void SyncManualProductsWithQuoteInventories()
+    {
+        // 1️⃣ Ensure manualProducts contains only unique items by ProductName
+        manualProducts = manualProducts
+            .GroupBy(m => m.ProductName)
+            .Select(g => g.First())
+            .ToList();
+
+        // 2️⃣ Ensure quoteInventories contains only unique items by ProductName
+        quoteInventories = quoteInventories
+            .GroupBy(q => q.ProductName)
+            .Select(g => g.First())
+            .ToList();
+
+        // 3️⃣ DO NOT merge manualProducts into quoteInventories
+        //    This was the source of duplication before.
+        //    Quote and manual lists must remain separate.
+
+        // 4️⃣ If Water is included, ensure it appears only once in manualProducts
+        if (includeWater)
+        {
+            if (!manualProducts.Any(p => p.ProductName == "Water"))
+            {
+                manualProducts.Add(new QuoteInventory
+                    {
+                        ProductName = "Water",
+                        ProductUOM = "gal",
+                        QuoteUnitOfMeasure = "gal",
+                        QuantityPerAcre = newLoadMix.LMRatePerAcre,
+                        Price = 0,
+                        QuotePrice = 0,
+                        Selected = true
+                    });
+            }
+        }
+        else
+        {
+            // Remove Water if not included
+            manualProducts.RemoveAll(p => p.ProductName == "Water");
+        }
+    }
+
+
+    private void AddCustomerApplied()
+    {
+        loadFields.Add(new LoadFields
+            {
+                SelectedFieldId = 0,
+                FieldName = "Applied by customer",
+                CustomerId = 0,
+                FieldTotalGallons = 0,
+                FieldAverageRate = newLoadMix.LMRatePerAcre,
+                FieldAcres = 0,
+                DropdownFields = new List<Field>() // not used
+            });
+    }
+
+    private async Task OnProductSelectionChanged(QuoteInventory qi, ChangeEventArgs e)
+    {
+        bool isSelected = Convert.ToBoolean(e.Value);
+        qi.Selected = isSelected;
+
+        var manual = manualProducts.FirstOrDefault(i =>
+            i.ProductName.Equals(qi.ProductName, StringComparison.OrdinalIgnoreCase));
+
+        if (manual != null)
+        {
+            manual.Selected = isSelected;
+        }
+        else if (
+            isSelected &&
+            (includeNoQuote || selectedQuoteId == -1) &&
+            !string.Equals(qi.ProductName, "Water", StringComparison.OrdinalIgnoreCase)
+        )
+        {
+            manualProducts.Add(new QuoteInventory
+                {
+                    ProductId = qi.ProductId,
+                    ProductName = qi.ProductName,
+                    ProductUOM = qi.ProductUOM,
+                    QuantityPerAcre = qi.QuantityPerAcre,
+                    QuoteUnitOfMeasure = qi.QuoteUnitOfMeasure,
+                    ProductEPA = qi.ProductEPA,
+                    ProductWeightedAveragePrice = qi.ProductWeightedAveragePrice,
+                    QuotePrice = qi.QuotePrice,
+                    Selected = true
+                });
+        }
+
+        if (!isSelected)
+        {
+            manualProducts.RemoveAll(i =>
+                i.ProductName.Equals(qi.ProductName, StringComparison.OrdinalIgnoreCase));
+        }
+
+        StateHasChanged();
+    }
+
+
+}

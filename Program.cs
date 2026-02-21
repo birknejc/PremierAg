@@ -21,21 +21,26 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddScoped<VendorService>();
-builder.Services.AddScoped<InventoryService>();
 builder.Services.AddScoped<PurchaseOrderService>();
 builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<FieldService>();
-builder.Services.AddScoped<QuoteService>();
-builder.Services.AddScoped<LoadMixService>();
 builder.Services.AddScoped<ConversionService>();
 builder.Services.AddSingleton<PurchaseOrderState>();
 builder.Services.AddScoped<InvoiceService>();
+builder.Services.AddScoped<IProductInventoryService, ProductInventoryService>();
+builder.Services.AddScoped<ProductInventoryService>();
+builder.Services.AddScoped<LoadMix2Service>();
+builder.Services.AddScoped<Quote2Service>();
+builder.Services.AddScoped<ApplicatorLicenseService>();
+
+
+
 
 
 // Connect to PostgreSQL database
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")),
-    ServiceLifetime.Scoped);
+builder.Services.AddDbContextFactory<AppDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 
 
 var app = builder.Build();

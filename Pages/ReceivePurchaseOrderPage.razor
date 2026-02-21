@@ -1,0 +1,118 @@
+﻿@page "/receivepurchaseorder"
+@using PAS.Models
+@using PAS.Services
+@inject PurchaseOrderService PurchaseOrderService
+
+<h3>Receive Purchase Order</h3>
+
+<div class="mb-3">
+    <label>Select Purchase Order:</label>
+    <select class="form-select" @onchange="OnPurchaseOrderSelected">
+        <option value="">-- Select PO --</option>
+        @foreach (var po in PurchaseOrders)
+        {
+            <option value="@po.Id">@po.PONumber - @po.BusinessName</option>
+        }
+    </select>
+</div>
+
+@if (SelectedPurchaseOrder != null)
+{
+    <h4>PO: @SelectedPurchaseOrder.PONumber</h4>
+    <p><strong>Vendor:</strong> @SelectedPurchaseOrder.BusinessName</p>
+    <p><strong>Order Date:</strong> @SelectedPurchaseOrder.OrderDate.ToShortDateString()</p>
+
+    <table class="table table-bordered mt-3">
+        <thead>
+            <tr>
+                <th>Product / Chemical</th>
+                <th>UOM</th>
+                <th>Ordered</th>
+                <th>Received</th>
+                <th>Remaining</th>
+                <th>Receive Now</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in SelectedPurchaseOrder.Items)
+            {
+                var remaining = item.QuantityOrdered - item.QuantityReceived;
+
+                <tr>
+                    <td>@item.ChemicalName</td>
+                    <td>@item.UnitOfMeasurePurchase</td>
+                    <td>@item.QuantityOrdered</td>
+                    <td>@item.QuantityReceived</td>
+                    <td>@remaining</td>
+                    <td>
+                        <input type="number"
+                               class="form-control"
+                               min="0"
+                               max="@remaining"
+                               @bind="ReceiveQuantities[item.Id]"
+                               disabled="@(remaining == 0)" />
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button class="btn btn-primary" @onclick="ReceiveItems">Receive Items</button>
+}
+
+@code {
+    private List<PurchaseOrder> PurchaseOrders = new();
+    private PurchaseOrder? SelectedPurchaseOrder;
+    private Dictionary<int, int> ReceiveQuantities = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        PurchaseOrders = await PurchaseOrderService.GetPurchaseOrdersAsync();
+    }
+
+    private async Task OnPurchaseOrderSelected(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int poId))
+        {
+            SelectedPurchaseOrder = await PurchaseOrderService.GetPurchaseOrderByIdAsync(poId);
+
+            if (SelectedPurchaseOrder?.Items != null)
+            {
+                ReceiveQuantities = SelectedPurchaseOrder.Items
+                    .ToDictionary(i => i.Id, i => 0);
+            }
+        }
+        else
+        {
+            SelectedPurchaseOrder = null;
+            ReceiveQuantities.Clear();
+        }
+    }
+
+    private async Task ReceiveItems()
+    {
+        if (SelectedPurchaseOrder == null)
+            return;
+
+        var quantitiesToReceive = ReceiveQuantities
+            .Where(q => q.Value > 0)
+            .ToDictionary(q => q.Key, q => q.Value);
+
+        if (!quantitiesToReceive.Any())
+            return;
+
+        await PurchaseOrderService.ReceivePurchaseOrderAsync(
+            SelectedPurchaseOrder.Id,
+            quantitiesToReceive
+        );
+
+        SelectedPurchaseOrder = await PurchaseOrderService.GetPurchaseOrderByIdAsync(SelectedPurchaseOrder.Id);
+
+        if (SelectedPurchaseOrder?.Items != null)
+        {
+            ReceiveQuantities = SelectedPurchaseOrder.Items
+                .ToDictionary(i => i.Id, i => 0);
+        }
+    }
+}
+

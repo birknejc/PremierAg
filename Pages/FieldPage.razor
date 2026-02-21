@@ -18,9 +18,9 @@ else if (fields != null && fields.Any())
     <table class="table">
         <thead>
             <tr>
+                <th>Customer</th>
                 <th>Field Name</th>
                 <th>Acres</th>
-                <th>Customer</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -78,6 +78,7 @@ else
                             <label>Acres</label>
                             <InputNumber class="form-control" @bind-Value="newField.Acres" min="1" required />
                         </div>
+                        <button type="button" class="btn btn-secondary" @onclick="ShowInvoiceSplitModal">Invoice Split</button>
                         <button type="submit" class="btn btn-success">Save</button>
                     </EditForm>
                 </div>
@@ -85,6 +86,41 @@ else
         </div>
     </div>
 }
+
+@if (showInvoiceSplitModal)
+{
+    <div class="modal" style="display:block;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Invoice Split</h5>
+                    <button type="button" class="btn-close" @onclick="HideInvoiceSplitModal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Select customers and enter their invoice split percentage:</p>
+                    @foreach (var split in invoiceSplits)
+                    {
+                        <div class="row mb-2">
+                            <div class="col-6">
+                                <input type="checkbox" @bind="split.IsSelected" />
+                                @split.CustomerBusinessName
+                            </div>
+                            <div class="col-6">
+                                <InputNumber class="form-control"
+                                             @bind-Value="split.InvoiceSplit"
+                                             min="0" max="100"
+                                             disabled="@(split.IsSelected == false)"
+                                             placeholder="Invoice Split (%)" />
+                            </div>
+                        </div>
+                    }
+                    <button class="btn btn-success" @onclick="HideInvoiceSplitModal">Done</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 
 @code {
     [Parameter] public int? customerId { get; set; }
@@ -94,6 +130,8 @@ else
     private Field newField = new();
     private bool showAddModal = false;
     private bool isLoading = true;
+    private List<CustomerSplitEntry> invoiceSplits = new();
+    private bool showInvoiceSplitModal = false;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -130,6 +168,7 @@ else
             return;
         }
 
+        // Save Field
         if (newField.Id == 0)
         {
             await FieldService.AddFieldAsync(newField);
@@ -137,6 +176,33 @@ else
         else
         {
             await FieldService.UpdateFieldAsync(newField);
+        }
+
+        // Save Invoice Splits if any are selected
+        if (invoiceSplits.Any(s => s.IsSelected))
+        {
+            var fieldId = newField.Id; // If AddFieldAsync returns the new Id, use that
+            foreach (var split in invoiceSplits.Where(s => s.IsSelected))
+            {
+                var customerField = new CustomerField
+                    {
+                        FieldId = fieldId,
+                        CustomerId = split.CustomerId,
+                        InvoiceSplit = split.InvoiceSplit
+                    };
+                await FieldService.AddCustomerFieldAsync(customerField);
+            }
+        }
+        else
+        {
+            // Default: main customer gets 100%
+            var customerField = new CustomerField
+                {
+                    FieldId = newField.Id,
+                    CustomerId = newField.CustomerId,
+                    InvoiceSplit = 100
+                };
+            await FieldService.AddCustomerFieldAsync(customerField);
         }
 
         if (customerId.HasValue)
@@ -149,7 +215,9 @@ else
         }
 
         showAddModal = false;
+        invoiceSplits.Clear();
     }
+
 
     private async Task EditField(int id)
     {
@@ -174,4 +242,39 @@ else
             fields = await FieldService.GetAllFieldsAsync();
         }
     }
+
+    public class CustomerSplitEntry
+    {
+        public int CustomerId { get; set; }
+        public string CustomerBusinessName { get; set; }
+        public bool IsSelected { get; set; }
+        public decimal InvoiceSplit { get; set; }
+    }
+
+    private void ShowInvoiceSplitModal()
+    {
+        // Initialize splits if not already done
+        if (invoiceSplits.Count == 0)
+        {
+            invoiceSplits = customers.Select(c =>
+            {
+                return new CustomerSplitEntry
+                    {
+                        CustomerId = c.Id,
+                        CustomerBusinessName = c.CustomerBusinessName,
+                        IsSelected = c.Id == newField.CustomerId,
+                        InvoiceSplit = c.Id == newField.CustomerId ? 100 : 0
+                    };
+            }).ToList();
+
+        }
+        showInvoiceSplitModal = true;
+    }
+
+    private void HideInvoiceSplitModal()
+    {
+        showInvoiceSplitModal = false;
+    }
+
+
 }

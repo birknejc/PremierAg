@@ -1,0 +1,65 @@
+﻿@using PAS.Models
+@inject IJSRuntime JSRuntime
+
+@code {
+    [Parameter] public LoadMix NewLoadMix { get; set; }
+    [Parameter] public string LoadTimeString { get; set; }
+    [Parameter] public EventCallback<string> OnLoadTimeChanged { get; set; }
+    [Parameter] public EventCallback<ChangeEventArgs> OnTotalGallonsChanged { get; set; }
+    [Parameter] public EventCallback<ChangeEventArgs> OnTotalAcresChanged { get; set; }
+    [Parameter] public bool IncludeWater { get; set; }
+    [Parameter] public EventCallback<bool> OnIncludeWaterChanged { get; set; }
+
+    private async Task HandleLoadTimeChanged(ChangeEventArgs e)
+    {
+        var newValue = e.Value?.ToString();
+        await JSRuntime.InvokeVoidAsync("console.log", $"HandleLoadTimeChanged: newValue = {newValue}");
+        await OnLoadTimeChanged.InvokeAsync(newValue);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await JSRuntime.InvokeVoidAsync("console.log", $"LoadTimeString value in LoadMixDetailsComponent (initial): {LoadTimeString}");
+        await base.OnInitializedAsync();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await JSRuntime.InvokeVoidAsync("console.log", $"LoadTimeString received in LoadMixDetailsComponent: {LoadTimeString}");
+        await base.OnParametersSetAsync();
+    }
+
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <label>Date:</label>
+        <InputDate class="form-control" @bind-Value="NewLoadMix.LoadDate" />
+    </div>
+    <div class="col-md-6">
+        <label>Time:</label>
+        <InputText class="form-control" @bind-Value="LoadTimeString" />
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <label>Crop:</label>
+        <InputText class="form-control" @bind-Value="NewLoadMix.Crop" />
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <label>Total Gallons:</label>
+        <InputNumber class="form-control" @bind-Value="NewLoadMix.TotalGallons" @oninput="(e) => OnTotalGallonsChanged.InvokeAsync(e)" />
+    </div>
+    <div class="col-md-6">
+        <label>Total Acres:</label>
+        <InputNumber class="form-control" @bind-Value="NewLoadMix.TotalAcres" @oninput="(e) => OnTotalAcresChanged.InvokeAsync(e)" />
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <label>Rate Per Acre:</label>
+        <div class="form-control">@NewLoadMix.LMRatePerAcre</div>
+    </div>
+</div>

@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>Load Sheet</title>
     <style>
-        /* Add your print-specific styles here */
         body, html {
             width: 100%;
             margin: 0;
@@ -34,13 +33,58 @@
         th {
             background-color: #f2f2f2;
         }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .checkboxes {
+            text-align: right;
+            margin-top: 10px;
+        }
+
+            .checkboxes label {
+                display: block;
+            }
+
+        .notes {
+            margin-top: 20px;
+            border-top: 1px solid black;
+            padding-top: 10px;
+        }
+
+            .notes div {
+                margin-bottom: 10px;
+            }
+
+        .note-line {
+            border-bottom: 1px solid black;
+            margin-bottom: 1000px;
+            width: 100%;
+        }
     </style>
 </head>
 <body>
     <div class="print-section">
-        <div style="display: flex; align-items: center; margin-bottom: 20px;">
-            <img src="images/logo.jpg" alt="Logo" style="width: 100px; height: auto; margin-right: 20px;">
-            <h1 style="margin: 0;">LOAD SHEET</h1>
+        <div class="header">
+            <div style="display: flex; align-items: center;">
+                <img src="images/logo.jpg" alt="Logo" style="width: 100px; height: auto; margin-right: 20px;">
+                <h1 style="margin: 0;">LOAD SHEET</h1>
+            </div>
+            <div class="checkboxes">
+                <label><input type="checkbox"> Corn</label>
+                <label><input type="checkbox"> Beans</label>
+                <label><input type="checkbox"> Chemical Pre</label>
+                <label><input type="checkbox"> Chemical Post</label>
+                <label><input type="checkbox"> Fertilizer</label>
+                <label><input type="checkbox"> 1100B Sprayer</label>
+                <label><input type="checkbox"> 1300B Sprayer</label>
+                <label><input type="checkbox"> 1600 Chemical Trailer</label>
+                <label><input type="checkbox"> Other</label>
+            </div>
         </div>
         <div style="margin-bottom: 20px;">
             <div><strong>Load #:</strong> {{LoadId}}</div>
@@ -78,6 +122,16 @@
                 {{FieldsAppliedToRows}}
             </tbody>
         </table>
+        <div class="notes">
+            <h4>Notes</h4>
+            <div class="note-line"></div>
+            <div style="height: 10px;"></div>
+            <div class="note-line"></div>
+            <div style="height: 10px;"></div>
+            <div class="note-line"></div>
+            <div style="height: 10px;"></div>
+            <div class="note-line"></div>
+        </div>
     </div>
 </body>
 </html>

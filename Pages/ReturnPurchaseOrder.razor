@@ -1,0 +1,116 @@
+﻿@page "/returnpurchaseorder"
+@using PAS.Models
+@using PAS.Services
+@inject PurchaseOrderService PurchaseOrderService
+
+<h3>Return / Undo Receiving</h3>
+
+<div class="mb-3">
+    <label>Select Purchase Order:</label>
+    <select class="form-select" @onchange="OnPurchaseOrderSelected">
+        <option value="">-- Select PO --</option>
+        @foreach (var po in PurchaseOrders)
+        {
+            <option value="@po.Id">@po.PONumber - @po.BusinessName</option>
+        }
+    </select>
+</div>
+
+@if (SelectedPurchaseOrder != null)
+{
+    <h4>PO: @SelectedPurchaseOrder.PONumber</h4>
+    <p><strong>Vendor:</strong> @SelectedPurchaseOrder.BusinessName</p>
+
+    <table class="table table-bordered mt-3">
+        <thead>
+            <tr>
+                <th>Product / Chemical</th>
+                <th>UOM</th>
+                <th>Ordered</th>
+                <th>Received</th>
+                <th>Returnable</th>
+                <th>Return Now</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in SelectedPurchaseOrder.Items)
+            {
+                var returnable = item.QuantityReceived;
+
+                <tr>
+                    <td>@item.ChemicalName</td>
+                    <td>@item.UnitOfMeasurePurchase</td>
+                    <td>@item.QuantityOrdered</td>
+                    <td>@item.QuantityReceived</td>
+                    <td>@returnable</td>
+                    <td>
+                        <input type="number"
+                               class="form-control"
+                               min="0"
+                               max="@returnable"
+                               @bind="ReturnQuantities[item.Id]"
+                               disabled="@(returnable == 0)" />
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button class="btn btn-danger" @onclick="ReturnItems">Process Returns</button>
+}
+
+@code {
+    private List<PurchaseOrder> PurchaseOrders = new();
+    private PurchaseOrder? SelectedPurchaseOrder;
+    private Dictionary<int, int> ReturnQuantities = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        PurchaseOrders = await PurchaseOrderService.GetPurchaseOrdersAsync();
+    }
+
+    private async Task OnPurchaseOrderSelected(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int poId))
+        {
+            SelectedPurchaseOrder = await PurchaseOrderService.GetPurchaseOrderByIdAsync(poId);
+
+            if (SelectedPurchaseOrder?.Items != null)
+            {
+                ReturnQuantities = SelectedPurchaseOrder.Items
+                    .ToDictionary(i => i.Id, i => 0);
+            }
+        }
+        else
+        {
+            SelectedPurchaseOrder = null;
+            ReturnQuantities.Clear();
+        }
+    }
+
+    private async Task ReturnItems()
+    {
+        if (SelectedPurchaseOrder == null)
+            return;
+
+        var quantitiesToReturn = ReturnQuantities
+            .Where(q => q.Value > 0)
+            .ToDictionary(q => q.Key, q => q.Value);
+
+        if (!quantitiesToReturn.Any())
+            return;
+
+        await PurchaseOrderService.ReturnPurchaseOrderItemsAsync(
+            SelectedPurchaseOrder.Id,
+            quantitiesToReturn
+        );
+
+        SelectedPurchaseOrder = await PurchaseOrderService.GetPurchaseOrderByIdAsync(SelectedPurchaseOrder.Id);
+
+        if (SelectedPurchaseOrder?.Items != null)
+        {
+            ReturnQuantities = SelectedPurchaseOrder.Items
+                .ToDictionary(i => i.Id, i => 0);
+        }
+    }
+}

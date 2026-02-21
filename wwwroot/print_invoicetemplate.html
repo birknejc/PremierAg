@@ -7,42 +7,149 @@
                 font-family: Arial, sans-serif;
                 margin: 0;
                 padding: 0;
+                display: flex;
+                flex-direction: column; /* Ensure content stacks properly */
+                min-height: 100vh; /* Full-page height for consistent layout */
             }
 
             .print-container {
+                flex: 1; /* Allows the container to grow and fill space above the footer */
                 width: 100%;
                 max-width: 750px;
                 margin: 0 auto;
                 padding: 20px;
                 background: #fff;
-                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start; /* Align content to the top */
             }
+
+            .logo {
+                width: 300px;
+                height: auto;
+                margin-bottom: 20px;
+            }
+
+            .header-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+            }
+
+            .content-row {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 10px;
+            }
+
+            .content-column1 {
+                width: 55%; 
+                line-height: 1.5;
+
+            }
+
+            .content-column2 {
+                width: 45%;
+                line-height: 1.2;
+                font-size: 12px;
+                margin: 0; 
+                padding: 0;
+            }
+
+
+            .bill-to {
+                text-align: left;
+            }
+
+            .applicator-info {
+                text-align: left;
+                width: 50%;
+            }
+
 
             table {
                 width: 100%;
                 border-collapse: collapse;
-                table-layout: fixed;
             }
 
             th, td {
                 border: 1px solid #000;
                 padding: 8px;
                 text-align: left;
-                word-wrap: break-word;
             }
 
             th {
                 background-color: #f2f2f2;
             }
 
+            p {
+                margin: 5px 0;
+            }
+
+            .invoice-header {
+                text-align: center;
+                margin-bottom: 30px;
+            }
+
+            .total-amount {
+                text-align: right; /* Align the text to the right */
+                margin-top: 20px; /* Adds spacing between the table and this section */
+                margin-right: 0; /* Ensure it aligns fully with the right margin */
+                font-size: 14px; /* Optional: Adjust font size for readability */
+                page-break-inside: avoid; /* Prevent splitting across pages */
+            }
+
+            .footer {
+                text-align: center; /* Center-align text */
+                margin-top: auto; /* Pushes the footer to the bottom */
+                width: 100%; /* Spans the entire width of the page */
+                font-size: 14px; /* Adjust font size for readability */
+            }
+
+                .footer p {
+                    margin: 5px 0; /* Space between lines for clean layout */
+                }
+
             .page-break {
-                page-break-before: always;
+                page-break-after: always; /* For multiple pages of invoices */
             }
         }
     </style>
 </head>
 <body>
-    <!-- Placeholder for all invoices content -->
-    {{InvoicesContent}}
+    <div class="print-container">
+        <!-- Invoice Content Dynamically Injected Here -->
+        {{InvoicesContent}}
+    </div>
+
+    <footer class="footer">
+        <h4>Remittance</h4>
+        <table>
+            <tr>
+                <td><strong>Invoice #:</strong></td>
+                <td>{{InvoiceGroupId}}</td>
+            </tr>
+            <tr>
+                <td><strong>Date:</strong></td>
+                <td>{{InvoiceDate}}</td>
+            </tr>
+            <tr>
+                <td><strong>Due Date:</strong></td>
+                <td>{{DueDate}}</td>
+            </tr>
+            <tr>
+                <td><strong>Amount Due:</strong></td>
+                <td>{{TotalAmount}}</td>
+            </tr>
+            <tr>
+                <td><strong>Amount Enclosed:</strong></td>
+                <td></td>
+            </tr>
+        </table>
+        <p>Thank you for your business!</p>
+        <p>Make all checks payable to Premier Ag Solution, LLC</p>
+        <p>Premier Ag Solution, LLC 17564 Nuthatch Ave. Bloomfield, IOWA 52537 641-777-5997/641-777-2968</p>
+    </footer>
 </body>
 </html>

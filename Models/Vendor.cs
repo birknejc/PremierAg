@@ -14,8 +14,8 @@
         public string SalesRepPhone { get; set; }
         public string SalesRepEmail { get; set; }
         
-        // Add the navigation property for Inventory
-        public ICollection<Inventory> Inventories { get; set; }
+        public ICollection<ProductVendor> ProductVendors { get; set; }
+
     }
 
 }

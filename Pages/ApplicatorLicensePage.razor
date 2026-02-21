@@ -1,0 +1,180 @@
+﻿@page "/applicatorlicensepage"
+
+@using PAS.Models
+@using PAS.Services
+
+@inject ApplicatorLicenseService LicenseService
+
+<h3>Applicator Licenses</h3>
+
+<button class="btn btn-primary mb-3" @onclick="OpenAddModal">Add New License</button>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Cert #</th>
+            <th>License #</th>
+            <th>Expires</th>
+            <th>Type</th>
+            <th>Active</th>
+            <th>Print</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var lic in Licenses)
+        {
+            <tr>
+                <td>@lic.Name</td>
+                <td>@lic.CertNumber</td>
+                <td>@lic.LicenseNumber</td>
+                <td>@lic.ExpirationDate.ToShortDateString()</td>
+                <td>@lic.LicenseType</td>
+                <td><input type="checkbox" checked="@lic.IsActive" disabled /></td>
+                <td><input type="checkbox" checked="@lic.PrintOnInvoice" disabled /></td>
+                <td>
+                    <button class="btn btn-sm btn-secondary" @onclick="() => OpenEditModal(lic)">Edit</button>
+                    <button class="btn btn-sm btn-danger" @onclick="() => Delete(lic.Id)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@* ---------------------- MODAL ---------------------- *@
+@if (ShowModal)
+{
+    <div class="modal-backdrop fade show"></div>
+
+    <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        @(EditModel.Id == 0 ? "Add License" : "Edit License")
+                    </h5>
+                    <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <EditForm Model="EditModel" OnValidSubmit="Save">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <div class="mb-2">
+                            <label>Name</label>
+                            <InputText class="form-control" @bind-Value="EditModel.Name" />
+                        </div>
+
+                        <div class="mb-2">
+                            <label>Certification Number (optional)</label>
+                            <InputText class="form-control" @bind-Value="EditModel.CertNumber" />
+                        </div>
+
+                        <div class="mb-2">
+                            <label>License Number (optional)</label>
+                            <InputText class="form-control" @bind-Value="EditModel.LicenseNumber" />
+                        </div>
+
+                        <div class="mb-2">
+                            <label>Expiration Date</label>
+                            <InputDate class="form-control" @bind-Value="EditModel.ExpirationDate" />
+                        </div>
+
+                        <div class="mb-2">
+                            <label>License Type</label>
+                            <InputSelect class="form-control" @bind-Value="EditModel.LicenseType">
+                                <option value="Certification">Certification</option>
+                                <option value="BusinessLicense">Business License</option>
+                            </InputSelect>
+                        </div>
+
+                        <div class="form-check mb-2">
+                            <InputCheckbox class="form-check-input" @bind-Value="EditModel.IsActive" />
+                            <label class="form-check-label">Active</label>
+                        </div>
+
+                        <div class="form-check mb-2">
+                            <InputCheckbox class="form-check-input" @bind-Value="EditModel.PrintOnInvoice" />
+                            <label class="form-check-label">Print on Invoice</label>
+                        </div>
+
+                        <button class="btn btn-success">Save</button>
+                        <button type="button" class="btn btn-secondary ms-2" @onclick="CloseModal">Cancel</button>
+                    </EditForm>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+
+
+@code {
+    private List<ApplicatorLicense> Licenses = new();
+    private ApplicatorLicense EditModel = new();
+    private bool ShowModal = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Licenses = await LicenseService.GetAllAsync();
+    }
+
+    private void OpenAddModal()
+    {
+        EditModel = new ApplicatorLicense
+            {
+                IsActive = true,
+                PrintOnInvoice = true,
+                ExpirationDate = DateTime.Today,
+                LicenseType = "Certification"
+            };
+
+        ShowModal = true;
+    }
+
+    private void OpenEditModal(ApplicatorLicense lic)
+    {
+        EditModel = new ApplicatorLicense
+            {
+                Id = lic.Id,
+                Name = lic.Name,
+                CertNumber = lic.CertNumber,
+                LicenseNumber = lic.LicenseNumber,
+                ExpirationDate = lic.ExpirationDate,
+                LicenseType = lic.LicenseType,
+                IsActive = lic.IsActive,
+                PrintOnInvoice = lic.PrintOnInvoice
+            };
+
+        ShowModal = true;
+    }
+
+    private async Task Save()
+    {
+        // Force ExpirationDate to UTC
+        EditModel.ExpirationDate = DateTime.SpecifyKind(EditModel.ExpirationDate, DateTimeKind.Utc);
+
+        if (EditModel.Id == 0)
+            await LicenseService.AddAsync(EditModel);
+        else
+            await LicenseService.UpdateAsync(EditModel);
+
+        Licenses = await LicenseService.GetAllAsync();
+        ShowModal = false;
+    }
+
+
+    private async Task Delete(int id)
+    {
+        await LicenseService.DeleteAsync(id);
+        Licenses = await LicenseService.GetAllAsync();
+    }
+
+    private void CloseModal()
+    {
+        ShowModal = false;
+    }
+}

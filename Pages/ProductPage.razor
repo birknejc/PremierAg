@@ -1,0 +1,366 @@
+﻿@page "/productpage"
+@page "/productpage/{ProductId:int}"
+@using PAS.Models
+@using PAS.Services
+@using PAS.DBContext
+@using Microsoft.EntityFrameworkCore
+@inject AppDbContext Db
+@inject ProductInventoryService ProductInventoryService
+@inject VendorService VendorService
+
+<h3>Products</h3>
+
+<button class="btn btn-primary" @onclick="ShowAddProductModal">Add Product</button>
+
+@if (products != null && products.Any())
+{
+    <table class="table mt-3">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>EPA</th>
+                <th>Default UOM</th>
+                <th>Weighted Avg Price</th>
+                <th>Total Qty Available</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var p in products.OrderBy(p => p.Name))
+            {
+                <tr>
+                    <td>@p.Name</td>
+                    <td>@p.EPA</td>
+                    <td>@p.DefaultUnitOfMeasure</td>
+                    <td>@p.WeightedAveragePrice</td>
+                    <td>@p.TotalQuantityAvailable</td>
+                    <td>
+                        <button class="btn btn-warning btn-sm" @onclick="() => EditProduct(p.Id)">Edit</button>
+                        <button class="btn btn-success btn-sm" @onclick="() => ShowAddPurchaseModal(p.Id)">Add Purchase</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No products found.</p>
+}
+
+<!-- ADD / EDIT PRODUCT MODAL -->
+@if (showProductModal)
+{
+    <div class="modal" style="display:block;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@((isEditMode ? "Edit Product" : "Add Product"))</h5>
+                    <button type="button" class="btn-close" @onclick="HideProductModal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <EditForm Model="editProduct" OnValidSubmit="SaveProduct">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <div class="form-group">
+                            <label>Name</label>
+                            <InputText class="form-control" @bind-Value="editProduct.Name" />
+                        </div>
+
+                        <div class="form-group">
+                            <label>EPA</label>
+                            <InputText class="form-control" @bind-Value="editProduct.EPA" />
+                        </div>
+
+                        <div class="form-group">
+                            <label>Default Unit of Measure</label>
+                            <InputText class="form-control" @bind-Value="editProduct.DefaultUnitOfMeasure" />
+                        </div>
+
+                        <div class="form-group">
+                            <label>Category</label>
+                            <InputText class="form-control" @bind-Value="editProduct.Category" />
+                        </div>
+
+                        <div class="form-group">
+                            <label>Description</label>
+                            <InputTextArea class="form-control" @bind-Value="editProduct.Description" />
+                        </div>
+
+                        <div class="form-group mt-3">
+                            <label>Vendors that sell this product</label>
+
+                            @foreach (var v in vendors.OrderBy(v => v.BusinessName))
+                            {
+                                <div>
+                                    <input type="checkbox"
+                                           value="@v.Id"
+                                           @onchange="e => ToggleVendorSelection(v.Id, e.Value)"
+                                           checked="@selectedVendorIds.Contains(v.Id)" />
+
+                                    <span>@v.BusinessName</span>
+                                </div>
+                            }
+                        </div>
+
+                        <button type="submit" class="btn btn-success mt-2">@((isEditMode ? "Update" : "Add"))</button>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- ADD PURCHASE MODAL -->
+@if (showPurchaseModal)
+{
+    <div class="modal" style="display:block;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Purchase for @purchaseProduct?.Name</h5>
+                    <button type="button" class="btn-close" @onclick="HidePurchaseModal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <EditForm Model="newPurchase" OnValidSubmit="SavePurchase">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <div class="form-group">
+                            <label>Vendor</label>
+                            <InputSelect class="form-control" @bind-Value="newPurchase.VendorId">
+                                <option value="">Select Vendor</option>
+                                @foreach (var v in purchaseVendors)
+                                {
+                                    <option value="@v.Id">@v.BusinessName</option>
+                                }
+                            </InputSelect>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Unit of Measure</label>
+                            <input class="form-control"
+                                   value="@purchaseProduct.DefaultUnitOfMeasure"
+                                   readonly />
+                        </div>
+
+                        <div class="form-group">
+                            <label>Quantity Received</label>
+                            <InputNumber class="form-control" @bind-Value="newPurchase.QuantityReceived" />
+                        </div>
+
+                        <div class="form-group">
+                            <label>Price Per Unit</label>
+                            <InputNumber class="form-control" @bind-Value="newPurchase.PricePerUnit" />
+                        </div>
+
+                        <button type="submit" class="btn btn-success mt-2">Add Purchase</button>
+                    </EditForm>
+                </div>
+
+                <div class="modal-body">
+                    <h5>Purchase History</h5>
+
+                    @if (purchaseProduct?.Purchases != null && purchaseProduct.Purchases.Any())
+                    {
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Vendor</th>
+                                    <th>Qty Received</th>
+                                    <th>Qty Remaining</th>
+                                    <th>Price</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var pp in purchaseProduct.Purchases.OrderByDescending(p => p.ReceivedDate))
+                                {
+                                    <tr>
+                                        <td>@pp.Vendor?.BusinessName</td>
+                                        <td>@pp.QuantityReceived</td>
+                                        <td>@pp.QuantityRemaining</td>
+                                        <td>@pp.PricePerUnit</td>
+                                        <td>@pp.ReceivedDate.ToString("MM/dd/yyyy")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <p>No purchases recorded.</p>
+                    }
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<Product> products = new();
+    private List<Vendor> vendors = new();
+
+    private Product editProduct = new();
+    private Product purchaseProduct;
+
+    private ProductPurchase newPurchase = new();
+
+    private bool showProductModal = false;
+    private bool showPurchaseModal = false;
+    private bool isEditMode = false;
+    private List<int> selectedVendorIds = new();
+
+    private List<Vendor> purchaseVendors = new();
+
+    [Parameter]
+    public int? ProductId { get; set; }
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+        vendors = await VendorService.GetVendorsAsync();
+
+        if (ProductId.HasValue)
+        {
+            // EDIT MODE
+            editProduct = await Db.Products
+                .Include(p => p.Purchases)
+                .Include(p => p.ProductVendors)   // ← NEW
+                .FirstOrDefaultAsync(p => p.Id == ProductId.Value);
+
+            // Load vendor selections for the checkbox list
+            selectedVendorIds = editProduct.ProductVendors
+                .Select(pv => pv.VendorId)
+                .ToList();
+
+            isEditMode = true;
+            showProductModal = true;   // ← REQUIRED so the modal opens
+        }
+        else
+        {
+            // LIST MODE
+            products = await Db.Products
+                .Include(p => p.Purchases)
+                .ToListAsync();
+
+            isEditMode = false;
+            showProductModal = false;
+        }
+    }
+
+    private void ShowAddProductModal()
+    {
+        editProduct = new Product();
+        selectedVendorIds = new List<int>();   // ← reset here
+        isEditMode = false;
+        showProductModal = true;
+    }
+
+
+    private async Task EditProduct(int id)
+    {
+        editProduct = await Db.Products
+            .Include(p => p.ProductVendors)
+            .FirstOrDefaultAsync(p => p.Id == id);
+
+        // Reset and repopulate vendor selections
+        selectedVendorIds = editProduct.ProductVendors
+            .Select(pv => pv.VendorId)
+            .ToList();
+
+        isEditMode = true;
+        showProductModal = true;
+    }
+
+    private void HideProductModal()
+    {
+        showProductModal = false;
+    }
+
+    private async Task SaveProduct()
+    {
+        if (isEditMode)
+        {
+            Db.Products.Update(editProduct);
+        }
+        else
+        {
+            Db.Products.Add(editProduct);
+        }
+
+        await Db.SaveChangesAsync();
+
+        // Update ProductVendor join table
+        var existing = Db.ProductVendors
+            .Where(pv => pv.ProductId == editProduct.Id);
+
+        Db.ProductVendors.RemoveRange(existing);
+
+        foreach (var vendorId in selectedVendorIds)
+        {
+            Db.ProductVendors.Add(new ProductVendor
+                {
+                    ProductId = editProduct.Id,
+                    VendorId = vendorId
+                });
+        }
+
+        await Db.SaveChangesAsync();
+
+        products = await Db.Products
+            .Include(p => p.Purchases)
+            .ToListAsync();
+
+        showProductModal = false;
+    }
+
+    private async Task ShowAddPurchaseModal(int productId)
+    {
+        purchaseProduct = await ProductInventoryService.GetProductAsync(productId);
+
+        // Filter vendors to only those assigned to this product
+        purchaseVendors = vendors
+            .Where(v => purchaseProduct.ProductVendors.Any(pv => pv.VendorId == v.Id))
+            .ToList();
+
+        newPurchase = new ProductPurchase { ProductId = productId };
+        showPurchaseModal = true;
+    }
+
+    private void HidePurchaseModal()
+    {
+        showPurchaseModal = false;
+    }
+
+    private async Task SavePurchase()
+    {
+        await ProductInventoryService.ReceivePurchaseAsync(newPurchase);
+
+        purchaseProduct = await ProductInventoryService.GetProductAsync(newPurchase.ProductId);
+        products = await Db.Products.Include(p => p.Purchases).ToListAsync();
+
+        showPurchaseModal = false;
+    }
+
+    private void ToggleVendorSelection(int vendorId, object checkedValue)
+    {
+        bool isChecked = (bool)checkedValue;
+
+        if (isChecked)
+        {
+            if (!selectedVendorIds.Contains(vendorId))
+                selectedVendorIds.Add(vendorId);
+        }
+        else
+        {
+            selectedVendorIds.Remove(vendorId);
+        }
+    }
+
+}

@@ -3,9 +3,13 @@
 @using PAS.Services
 @inject CustomerService CustomerService
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+
 
 <h3>Customers</h3>
 <button class="btn btn-primary" @onclick="ShowAddCustomerModal">Add Customer</button>
+<button class="btn btn-info ms-2" @onclick="PrintCustomerList">Print Customer List</button>
+
 
 @if (customers != null && customers.Any())
 {
@@ -61,6 +65,10 @@ else
                         <div class="form-group">
                             <label>Business Name</label>
                             <InputText class="form-control" @bind-Value="newCustomer.CustomerBusinessName" />
+                        </div>
+                        <div class="form-group">
+                            <label>Payment Terms (days)</label>
+                            <InputNumber class="form-control" @bind-Value="newCustomer.PaymentTermsDays" />
                         </div>
                         <div class="form-group">
                             <label>First Name</label>
@@ -171,4 +179,12 @@ else
     {
         NavigationManager.NavigateTo($"/fieldpage{customerId}");
     }
+
+    private async Task PrintCustomerList()
+    {
+        var html = await CustomerService.BuildCustomerListPrintHtmlAsync();
+        await JSRuntime.InvokeVoidAsync("openPrintWindow", html);
+    }
+
+
 }

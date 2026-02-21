@@ -2,7 +2,7 @@
   "Files": [
     {
       "Id": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\scopedcss\\projectbundle\\PAS.bundle.scp.css",
-      "PackagePath": "staticwebassets\\PAS.9r00ijez3v.bundle.scp.css"
+      "PackagePath": "staticwebassets\\PAS.n1l14mxadb.bundle.scp.css"
     },
     {
       "Id": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\css\\bootstrap\\bootstrap.min.css",
@@ -65,8 +65,20 @@
       "PackagePath": "staticwebassets\\js\\site.js"
     },
     {
+      "Id": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\print_customerlist.html",
+      "PackagePath": "staticwebassets\\print_customerlist.html"
+    },
+    {
+      "Id": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\print_fullstatement_single.html",
+      "PackagePath": "staticwebassets\\print_fullstatement_single.html"
+    },
+    {
       "Id": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\print_invoicetemplate.html",
       "PackagePath": "staticwebassets\\print_invoicetemplate.html"
+    },
+    {
+      "Id": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\print_invoicetemplate_multi.html",
+      "PackagePath": "staticwebassets\\print_invoicetemplate_multi.html"
     },
     {
       "Id": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\print_loadmixtemplate.html",
@@ -75,6 +87,18 @@
     {
       "Id": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\print_potemplate.html",
       "PackagePath": "staticwebassets\\print_potemplate.html"
+    },
+    {
+      "Id": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\print_quotetemplate.html",
+      "PackagePath": "staticwebassets\\print_quotetemplate.html"
+    },
+    {
+      "Id": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\print_statementtemplate.html",
+      "PackagePath": "staticwebassets\\print_statementtemplate.html"
+    },
+    {
+      "Id": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\print_statementtemplate_multi.html",
+      "PackagePath": "staticwebassets\\print_statementtemplate_multi.html"
     },
     {
       "Id": "obj\\Debug\\net9.0\\staticwebassets\\msbuild.PAS.Microsoft.AspNetCore.StaticWebAssetEndpoints.props",

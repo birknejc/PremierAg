@@ -1,0 +1,123 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        @media print {
+            body {
+                font-family: Arial, sans-serif;
+                font-size: 12px; /* reduced from default */
+                margin: 0;
+                padding: 0;
+                margin-right: 20px;
+                display: flex;
+                flex-direction: column;
+                min-height: 100vh;
+            }
+
+            .print-container {
+                flex: 1;
+                width: 100%;
+                max-width: 900px;
+                margin: 0 auto;
+                padding: 20px;
+                background: #fff;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+            }
+
+            .logo {
+                width: 300px;
+                height: auto;
+                margin-bottom: 20px;
+            }
+
+            .header-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+            }
+
+            .content-row {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 10px;
+            }
+
+            .content-column1 {
+                width: 55%;
+                line-height: 1.5;
+            }
+
+            .content-column2 {
+                width: 45%;
+                line-height: 1.2;
+                font-size: 11px; /* slightly smaller */
+                margin: 60px 0 0 0;
+                padding: 0;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                table-layout: fixed;
+                font-size: 11px; /* reduced table font */
+            }
+
+            th, td {
+                border: 1px solid #000;
+                padding: 4px; /* reduced from 8px */
+                text-align: left;
+                word-wrap: break-word;
+            }
+
+            th {
+                background-color: #f2f2f2;
+            }
+
+            p {
+                margin: 5px 0;
+            }
+
+            .footer {
+                text-align: center;
+                margin-top: auto;
+                width: 100%;
+                font-size: 12px;
+            }
+
+                .footer p {
+                    margin: 5px 0;
+                }
+        }
+    </style>
+</head>
+<body>
+    <div class="print-container">
+        {{StatementContent}}
+    </div>
+
+    <footer class="footer">
+        <h4>Remittance</h4>
+        <table>
+            <tr>
+                <td><strong>Date:</strong></td>
+                <td>{{StatementDate}}</td>
+            </tr>
+            <tr>
+                <td><strong>Amount Due:</strong></td>
+                <td>{{TotalBalance}}</td>
+            </tr>
+            <tr>
+                <td><strong>Amount Enclosed:</strong></td>
+                <td></td>
+            </tr>
+        </table>
+
+        <p>Thank you for your business!</p>
+        <p>Make all checks payable to Premier Ag Solution, LLC</p>
+        <p>Premier Ag Solution, LLC 17564 Nuthatch Ave. Bloomfield, IOWA 52537 641-777-5997/641-777-2968</p>
+    </footer>
+</body>
+</html>

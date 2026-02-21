@@ -1,0 +1,101 @@
+﻿@using PAS.Models
+
+@code {
+    // Manual product rows (same role as ManualProducts before)
+    [Parameter] public List<QuoteInventory> ManualProducts { get; set; }
+
+    // All available products to choose from
+    [Parameter] public List<Product> Products { get; set; }
+
+    // Remove / Add callbacks (same pattern as legacy)
+    [Parameter] public EventCallback<QuoteInventory> OnRemove { get; set; }
+    [Parameter] public EventCallback OnAdd { get; set; }
+
+    // Fired when the user selects a Product from the dropdown
+    [Parameter] public EventCallback<(QuoteInventory, ChangeEventArgs)> OnProductChange { get; set; }
+
+    // Same as legacy: used to pick Quote UOM
+    [Parameter] public List<UOMConversion> QuomConversions { get; set; }
+
+    // If you still need this flag for UI decisions
+    [Parameter] public bool IncludeNoQuote { get; set; }
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <h4>Product Selection</h4>
+
+        @foreach (var qi in ManualProducts)
+        {
+            @* New product row: user must pick a Product *@
+            @if (qi.ProductId == null || qi.ProductId == 0)
+            {
+                <div class="row">
+                    <div class="col-md-6">
+                        <label>Product:</label>
+                        <select class="form-control" @onchange="(e) => OnProductChange.InvokeAsync((qi, e))">
+                            <option value="0">-- Select Product --</option>
+                            @foreach (var p in Products)
+                            {
+                                <option value="@p.Id">@p.Name</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            }
+            else
+            {
+                @* Existing product row: show name as read-only *@
+                <div class="row">
+                    <div class="col-md-6">
+                        <label>Product:</label>
+                        <InputText class="form-control" @bind-Value="qi.ProductName" readonly="true" />
+                    </div>
+                </div>
+            }
+
+            <div class="row">
+                <div class="col-md-6">
+                    <label>EPA:</label>
+                    <InputText class="form-control" @bind-Value="qi.ProductEPA" readonly="true" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Purchased Price:</label>
+                    <InputNumber class="form-control" @bind-Value="qi.ProductWeightedAveragePrice" readonly="true" />
+                </div>
+                <div class="col-md-6">
+                    <label>Product UOM:</label>
+                    <InputText class="form-control" @bind-Value="qi.ProductUOM" readonly="true" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Unit of Measure/Acre (Quote UOM):</label>
+                    <InputSelect class="form-control" @bind-Value="qi.QuoteUnitOfMeasure">
+                        <option value="">Select Unit of Measure</option>
+                        @foreach (var conversion in QuomConversions)
+                        {
+                            <option value="@conversion.QUOM">@conversion.QUOM</option>
+                        }
+                    </InputSelect>
+                </div>
+                <div class="col-md-6">
+                    <label>Quantity Per Acre:</label>
+                    <InputNumber class="form-control" @bind-Value="qi.QuantityPerAcre" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <button class="btn btn-danger" @onclick="() => OnRemove.InvokeAsync(qi)">Remove</button>
+                </div>
+            </div>
+        }
+
+        <button class="btn btn-secondary" @onclick="() => OnAdd.InvokeAsync()">Add Product</button>
+    </div>
+</div>

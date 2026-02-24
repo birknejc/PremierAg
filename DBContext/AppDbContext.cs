@@ -27,6 +27,8 @@ namespace PAS.DBContext
         public DbSet<ProductPurchase> ProductPurchases { get; set; }
         public DbSet<ProductVendor> ProductVendors { get; set; }
         public DbSet<ApplicatorLicense> ApplicatorLicenses { get; set; }
+        public DbSet<InventoryAudit> InventoryAudits { get; set; }
+
 
 
 
@@ -213,6 +215,11 @@ namespace PAS.DBContext
                 .HasOne(pv => pv.Vendor)
                 .WithMany(v => v.ProductVendors)
                 .HasForeignKey(pv => pv.VendorId);
+
+            modelBuilder.Entity<Quote>()
+                .Property(q => q.Status)
+                .HasConversion<string>();
+
 
             base.OnModelCreating(modelBuilder);
         }

@@ -223,13 +223,15 @@ namespace PAS.Services
                             InvoiceUnitOfMeasure = invoiceUnitOfMeasure,
                             UnitOfMeasure = unitOfMeasure,
                             InvoicePrice = matchingQuote != null ? matchingQuote.QuotePrice : 0,
-                            QuoteId = matchingQuote?.QuoteId,
+                            //QuoteId = matchingQuote?.QuoteId,
+                            QuoteId = matchingQuote?.Quote?.Id,
                             CustomerId = customerId,
                             InvoiceRatePerAcre = 0,
                             IsPrinted = false,
                             AvailablePUOMs = availablePUOMs,
                             InvoiceDate = DateTime.UtcNow
                         };
+                        await _jsRuntime.InvokeVoidAsync("console.log", $"[InvoiceGen] Product={detail.Product}, Customer={customerId}, " + $"matchingQuote={(matchingQuote != null ? "YES" : "NO")}, " + $"QuoteIdAssigned={invoice.QuoteId}");
 
                         // ⭐ RatePerAcre calculation
                         if (invoice.UnitOfMeasure != "pending" && invoice.InvoiceUnitOfMeasure != "pending")
@@ -1469,7 +1471,53 @@ namespace PAS.Services
 
         public async Task<int> CreateDirectSaleInvoiceAsync(DirectSaleDto dto)
         {
-            // 1. Create InvoiceHeader
+            // -------------------------------
+            // 1. Validate Customer Exists
+            // -------------------------------
+            var customer = await _context.Customers.FindAsync(dto.CustomerId);
+            if (customer == null)
+                throw new Exception("Customer not found.");
+
+            // -------------------------------
+            // 2. Load Products for All Items
+            // -------------------------------
+            var productNames = dto.Items
+                .Select(i => i.ChemicalName)
+                .Distinct()
+                .ToList();
+
+            var productMap = await _context.Products
+                .Where(p => productNames.Contains(p.Name))
+                .ToDictionaryAsync(p => p.Name, p => p);
+
+            // -------------------------------
+            // 3. Check for Restricted Products
+            // -------------------------------
+            bool hasRestricted = dto.Items.Any(i =>
+                productMap.TryGetValue(i.ChemicalName, out var p) &&
+                p.Restricted == true);
+
+            if (hasRestricted)
+            {
+                // Load customer licenses
+                var licenses = await _context.ApplicatorLicenses
+                    .Where(l =>
+                        l.CustomerId == dto.CustomerId &&
+                        l.OwnerType == LicenseOwnerType.Customer &&
+                        l.IsActive &&
+                        l.ExpirationDate >= DateTime.UtcNow)
+                    .ToListAsync();
+
+                if (!licenses.Any())
+                {
+                    throw new InvalidOperationException(
+                        "This sale includes restricted products, but the customer has no valid, non-expired license.");
+                }
+            }
+
+            // -------------------------------
+            // 4. Create Invoice Header
+            // -------------------------------
             var header = new InvoiceHeader
             {
                 CustomerId = dto.CustomerId,
@@ -1482,7 +1530,9 @@ namespace PAS.Services
             _context.InvoiceHeaders.Add(header);
             await _context.SaveChangesAsync();
 
-            // 2. Create Invoice lines
+            // -------------------------------
+            // 5. Create Invoice Lines
+            // -------------------------------
             foreach (var item in dto.Items)
             {
                 _context.Invoices.Add(new Invoice
@@ -1490,8 +1540,11 @@ namespace PAS.Services
                     InvoiceGroupId = header.InvoiceGroupId,
                     InvoiceChemicalName = item.ChemicalName,
                     InvoiceRatePerAcre = item.Quantity,
+
+                    // ⭐ REQUIRED: populate both fields
                     InvoiceUnitOfMeasure = item.UnitOfMeasure,
                     UnitOfMeasure = item.UnitOfMeasure,
+
                     InvoicePrice = item.Price,
                     CustomerId = dto.CustomerId,
                     InvoiceDate = header.CreatedDate
@@ -1500,20 +1553,9 @@ namespace PAS.Services
 
             await _context.SaveChangesAsync();
 
-            //// 3. Apply payment (if any)
-            //if (dto.PaymentAmount > 0)
-            //{
-            //    await ApplyPaymentAsync(header.InvoiceGroupId, dto.PaymentAmount, dto.PaymentMethod);
-            //}
-
-            //// 4. Apply prepayment (if selected)
-            //if (dto.ApplyPrepayment)
-            //{
-            //    await ApplyPrepaymentAsync(dto.CustomerId, header.InvoiceGroupId);
-            //}
-
             return header.InvoiceGroupId;
         }
+
 
         public async Task<List<Product>> GetAllProductsAsync()
         {
@@ -1521,6 +1563,14 @@ namespace PAS.Services
                 .OrderBy(p => p.Name)
                 .ToListAsync();
         }
+
+        public async Task<List<ApplicatorLicense>> GetCustomerLicensesAsync(int customerId)
+        {
+            return await _context.ApplicatorLicenses
+                .Where(l => l.CustomerId == customerId)
+                .ToListAsync();
+        }
+
 
     }
 }

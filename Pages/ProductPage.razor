@@ -4,13 +4,19 @@
 @using PAS.Services
 @using PAS.DBContext
 @using Microsoft.EntityFrameworkCore
+@using Microsoft.JSInterop
 @inject AppDbContext Db
 @inject ProductInventoryService ProductInventoryService
 @inject VendorService VendorService
+@inject IJSRuntime JS
+@inject IWebHostEnvironment Env
+
 
 <h3>Products</h3>
 
 <button class="btn btn-primary" @onclick="ShowAddProductModal">Add Product</button>
+<button class="btn btn-secondary" @onclick="PrintProductList">Print Inventory Report</button>
+
 
 @if (products != null && products.Any())
 {
@@ -22,6 +28,8 @@
                 <th>Default UOM</th>
                 <th>Weighted Avg Price</th>
                 <th>Total Qty Available</th>
+                <th>Hold</th>
+                <th>Restricted</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -34,6 +42,8 @@
                     <td>@p.DefaultUnitOfMeasure</td>
                     <td>@p.WeightedAveragePrice</td>
                     <td>@p.TotalQuantityAvailable</td>
+                    <td>@p.HoldQuantity</td>
+                    <td>@(p.Restricted == true ? "Yes" : "No")</td>
                     <td>
                         <button class="btn btn-warning btn-sm" @onclick="() => EditProduct(p.Id)">Edit</button>
                         <button class="btn btn-success btn-sm" @onclick="() => ShowAddPurchaseModal(p.Id)">Add Purchase</button>
@@ -87,6 +97,13 @@ else
                         <div class="form-group">
                             <label>Description</label>
                             <InputTextArea class="form-control" @bind-Value="editProduct.Description" />
+                        </div>
+
+                        <div class="form-group mt-3">
+                            <label>
+                                <input type="checkbox" @bind="editProduct.Restricted" />
+                                Restricted Product (License Required)
+                            </label>
                         </div>
 
                         <div class="form-group mt-3">
@@ -158,6 +175,7 @@ else
                             <InputNumber class="form-control" @bind-Value="newPurchase.PricePerUnit" />
                         </div>
 
+
                         <button type="submit" class="btn btn-success mt-2">Add Purchase</button>
                     </EditForm>
                 </div>
@@ -175,6 +193,7 @@ else
                                     <th>Qty Remaining</th>
                                     <th>Price</th>
                                     <th>Date</th>
+                                    <th>Restricted</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -217,6 +236,8 @@ else
     private List<int> selectedVendorIds = new();
 
     private List<Vendor> purchaseVendors = new();
+    public bool? Restricted { get; set; }
+
 
     [Parameter]
     public int? ProductId { get; set; }
@@ -248,6 +269,12 @@ else
             products = await Db.Products
                 .Include(p => p.Purchases)
                 .ToListAsync();
+
+            // Add Hold quantities for each product 
+            foreach (var p in products) 
+            { 
+                p.HoldQuantity = await ProductInventoryService.GetHoldQuantityAsync(p.Id); 
+            }
 
             isEditMode = false;
             showProductModal = false;
@@ -361,6 +388,58 @@ else
         {
             selectedVendorIds.Remove(vendorId);
         }
+    }
+
+    private async Task PrintProductList()
+    {
+        var html = BuildProductListPrintContent();
+        await JS.InvokeVoidAsync("openPrintWindow", html);
+    }
+
+
+    private string BuildProductListPrintContent()
+    {
+        var rows = string.Join("", products
+            .OrderBy(p => p.Name)
+            .Select(p =>
+            {
+                var restricted = p.Restricted == true ? "Yes" : "No";
+
+                return $@"
+<tr>
+    <td>{p.Name}</td>
+    <td>{p.EPA}</td>
+    <td>{p.DefaultUnitOfMeasure}</td>
+    <td>{p.WeightedAveragePrice}</td>
+    <td>{p.TotalQuantityAvailable}</td>
+    <td>{p.HoldQuantity}</td>
+    <td>{restricted}</td>
+</tr>";
+            }));
+
+        var tableHtml = $@"
+<table class='table table-bordered'>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>EPA</th>
+            <th>Default UOM</th>
+            <th>Weighted Avg Price</th>
+            <th>Total Qty Available</th>
+            <th>Hold</th>
+            <th>Restricted</th>
+        </tr>
+    </thead>
+    <tbody>
+    {rows}
+    </tbody>
+</table>";
+
+        var templatePath = Path.Combine(Env.WebRootPath, "print_productlist.html");
+        var template = System.IO.File.ReadAllText(templatePath);
+
+
+        return template.Replace("{{ProductListContent}}", tableHtml);
     }
 
 }

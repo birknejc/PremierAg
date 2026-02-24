@@ -22,12 +22,18 @@ namespace PAS.Services
 
         public async Task<List<Quote>> GetQuotesAsync()
         {
-            return await _context.Quotes
+            var quotes = await _context.Quotes
                 .Include(q => q.Customer)
                 .Include(q => q.QuoteInventories)
-                    .ThenInclude(qi => qi.Product)     // Product-based only
+                    .ThenInclude(qi => qi.Product)
                 .ToListAsync();
+
+            foreach (var q in quotes)
+                await AutoExpireQuoteAsync(q);
+
+            return quotes;
         }
+
 
 
 
@@ -38,6 +44,8 @@ namespace PAS.Services
                 .Include(q => q.QuoteInventories)
                     .ThenInclude(qi => qi.Product)
                 .FirstOrDefaultAsync(q => q.Id == id);
+
+            if (quote != null) await AutoExpireQuoteAsync(quote);
 
             if (quote == null)
                 return null;
@@ -114,23 +122,28 @@ namespace PAS.Services
                 }
             }
 
-            // Totals and date
+            // Totals
             quote.QuoteTotal = quote.QuoteInventories.Sum(qi => qi.QuotePrice);
-            quote.QuoteDate = quote.QuoteDate.ToUniversalTime();
 
-            // Single add, single save — let EF handle children + keys
+            // ⭐ Normalize QuoteDate to UTC
+            quote.QuoteDate = DateTime.SpecifyKind(quote.QuoteDate, DateTimeKind.Utc);
+
+            // ⭐ Normalize ArchiveDate to UTC
+            quote.ArchiveDate = DateTime.SpecifyKind(quote.ArchiveDate, DateTimeKind.Utc);
+
+            // Save
             _context.Quotes.Add(quote);
             await _context.SaveChangesAsync();
         }
 
 
-
-
-
-
         // Updates an existing Quote in the database
         public async Task UpdateQuoteAsync(Quote quote)
         {
+            if (await QuoteIsLockedAsync(quote.Id))
+                throw new InvalidOperationException(
+                    "This quote is locked because it has been used in a load mix or invoice and cannot be edited.");
+
             // Load existing quote with Product-based inventories only
             var existingQuote = await _context.Quotes
                 .Include(q => q.QuoteInventories)
@@ -149,7 +162,12 @@ namespace PAS.Services
             existingQuote.QuoteState = quote.QuoteState;
             existingQuote.QuoteZipcode = quote.QuoteZipcode;
             existingQuote.QuotePhone = quote.QuotePhone;
-            existingQuote.QuoteDate = quote.QuoteDate;
+
+            // ⭐ Normalize QuoteDate to UTC
+            existingQuote.QuoteDate = DateTime.SpecifyKind(quote.QuoteDate, DateTimeKind.Utc);
+
+            // ⭐ Normalize ArchiveDate to UTC
+            existingQuote.ArchiveDate = DateTime.SpecifyKind(quote.ArchiveDate, DateTimeKind.Utc);
 
             //
             // Separate new vs existing QuoteInventories
@@ -272,9 +290,14 @@ namespace PAS.Services
         }
 
 
+
         // Deletes a Quote from the database by its ID
         public async Task DeleteQuoteAsync(int id)
         {
+            if (await QuoteIsLockedAsync(id)) 
+                throw new InvalidOperationException(
+                    "This quote is locked because it has been used in a load mix or invoice and cannot be deleted.");
+
             var quote = await _context.Quotes.FindAsync(id);
             if (quote != null)
             {
@@ -379,6 +402,45 @@ namespace PAS.Services
                 .Replace("{{TotalAmount}}", quote.QuoteInventories.Sum(q => q.QuotePrice).ToString("C"));
 
             return template;
+        }
+
+        private async Task<bool> QuoteIsLockedAsync(int quoteId)
+        {
+            // 1️⃣ Any LoadMix referencing this Quote?
+            var loadMixes = await _context.LoadMixes
+                .Where(lm => lm.QuoteId == quoteId)
+                .ToListAsync();
+
+            if (!loadMixes.Any())
+                return false; // Quote is free to edit/delete
+
+            // 2️⃣ Any LoadFields under those LoadMixes?
+            var loadMixIds = loadMixes.Select(lm => lm.Id).ToList();
+
+            bool hasFields = await _context.LoadFields
+                .AnyAsync(f => loadMixIds.Contains(f.LoadMixId));
+
+            if (hasFields)
+                return true;
+
+            // 3️⃣ Any Invoices referencing this Quote?
+            bool invoiced = await _context.Invoices
+                .AnyAsync(i => i.QuoteId == quoteId);
+
+            if (invoiced)
+                return true;
+
+            return false;
+        }
+
+        public async Task AutoExpireQuoteAsync(Quote quote)
+        {
+            if (quote.Status == QuoteStatus.Active &&
+                DateTime.Today >= quote.ArchiveDate)
+            {
+                quote.Status = QuoteStatus.Expired;
+                await _context.SaveChangesAsync();
+            }
         }
 
     }

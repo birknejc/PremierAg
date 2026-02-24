@@ -43,7 +43,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 21 Feb 2026 16:50:14 GMT"
+          "Value": "Tue, 24 Feb 2026 10:28:25 GMT"
         },
         {
           "Name": "Vary",
@@ -92,7 +92,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 21 Feb 2026 16:50:14 GMT"
+          "Value": "Tue, 24 Feb 2026 10:28:25 GMT"
         }
       ],
       "EndpointProperties": [
@@ -141,7 +141,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 21 Feb 2026 16:50:14 GMT"
+          "Value": "Tue, 24 Feb 2026 10:28:25 GMT"
         },
         {
           "Name": "Vary",
@@ -204,7 +204,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 21 Feb 2026 16:50:14 GMT"
+          "Value": "Tue, 24 Feb 2026 10:28:25 GMT"
         },
         {
           "Name": "Vary",
@@ -245,7 +245,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 21 Feb 2026 16:50:14 GMT"
+          "Value": "Tue, 24 Feb 2026 10:28:25 GMT"
         }
       ],
       "EndpointProperties": [
@@ -286,7 +286,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 21 Feb 2026 16:50:14 GMT"
+          "Value": "Tue, 24 Feb 2026 10:28:25 GMT"
         },
         {
           "Name": "Vary",
@@ -5043,6 +5043,304 @@
         {
           "Name": "integrity",
           "Value": "sha256-GMm0YFOwGlQRU9ROuYflYxkYXKHJBeyZtnZCB7Tyqxk="
+        }
+      ]
+    },
+    {
+      "Route": "print_productlist.html",
+      "AssetFile": "print_productlist.html.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.003067484663"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "325"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"N1JSI/aM8eOEKXI8WhYpsRNueaq3BljQtCAHDtMhirM=\""
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"Dt8NW1oLyr5Xs/PS5gzLjuzsYOv2YWxgA+9kWDGWNxA=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 24 Feb 2026 00:29:59 GMT"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-Dt8NW1oLyr5Xs/PS5gzLjuzsYOv2YWxgA+9kWDGWNxA="
+        }
+      ]
+    },
+    {
+      "Route": "print_productlist.html",
+      "AssetFile": "print_productlist.html",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "602"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"Dt8NW1oLyr5Xs/PS5gzLjuzsYOv2YWxgA+9kWDGWNxA=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 24 Feb 2026 00:29:59 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-Dt8NW1oLyr5Xs/PS5gzLjuzsYOv2YWxgA+9kWDGWNxA="
+        }
+      ]
+    },
+    {
+      "Route": "print_productlist.html.gz",
+      "AssetFile": "print_productlist.html.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "325"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"N1JSI/aM8eOEKXI8WhYpsRNueaq3BljQtCAHDtMhirM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 24 Feb 2026 00:29:59 GMT"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-N1JSI/aM8eOEKXI8WhYpsRNueaq3BljQtCAHDtMhirM="
+        }
+      ]
+    },
+    {
+      "Route": "print_productlist.ifm25zbny2.html",
+      "AssetFile": "print_productlist.html.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.003067484663"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "325"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"N1JSI/aM8eOEKXI8WhYpsRNueaq3BljQtCAHDtMhirM=\""
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"Dt8NW1oLyr5Xs/PS5gzLjuzsYOv2YWxgA+9kWDGWNxA=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 24 Feb 2026 00:29:59 GMT"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "ifm25zbny2"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-Dt8NW1oLyr5Xs/PS5gzLjuzsYOv2YWxgA+9kWDGWNxA="
+        },
+        {
+          "Name": "label",
+          "Value": "print_productlist.html"
+        }
+      ]
+    },
+    {
+      "Route": "print_productlist.ifm25zbny2.html",
+      "AssetFile": "print_productlist.html",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "602"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"Dt8NW1oLyr5Xs/PS5gzLjuzsYOv2YWxgA+9kWDGWNxA=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 24 Feb 2026 00:29:59 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "ifm25zbny2"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-Dt8NW1oLyr5Xs/PS5gzLjuzsYOv2YWxgA+9kWDGWNxA="
+        },
+        {
+          "Name": "label",
+          "Value": "print_productlist.html"
+        }
+      ]
+    },
+    {
+      "Route": "print_productlist.ifm25zbny2.html.gz",
+      "AssetFile": "print_productlist.html.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "325"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"N1JSI/aM8eOEKXI8WhYpsRNueaq3BljQtCAHDtMhirM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 24 Feb 2026 00:29:59 GMT"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "ifm25zbny2"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-N1JSI/aM8eOEKXI8WhYpsRNueaq3BljQtCAHDtMhirM="
+        },
+        {
+          "Name": "label",
+          "Value": "print_productlist.html.gz"
         }
       ]
     },

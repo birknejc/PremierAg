@@ -53,6 +53,14 @@ namespace PAS.Services
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<List<Customer>> GetAllCustomersAsync()
+        {
+            return await _context.Customers
+                .OrderBy(c => c.CustomerBusinessName)
+                .ToListAsync();
+        }
+
     }
 
 }

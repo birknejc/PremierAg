@@ -95,6 +95,11 @@ else if (isAddingLoadSheet)
     }
 }
 
+@if (!string.IsNullOrWhiteSpace(loadMixError))
+{
+    <div class="alert alert-danger">@loadMixError</div>
+}
+
 @if (showLoadMixForm)
 {
     <LoadMixDetailsComponent NewLoadMix="newLoadMix"
@@ -261,6 +266,7 @@ else if (isAddingLoadSheet)
     private bool showCustomerAppliedForm = false;
     private List<Customer> customers = new();
     private List<Product> products = new();
+    private string loadMixError;
 
 
 
@@ -415,6 +421,28 @@ else if (isAddingLoadSheet)
 
 
 
+    // private Task HandleProductChange((QuoteInventory qi, ChangeEventArgs e) args)
+    // {
+    //     var (qi, e) = args;
+
+    //     if (!int.TryParse(e.Value?.ToString(), out int productId))
+    //         return Task.CompletedTask;
+
+    //     qi.ProductId = productId;
+
+    //     var product = products.FirstOrDefault(p => p.Id == productId);
+    //     if (product == null)
+    //         return Task.CompletedTask;
+
+    //     qi.ProductName = product.Name;
+    //     qi.EPA = product.EPA;
+    //     qi.Price = product.WeightedAveragePrice;
+    //     qi.ProductUOM = product.DefaultUnitOfMeasure;
+
+    //     StateHasChanged();
+    //     return Task.CompletedTask;
+    // }
+
     private Task HandleProductChange((QuoteInventory qi, ChangeEventArgs e) args)
     {
         var (qi, e) = args;
@@ -428,14 +456,20 @@ else if (isAddingLoadSheet)
         if (product == null)
             return Task.CompletedTask;
 
+        // ⭐ Product snapshot fields (LoadMix2Page uses these)
         qi.ProductName = product.Name;
+        qi.ProductUOM = product.DefaultUnitOfMeasure;
+        qi.ProductEPA = product.EPA;
+        qi.ProductWeightedAveragePrice = product.WeightedAveragePrice;
+
+        // ⭐ Legacy fields (still needed for downstream compatibility)
         qi.EPA = product.EPA;
         qi.Price = product.WeightedAveragePrice;
-        qi.ProductUOM = product.DefaultUnitOfMeasure;
 
         StateHasChanged();
         return Task.CompletedTask;
     }
+
 
 
     private async void RemoveProduct(QuoteInventory qi)
@@ -600,106 +634,130 @@ else if (isAddingLoadSheet)
 
     private async Task SaveLoadMix()
     {
-        // Parse and set the load time
-        if (TimeSpan.TryParse(loadTimeString, out var parsedTime))
+        loadMixError = null;   // ⭐ reset previous errors
+
+        try
         {
-            newLoadMix.LoadTime = parsedTime;
-        }
+            // ⭐ EVERYTHING below is your existing logic — unchanged
 
-        // Convert the load date to UTC
-        newLoadMix.LoadDate = newLoadMix.LoadDate.ToUniversalTime();
-
-        // Calculate the rate per acre
-        CalculateLMRatePerAcre();
-
-        if (string.IsNullOrEmpty(newLoadMix.Crop))
-        {
-            newLoadMix.Crop = "Default Crop";
-        }
-
-        // Validate selected quotes
-        if (!await ValidateSelectedQuotes())
-        {
-            await JSRuntime.InvokeVoidAsync("alert", "One or more selected quotes have mismatched inventory items. Please ensure all selected quotes are compatible.");
-            return;
-        }
-
-        var existingLoadMix = await LoadMix2Service.GetLoadMixByIdAsync(newLoadMix.Id);
-        if (existingLoadMix != null)
-        {
-            // Update base data
-            existingLoadMix.LoadDate = newLoadMix.LoadDate;
-            existingLoadMix.LoadTime = newLoadMix.LoadTime;
-            existingLoadMix.Crop = newLoadMix.Crop;
-            existingLoadMix.TotalGallons = newLoadMix.TotalGallons;
-            existingLoadMix.TotalAcres = newLoadMix.TotalAcres;
-            existingLoadMix.LMRatePerAcre = newLoadMix.LMRatePerAcre;
-
-            try
+            // Parse and set the load time
+            if (TimeSpan.TryParse(loadTimeString, out var parsedTime))
             {
+                newLoadMix.LoadTime = parsedTime;
+            }
+
+            // Convert the load date to UTC
+            newLoadMix.LoadDate = newLoadMix.LoadDate.ToUniversalTime();
+
+            // Calculate the rate per acre
+            CalculateLMRatePerAcre();
+
+            if (string.IsNullOrEmpty(newLoadMix.Crop))
+            {
+                newLoadMix.Crop = "Default Crop";
+            }
+
+            // Validate selected quotes
+            if (!await ValidateSelectedQuotes())
+            {
+                await JSRuntime.InvokeVoidAsync("alert",
+                    "One or more selected quotes have mismatched inventory items. Please ensure all selected quotes are compatible.");
+                return;
+            }
+
+            var existingLoadMix = await LoadMix2Service.GetLoadMixByIdAsync(newLoadMix.Id);
+            if (existingLoadMix != null)
+            {
+                // Update base data
+                existingLoadMix.LoadDate = newLoadMix.LoadDate;
+                existingLoadMix.LoadTime = newLoadMix.LoadTime;
+                existingLoadMix.Crop = newLoadMix.Crop;
+                existingLoadMix.TotalGallons = newLoadMix.TotalGallons;
+                existingLoadMix.TotalAcres = newLoadMix.TotalAcres;
+                existingLoadMix.LMRatePerAcre = newLoadMix.LMRatePerAcre;
+
+                // ⭐ This will now throw InvalidOperationException if locked
                 await LoadMix2Service.UpdateLoadMixAsync(existingLoadMix);
-            }
-            catch (Exception ex)
-            {
-                var inner = ex.InnerException?.Message ?? "No inner exception";
-                throw new Exception($"Error Updating LoadMix: {ex.Message}, Inner Exception: {inner}");
-            }
 
-            // Get all related mixes via LoadMixId
-            var loadMixes = await LoadMix2Service.GetLoadMixesByLoadMixIdAsync(existingLoadMix.LoadMixId);
+                // Get all related mixes via LoadMixId
+                var loadMixes = await LoadMix2Service.GetLoadMixesByLoadMixIdAsync(existingLoadMix.LoadMixId);
 
-            // Map QuoteId to LoadMix.Id
-            var quoteLoadMixMap = new Dictionary<int, int>();
-            foreach (var mix in loadMixes)
-            {
-                if (mix.QuoteId.HasValue)
+                // Map QuoteId to LoadMix.Id
+                var quoteLoadMixMap = new Dictionary<int, int>();
+                foreach (var mix in loadMixes)
                 {
-                    quoteLoadMixMap[mix.QuoteId.Value] = mix.Id;
-                }
-            }
-
-            await UpdateLoadMixDetails(quoteLoadMixMap);
-
-            // Handle manual mix update
-            var manualMix = loadMixes.FirstOrDefault(m => !m.QuoteId.HasValue);
-            // if (manualMix != null)
-            // {
-            //     await UpdateManualLoadMixDetails(manualMix.Id);
-            // }
-            if (manualMix != null)
-            {
-                SyncManualProductsWithQuoteInventories();
-                await UpdateManualLoadMixDetails(manualMix.Id);
-            }
-
-            // Save fields for all customers/quotes in the group
-            foreach (var mix in loadMixes)
-            {
-                if (mix.QuoteId.HasValue)
-                {
-                    var quote = quotes.FirstOrDefault(q => q.Id == mix.QuoteId.Value);
-                    if (quote != null)
+                    if (mix.QuoteId.HasValue)
                     {
-                        customerFields = await GetCustomerFields(quote.CustomerId);
-                        await SaveLoadFields(mix.Id, quote.CustomerId);
+                        quoteLoadMixMap[mix.QuoteId.Value] = mix.Id;
                     }
                 }
-            }
-            if (manualMix != null)
-            {
-                customerFields = allFields;
-                await SaveLoadFields(manualMix.Id, -1);
-            }
-        }
-        else
-        {
-            // NEW LoadMix scenario
-            var loadMixId = await LoadMix2Service.GenerateNewLoadMixId();
 
-            foreach (var selectedQuoteId in selectedQuoteIds)
+                await UpdateLoadMixDetails(quoteLoadMixMap);
+
+                // Handle manual mix update
+                var manualMix = loadMixes.FirstOrDefault(m => !m.QuoteId.HasValue);
+                if (manualMix != null)
+                {
+                    SyncManualProductsWithQuoteInventories();
+
+                    // ⭐ Use the refactored UpdateManualLoadMixDetails
+                    await UpdateManualLoadMixDetails(manualMix.Id);
+                }
+
+                // Save fields for all customers/quotes in the group
+                foreach (var mix in loadMixes)
+                {
+                    if (mix.QuoteId.HasValue)
+                    {
+                        var quote = quotes.FirstOrDefault(q => q.Id == mix.QuoteId.Value);
+                        if (quote != null)
+                        {
+                            customerFields = await GetCustomerFields(quote.CustomerId);
+                            await SaveLoadFields(mix.Id, quote.CustomerId);
+                        }
+                    }
+                }
+
+                if (manualMix != null)
+                {
+                    customerFields = allFields;
+                    await SaveLoadFields(manualMix.Id, -1);
+                }
+            }
+            else
             {
-                var selectedQuote = await Quote2Service.GetQuoteByIdAsync(selectedQuoteId);
-                if (selectedQuote != null)
+                // NEW LoadMix scenario
+                var loadMixId = await LoadMix2Service.GenerateNewLoadMixId();
+
+                foreach (var selectedQuoteId in selectedQuoteIds)
+                {
+                    var selectedQuote = await Quote2Service.GetQuoteByIdAsync(selectedQuoteId);
+                    if (selectedQuote != null)
+                    {
+                        var loadMixToSave = new LoadMix
+                            {
+                                LoadDate = newLoadMix.LoadDate,
+                                LoadTime = newLoadMix.LoadTime,
+                                Crop = newLoadMix.Crop,
+                                TotalGallons = newLoadMix.TotalGallons,
+                                TotalAcres = newLoadMix.TotalAcres,
+                                LMRatePerAcre = newLoadMix.LMRatePerAcre,
+                                QuoteId = selectedQuoteId,
+                                LoadMixId = loadMixId
+                            };
+
+                        await LoadMix2Service.AddLoadMixAsync(loadMixToSave);
+
+                        customerFields = await GetCustomerFields(selectedQuote.CustomerId);
+                        await SaveLoadMixDetails(loadMixToSave.Id);
+                        await SaveLoadFields(loadMixToSave.Id, selectedQuote.CustomerId);
+
+                        newLoadMix.Id = loadMixToSave.Id;
+                    }
+                }
+
+                // Handle no-quote (manual)
+                if (selectedQuoteId == -1 || includeNoQuote)
                 {
                     var loadMixToSave = new LoadMix
                         {
@@ -709,75 +767,41 @@ else if (isAddingLoadSheet)
                             TotalGallons = newLoadMix.TotalGallons,
                             TotalAcres = newLoadMix.TotalAcres,
                             LMRatePerAcre = newLoadMix.LMRatePerAcre,
-                            QuoteId = selectedQuoteId,
-                            LoadMixId = loadMixId //group id
+                            LoadMixId = loadMixId
                         };
 
-                    try
-                    {
-                        await LoadMix2Service.AddLoadMixAsync(loadMixToSave);
-                        // Save fields for this customer, using the unique LoadMix.Id
-                        await SaveLoadFields(loadMixToSave.Id, selectedQuote.CustomerId);
-                    }
-                    catch (Exception ex)
-                    {
-                        var inner = ex.InnerException?.Message ?? "No inner exception";
-                        throw new Exception($"Error Adding LoadMix: {ex.Message}, Inner Exception: {inner}");
-                    }
+                    await LoadMix2Service.AddLoadMixAsync(loadMixToSave);
 
-                    customerFields = await GetCustomerFields(selectedQuote.CustomerId);
                     await SaveLoadMixDetails(loadMixToSave.Id);
-                    await SaveLoadFields(loadMixToSave.Id, selectedQuote.CustomerId);
+                    await SaveLoadFields(loadMixToSave.Id, -1);
 
                     newLoadMix.Id = loadMixToSave.Id;
                 }
             }
 
-            // Handle no-quote (manual)
-            if (selectedQuoteId == -1 || includeNoQuote)
-            {
-                var loadMixToSave = new LoadMix
+            // Refresh list
+            var allLoadMixes = await LoadMix2Service.GetAllLoadMixesAsync();
+            groupedLoadMixes = allLoadMixes
+                .GroupBy(lm => lm.LoadMixId)
+                .Select(g => new LoadMixGroupViewModel
                     {
-                        LoadDate = newLoadMix.LoadDate,
-                        LoadTime = newLoadMix.LoadTime,
-                        Crop = newLoadMix.Crop,
-                        TotalGallons = newLoadMix.TotalGallons,
-                        TotalAcres = newLoadMix.TotalAcres,
-                        LMRatePerAcre = newLoadMix.LMRatePerAcre,
-                        LoadMixId = loadMixId
-                    };
+                        LoadMixId = g.Key,
+                        LoadMixes = g.ToList()
+                    })
+                .ToList();
 
-                try
-                {
-                    await LoadMix2Service.AddLoadMixAsync(loadMixToSave);
-                }
-                catch (Exception ex)
-                {
-                    var inner = ex.InnerException?.Message ?? "No inner exception";
-                    throw new Exception($"Error Adding LoadMix (No Quote): {ex.Message}, Inner Exception: {inner}");
-                }
-
-                await SaveLoadMixDetails(loadMixToSave.Id);
-                await SaveLoadFields(loadMixToSave.Id, -1);
-
-                newLoadMix.Id = loadMixToSave.Id;
-            }
+            ResetFormFields();
+            StateHasChanged();
         }
-
-        // Refresh list
-        var allLoadMixes = await LoadMix2Service.GetAllLoadMixesAsync();
-        groupedLoadMixes = allLoadMixes
-            .GroupBy(lm => lm.LoadMixId)
-            .Select(g => new LoadMixGroupViewModel
-                {
-                    LoadMixId = g.Key,
-                    LoadMixes = g.ToList()
-                })
-            .ToList();
-
-        ResetFormFields();
-        StateHasChanged();
+        catch (InvalidOperationException ex)
+        {
+            // ⭐ This is the lock message from LoadMixIsLockedAsync
+            loadMixError = ex.Message;
+            StateHasChanged();
+            return;
+        }
     }
+
 
 
     private async Task SaveLoadMixDetails(int loadMixId)
@@ -838,12 +862,20 @@ else if (isAddingLoadSheet)
             var detail = new LoadMixDetails
                 {
                     LoadMixId = loadMixId,
+                    GroupId = newLoadMix.LoadMixId,
+
+                    // ⭐ NEW
+                    ProductId = qi.ProductId,
+                    TotalUsed = total,
+
+                    // Legacy snapshot fields
                     Product = qi.ProductName,
                     RatePerAcre = $"{qi.QuantityPerAcre} {qi.QuoteUnitOfMeasure}",
                     Total = $"{total} {qi.ProductUOM}",
                     EPA = qi.EPA,
                     Price = qi.Price,
-                    QuotePrice = qi.QuotePrice
+                    QuotePrice = qi.QuotePrice,
+                    QuoteUnitOfMeasure = qi.QuoteUnitOfMeasure
                 };
 
             await LoadMix2Service.AddLoadMixDetailsAsync(detail);
@@ -977,6 +1009,7 @@ else if (isAddingLoadSheet)
 
     private async Task EditLoadMix(int loadMixId)
     {
+        loadMixError = null;
         // Load the load mixes
         var loadMixes = await LoadMix2Service.GetLoadMixesByLoadMixIdAsync(loadMixId);
 
@@ -1147,13 +1180,8 @@ else if (isAddingLoadSheet)
             int quoteId = kvp.Key;
             int loadMixId = kvp.Value;
 
-            // Remove all existing details for this LoadMix
-            var existing = await LoadMix2Service.GetLoadMixDetailsByLoadMixIdAsync(loadMixId);
-            if (existing.Any())
-            {
-                foreach (var detail in existing)
-                    await LoadMix2Service.RemoveLoadMixDetailsAsync(loadMixId, detail.Product);
-            }
+            // ⭐ Build new LoadMixDetails list (instead of saving row-by-row)
+            var newDetails = new List<LoadMixDetails>();
 
             // Build selected items for THIS quote
             var selectedItems = new List<QuoteInventory>();
@@ -1184,7 +1212,7 @@ else if (isAddingLoadSheet)
                 .Select(g => g.First())
                 .ToList();
 
-            // Save each item
+            // ⭐ Build LoadMixDetails objects (but DO NOT save yet)
             foreach (var qi in selectedItems)
             {
                 // Compute conversion factor
@@ -1205,31 +1233,33 @@ else if (isAddingLoadSheet)
                 var detail = new LoadMixDetails
                     {
                         LoadMixId = loadMixId,
+                        ProductId = qi.ProductId,
                         Product = qi.ProductName,
                         RatePerAcre = $"{qi.QuantityPerAcre} {qi.QuoteUnitOfMeasure}",
                         Total = $"{total} {qi.ProductUOM}",
+                        TotalUsed = total, // ⭐ numeric value for inventory
                         EPA = qi.EPA,
                         Price = qi.Price,
-                        QuotePrice = qi.QuotePrice
+                        QuotePrice = qi.QuotePrice,
+                        QuoteUnitOfMeasure = qi.QuoteUnitOfMeasure
                     };
 
-                await LoadMix2Service.AddLoadMixDetailsAsync(detail);
+                newDetails.Add(detail);
             }
+
+            // ⭐ Now update the entire LoadMix in one atomic, inventory-safe call
+            await LoadMix2Service.UpdateLoadMixDetailsGroupAwareAsync(loadMixId, newDetails);
         }
     }
 
 
+
     private async Task UpdateManualLoadMixDetails(int manualLoadMixId)
     {
-        // 1️⃣ Remove all existing details for this manual LoadMix
-        var existing = await LoadMix2Service.GetLoadMixDetailsByLoadMixIdAsync(manualLoadMixId);
-        if (existing.Any())
-        {
-            foreach (var detail in existing)
-                await LoadMix2Service.RemoveLoadMixDetailsAsync(manualLoadMixId, detail.Product);
-        }
+        // ⭐ Build new LoadMixDetails list (instead of saving row-by-row)
+        var newDetails = new List<LoadMixDetails>();
 
-        // 2️⃣ Build selected manual items
+        // 1️⃣ Build selected manual items
         var selectedItems = new List<QuoteInventory>();
 
         // Manual products only
@@ -1249,13 +1279,13 @@ else if (isAddingLoadSheet)
                 });
         }
 
-        // 3️⃣ Deduplicate by ProductName
+        // 2️⃣ Deduplicate by ProductName
         selectedItems = selectedItems
             .GroupBy(i => i.ProductName)
             .Select(g => g.First())
             .ToList();
 
-        // 4️⃣ Save each item exactly once
+        // 3️⃣ Build LoadMixDetails objects (but DO NOT save yet)
         foreach (var qi in selectedItems)
         {
             // Compute conversion factor
@@ -1276,17 +1306,24 @@ else if (isAddingLoadSheet)
             var detail = new LoadMixDetails
                 {
                     LoadMixId = manualLoadMixId,
+                    ProductId = qi.ProductId,
                     Product = qi.ProductName,
                     RatePerAcre = $"{qi.QuantityPerAcre} {qi.QuoteUnitOfMeasure}",
                     Total = $"{total} {qi.ProductUOM}",
+                    TotalUsed = total, // ⭐ numeric value for inventory
                     EPA = qi.EPA,
                     Price = qi.Price,
-                    QuotePrice = qi.QuotePrice
+                    QuotePrice = qi.QuotePrice,
+                    QuoteUnitOfMeasure = qi.QuoteUnitOfMeasure
                 };
 
-            await LoadMix2Service.AddLoadMixDetailsAsync(detail);
+            newDetails.Add(detail);
         }
+
+        // 4️⃣ Now update the entire LoadMix in one atomic, inventory-safe call
+        await LoadMix2Service.UpdateLoadMixDetailsGroupAwareAsync(manualLoadMixId, newDetails);
     }
+
 
 
     private async Task UpdateLoadFields(int loadMixId, int quoteId)
@@ -1309,16 +1346,33 @@ else if (isAddingLoadSheet)
         }
     }
 
+  
     private async Task DeleteLoadMix(int loadMixId)
     {
-        var loadMixes = await LoadMix2Service.GetLoadMixesByLoadMixIdAsync(loadMixId);
-        foreach (var loadMix in loadMixes)
+        loadMixError = null;
+
+        try
         {
-            await LoadMix2Service.DeleteLoadMixAsync(loadMix.Id);
+            // ⭐ Delete the entire group (Quote + No‑Quote + all details)
+            await LoadMix2Service.DeleteLoadMixGroupAsync(loadMixId);
+
+            // ⭐ Remove the group from the UI list
+            groupedLoadMixes = groupedLoadMixes
+                .Where(g => g.LoadMixId != loadMixId)
+                .ToList();
         }
-        groupedLoadMixes = groupedLoadMixes.Where(g => g.LoadMixId != loadMixId).ToList();
+        catch (InvalidOperationException ex)
+        {
+            // ⭐ Friendly lock message from service layer
+            loadMixError = ex.Message;
+            StateHasChanged();
+            return;
+        }
+
         StateHasChanged();
     }
+
+
 
     private async Task PrintLoadMix(int loadMixId)
     {
@@ -1329,6 +1383,7 @@ else if (isAddingLoadSheet)
 
     private async Task ToggleLoadMixForm()
     {
+        loadMixError = null;
         showLoadMixForm = !showLoadMixForm;
         isAddingLoadSheet = showLoadMixForm;
         isEditingLoadMix = false;
@@ -1632,6 +1687,5 @@ else if (isAddingLoadSheet)
 
         StateHasChanged();
     }
-
 
 }

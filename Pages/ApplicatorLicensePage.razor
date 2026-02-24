@@ -4,6 +4,7 @@
 @using PAS.Services
 
 @inject ApplicatorLicenseService LicenseService
+@inject CustomerService CustomerService
 
 <h3>Applicator Licenses</h3>
 
@@ -19,6 +20,8 @@
             <th>Type</th>
             <th>Active</th>
             <th>Print</th>
+            <th>Owner</th>
+            <th>Customer</th>
             <th></th>
         </tr>
     </thead>
@@ -31,6 +34,8 @@
                 <td>@lic.LicenseNumber</td>
                 <td>@lic.ExpirationDate.ToShortDateString()</td>
                 <td>@lic.LicenseType</td>
+                <td>@lic.OwnerType</td>
+                <td>@lic.Customer?.CustomerBusinessName</td>
                 <td><input type="checkbox" checked="@lic.IsActive" disabled /></td>
                 <td><input type="checkbox" checked="@lic.PrintOnInvoice" disabled /></td>
                 <td>
@@ -91,6 +96,30 @@
                             </InputSelect>
                         </div>
 
+                        <div class="mb-2">
+                            <label>Owner Type</label>
+                            <InputSelect class="form-control" @bind-Value="EditModel.OwnerType">
+                                <option value="">-- Select Owner --</option>
+                                <option value="@LicenseOwnerType.Customer">Customer</option>
+                                <option value="@LicenseOwnerType.Business">Business</option>
+                                <option value="@LicenseOwnerType.Employee">Employee</option>
+                            </InputSelect>
+                        </div>
+
+                        @if (EditModel.OwnerType == LicenseOwnerType.Customer)
+                        {
+                            <div class="mb-2">
+                                <label>Customer</label>
+                                <InputSelect class="form-control" @bind-Value="EditModel.CustomerId">
+                                    <option value="">-- Select Customer --</option>
+                                    @foreach (var c in Customers)
+                                    {
+                                        <option value="@c.Id">@c.CustomerBusinessName</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                        }
+
                         <div class="form-check mb-2">
                             <InputCheckbox class="form-check-input" @bind-Value="EditModel.IsActive" />
                             <label class="form-check-label">Active</label>
@@ -116,10 +145,13 @@
     private List<ApplicatorLicense> Licenses = new();
     private ApplicatorLicense EditModel = new();
     private bool ShowModal = false;
+    private List<Customer> Customers = new();
+
 
     protected override async Task OnInitializedAsync()
     {
         Licenses = await LicenseService.GetAllAsync();
+        Customers = await LicenseService.GetAllCustomersAsync();
     }
 
     private void OpenAddModal()
@@ -129,7 +161,8 @@
                 IsActive = true,
                 PrintOnInvoice = true,
                 ExpirationDate = DateTime.Today,
-                LicenseType = "Certification"
+                LicenseType = "Certification",
+                OwnerType = LicenseOwnerType.Customer // default
             };
 
         ShowModal = true;
@@ -146,7 +179,9 @@
                 ExpirationDate = lic.ExpirationDate,
                 LicenseType = lic.LicenseType,
                 IsActive = lic.IsActive,
-                PrintOnInvoice = lic.PrintOnInvoice
+                PrintOnInvoice = lic.PrintOnInvoice,
+                OwnerType = lic.OwnerType,
+                CustomerId = lic.CustomerId
             };
 
         ShowModal = true;
@@ -154,17 +189,43 @@
 
     private async Task Save()
     {
-        // Force ExpirationDate to UTC
+        // Normalize ExpirationDate to UTC
         EditModel.ExpirationDate = DateTime.SpecifyKind(EditModel.ExpirationDate, DateTimeKind.Utc);
 
+        // -------------------------------
+        // 1. Enforce OwnerType rules
+        // -------------------------------
+
+        if (EditModel.OwnerType == LicenseOwnerType.Customer)
+        {
+            // Customer license MUST have a CustomerId
+            if (EditModel.CustomerId == null)
+            {
+                // You can replace this with a UI error message if desired
+                return;
+            }
+        }
+        else
+        {
+            // Business or Employee license MUST NOT have a CustomerId
+            EditModel.CustomerId = null;
+        }
+
+        // -------------------------------
+        // 2. Save (Add or Update)
+        // -------------------------------
         if (EditModel.Id == 0)
             await LicenseService.AddAsync(EditModel);
         else
             await LicenseService.UpdateAsync(EditModel);
 
+        // -------------------------------
+        // 3. Refresh list and close modal
+        // -------------------------------
         Licenses = await LicenseService.GetAllAsync();
         ShowModal = false;
     }
+
 
 
     private async Task Delete(int id)

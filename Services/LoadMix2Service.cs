@@ -12,13 +12,16 @@ namespace PAS.Services
         private readonly AppDbContext _context;
         private readonly IJSRuntime _jsRuntime; // Inject JSRuntime
         private readonly IWebHostEnvironment _env;
+        private readonly ProductInventoryService _productInventoryService;
 
-        public LoadMix2Service(AppDbContext context, IJSRuntime jsRuntime, IWebHostEnvironment env)
+        public LoadMix2Service(AppDbContext context, IJSRuntime jsRuntime, IWebHostEnvironment env, ProductInventoryService productInventoryService)
         {
             _context = context;
-            _jsRuntime = jsRuntime; // Assign JSRuntime
+            _jsRuntime = jsRuntime;
             _env = env;
+            _productInventoryService = productInventoryService;
         }
+
 
         public async Task<List<LoadMix>> GetAllLoadMixesAsync()
         {
@@ -51,12 +54,21 @@ namespace PAS.Services
 
         public async Task UpdateLoadMixAsync(LoadMix loadMix)
         {
+            if (await LoadMixIsLockedAsync(loadMix.Id)) 
+                throw new InvalidOperationException(
+                    "This load mix is locked because it has been invoiced or contains field/product data and cannot be edited.");
+
             _context.LoadMixes.Update(loadMix);
             await _context.SaveChangesAsync();
         }
 
         public async Task DeleteLoadMixAsync(int id)
         {
+            // ⭐ Use the parameter name "id" here
+            if (await LoadMixIsLockedAsync(id))
+                throw new InvalidOperationException(
+                    "This load mix is locked because it has been invoiced or contains field/product data and cannot be deleted.");
+
             var loadMix = await _context.LoadMixes.FindAsync(id);
             if (loadMix != null)
             {
@@ -64,6 +76,63 @@ namespace PAS.Services
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task DeleteLoadMixGroupAsync(int groupId)
+        {
+            // All LoadMixes in this group
+            var loadMixes = await _context.LoadMixes
+                .Where(lm => lm.LoadMixId == groupId)
+                .ToListAsync();
+
+            if (!loadMixes.Any())
+                return;
+
+            // Determine primary LoadMix (same rule as Step 2C)
+            var primaryLoadMixId = await GetPrimaryLoadMixIdForGroupAsync(groupId);
+            LoadMix primaryLoadMix = null;
+
+            if (primaryLoadMixId.HasValue)
+            {
+                primaryLoadMix = loadMixes.FirstOrDefault(lm => lm.Id == primaryLoadMixId.Value);
+            }
+
+            // ⭐ RESTORE INVENTORY ONLY FOR PRIMARY LOADMIX
+            if (primaryLoadMix != null)
+            {
+                var primaryDetails = await _context.LoadMixDetails
+                    .Where(d => d.LoadMixId == primaryLoadMix.Id)
+                    .ToListAsync();
+
+                foreach (var detail in primaryDetails)
+                {
+                    if (detail.ProductId.HasValue &&
+                        detail.ProductId.Value > 0 &&
+                        detail.TotalUsed > 0)
+                    {
+                        await _productInventoryService.RestoreInventoryAsync(
+                            detail.ProductId.Value,
+                            detail.TotalUsed,
+                            groupId,            // ⭐ required for audit
+                            primaryLoadMix.Id,  // ⭐ loadMixId
+                            detail.Id           // ⭐ loadMixDetailsId
+                        );
+                    }
+                }
+            }
+
+            // Delete all details for all LoadMixes in the group
+            var allDetails = await _context.LoadMixDetails
+                .Where(d => d.GroupId == groupId)
+                .ToListAsync();
+
+            _context.LoadMixDetails.RemoveRange(allDetails);
+
+            // Delete all LoadMixes in the group
+            _context.LoadMixes.RemoveRange(loadMixes);
+
+            await _context.SaveChangesAsync();
+        }
+
 
         // Method for saving LoadFields
         public async Task AddLoadFieldAsync(LoadFields loadField)
@@ -115,31 +184,98 @@ namespace PAS.Services
         // Method for saving LoadMixDetails
         public async Task AddLoadMixDetailsAsync(LoadMixDetails loadMixDetails)
         {
-            // Fetch the LoadMix to get the QuoteId
+            // Load the parent LoadMix so we know the group and quote
             var loadMix = await _context.LoadMixes
-                .Where(lm => lm.Id == loadMixDetails.LoadMixId)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(lm => lm.Id == loadMixDetails.LoadMixId);
 
             if (loadMix != null)
             {
-                // Set GroupId from LoadMix.LoadMixId
+                // Always set GroupId from the parent LoadMix
                 loadMixDetails.GroupId = loadMix.LoadMixId;
 
-                // Fetch the correct quote price for the inventory item from QuoteInventories
-                var correctQuotePrice = await _context.QuoteInventories
-                    .Where(qi => qi.QuoteId == loadMix.QuoteId && qi.ChemicalName == loadMixDetails.Product)  // Ensure it matches the right quote and product
-                    .Select(qi => qi.QuotePrice)
-                    .FirstOrDefaultAsync();
+                // ⭐ Existing QuotePrice matching logic (unchanged)
+                QuoteInventory matchingQuote = null;
 
-                // Update the QuotePrice before saving
-                loadMixDetails.QuotePrice = correctQuotePrice;
+                if (loadMixDetails.ProductId.HasValue)
+                {
+                    matchingQuote = await _context.QuoteInventories
+                        .Where(qi =>
+                            qi.QuoteId == loadMix.QuoteId &&
+                            qi.ProductId == loadMixDetails.ProductId)
+                        .FirstOrDefaultAsync();
+                }
+
+                if (matchingQuote == null && !string.IsNullOrWhiteSpace(loadMixDetails.EPA))
+                {
+                    matchingQuote = await _context.QuoteInventories
+                        .Where(qi =>
+                            qi.QuoteId == loadMix.QuoteId &&
+                            qi.EPA != null &&
+                            qi.EPA.Trim().ToLower() == loadMixDetails.EPA.Trim().ToLower())
+                        .FirstOrDefaultAsync();
+                }
+
+                if (matchingQuote == null)
+                {
+                    matchingQuote = await _context.QuoteInventories
+                        .Where(qi =>
+                            qi.QuoteId == loadMix.QuoteId &&
+                            qi.ChemicalName != null &&
+                            qi.ChemicalName.Trim().ToLower() ==
+                                loadMixDetails.Product.Trim().ToLower())
+                        .FirstOrDefaultAsync();
+                }
+
+                if (matchingQuote != null)
+                {
+                    loadMixDetails.QuotePrice = matchingQuote.QuotePrice;
+                }
             }
 
-            await _jsRuntime.InvokeVoidAsync("console.log", $"Saving LoadMixDetails: Product: {loadMixDetails.Product}, Corrected QuotePrice: {loadMixDetails.QuotePrice}, LoadMixId: {loadMixDetails.LoadMixId}");
+            await _jsRuntime.InvokeVoidAsync("console.log",
+                $"Saving LoadMixDetails: Product={loadMixDetails.Product}, " +
+                $"ProductId={loadMixDetails.ProductId}, " +
+                $"TotalUsed={loadMixDetails.TotalUsed}, " +
+                $"LoadMixId={loadMixDetails.LoadMixId}, " +
+                $"GroupId={loadMixDetails.GroupId}");
 
+            // Save the detail row
             _context.LoadMixDetails.Add(loadMixDetails);
             await _context.SaveChangesAsync();
+
+            // ⭐ GROUPID‑AWARE INVENTORY DEDUCTION ⭐
+
+            // 1️⃣ If no ProductId, nothing to deduct (e.g., Water)
+            if (!loadMixDetails.ProductId.HasValue || loadMixDetails.ProductId.Value <= 0)
+                return;
+
+            // 2️⃣ If no parent LoadMix, bail out safely
+            if (loadMix == null)
+                return;
+
+            // 3️⃣ Determine the primary LoadMix for this group
+            var primaryLoadMixId = await GetPrimaryLoadMixIdForGroupAsync(loadMix.LoadMixId);
+            if (!primaryLoadMixId.HasValue)
+                return;
+
+            // 4️⃣ Only deduct inventory if THIS detail belongs to the primary LoadMix
+            if (loadMix.Id != primaryLoadMixId.Value)
+                return;
+
+            // 5️⃣ Finally, deduct inventory using FIFO based on TotalUsed
+            if (loadMixDetails.TotalUsed > 0)
+            {
+                await _productInventoryService.ConsumeInventoryAsync(
+                    loadMixDetails.ProductId.Value,
+                    loadMixDetails.TotalUsed,
+                    loadMixDetails.GroupId,       // ⭐ groupId
+                    loadMixDetails.LoadMixId,     // ⭐ loadMixId
+                    loadMixDetails.Id             // ⭐ loadMixDetailsId
+                );
+            }
         }
+
+
 
 
         // Method for updating LoadMixDetails
@@ -247,6 +383,113 @@ namespace PAS.Services
 
             return template;
         }
+
+        private async Task<bool> LoadMixIsLockedAsync(int loadMixId)
+        {
+            var loadMix = await _context.LoadMixes
+                .FirstOrDefaultAsync(lm => lm.Id == loadMixId);
+
+            if (loadMix == null)
+                return false;
+
+            // ⭐ Only invoices lock the LoadMix
+            if (loadMix.QuoteId.HasValue)
+            {
+                bool invoiced = await _context.Invoices
+                    .AnyAsync(i => i.QuoteId == loadMix.QuoteId.Value);
+
+                if (invoiced)
+                    return true;
+            }
+
+            return false;
+        }
+
+        private async Task<int?> GetPrimaryLoadMixIdForGroupAsync(int groupId)
+        {
+            // All LoadMixes in this group
+            var loadMixes = await _context.LoadMixes
+                .Where(lm => lm.LoadMixId == groupId)
+                .ToListAsync();
+
+            if (!loadMixes.Any())
+                return null;
+
+            // 1️⃣ Prefer those with QuoteId, pick lowest Id
+            var withQuote = loadMixes
+                .Where(lm => lm.QuoteId.HasValue)
+                .OrderBy(lm => lm.Id)
+                .FirstOrDefault();
+
+            if (withQuote != null)
+                return withQuote.Id;
+
+            // 2️⃣ Otherwise, pick the No‑Quote LoadMix with lowest Id
+            var noQuote = loadMixes
+                .Where(lm => !lm.QuoteId.HasValue)
+                .OrderBy(lm => lm.Id)
+                .FirstOrDefault();
+
+            return noQuote?.Id;
+        }
+
+        public async Task UpdateLoadMixDetailsGroupAwareAsync(int loadMixId, List<LoadMixDetails> newDetails)
+        {
+            // Load parent LoadMix
+            var loadMix = await _context.LoadMixes
+                .FirstOrDefaultAsync(lm => lm.Id == loadMixId);
+
+            if (loadMix == null)
+                throw new Exception("LoadMix not found.");
+
+            int groupId = loadMix.LoadMixId;
+
+            // Determine primary LoadMix
+            var primaryLoadMixId = await GetPrimaryLoadMixIdForGroupAsync(groupId);
+            bool isPrimary = (primaryLoadMixId.HasValue && primaryLoadMixId.Value == loadMixId);
+
+            // Load old details
+            var oldDetails = await _context.LoadMixDetails
+                .Where(d => d.LoadMixId == loadMixId)
+                .ToListAsync();
+
+            // ⭐ If this is the primary LoadMix, restore inventory for old details
+            if (isPrimary)
+            {
+                foreach (var detail in oldDetails)
+                {
+                    if (detail.ProductId.HasValue &&
+                        detail.ProductId.Value > 0 &&
+                        detail.TotalUsed > 0)
+                    {
+                        await _productInventoryService.RestoreInventoryAsync(
+                            detail.ProductId.Value,
+                            detail.TotalUsed,
+                            groupId,        // ⭐ required for audit
+                            loadMixId,      // ⭐ loadMixId
+                            detail.Id       // ⭐ loadMixDetailsId
+                        );
+                    }
+                }
+            }
+
+            // Delete old details
+            _context.LoadMixDetails.RemoveRange(oldDetails);
+            await _context.SaveChangesAsync();
+
+            // Insert new details
+            foreach (var detail in newDetails)
+            {
+                detail.LoadMixId = loadMixId;
+                detail.GroupId = groupId;
+
+                // This will automatically:
+                // - save the detail
+                // - deduct inventory if this is the primary LoadMix
+                await AddLoadMixDetailsAsync(detail);
+            }
+        }
+
 
     }
 }

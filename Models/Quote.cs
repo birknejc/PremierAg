@@ -1,4 +1,5 @@
 ﻿using PAS.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace PAS.Models
 {
@@ -16,6 +17,11 @@ namespace PAS.Models
         public DateTime QuoteDate { get; set; }
         public decimal QuoteTotal { get; set; }
         public decimal EstimatedAcres { get; set; }
+        public QuoteStatus Status { get; set; } = QuoteStatus.Active;
+
+        [Required]
+        public DateTime ArchiveDate { get; set; }
+
 
         // New fields for multiple inventory items
         public ICollection<QuoteInventory> QuoteInventories { get; set; } = new List<QuoteInventory>();

@@ -89,6 +89,10 @@
       "PackagePath": "staticwebassets\\print_potemplate.html"
     },
     {
+      "Id": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\print_productlist.html",
+      "PackagePath": "staticwebassets\\print_productlist.html"
+    },
+    {
       "Id": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\print_quotetemplate.html",
       "PackagePath": "staticwebassets\\print_quotetemplate.html"
     },

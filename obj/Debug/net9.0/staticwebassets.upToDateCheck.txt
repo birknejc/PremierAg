@@ -1,4 +1,5 @@
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\wwwroot\css\open-iconic\font\css\open-iconic-bootstrap.min.css
+C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\wwwroot\print_productlist.html
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\wwwroot\print_quotetemplate.html
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\wwwroot\print_statementtemplate.html
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\wwwroot\print_fullstatement_single.html
@@ -36,6 +37,7 @@ wwwroot\print_invoicetemplate.html
 wwwroot\print_invoicetemplate_multi.html
 wwwroot\print_loadmixtemplate.html
 wwwroot\print_potemplate.html
+wwwroot\print_productlist.html
 wwwroot\print_quotetemplate.html
 wwwroot\print_statementtemplate.html
 wwwroot\print_statementtemplate_multi.html

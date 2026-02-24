@@ -622,6 +622,11 @@ else if (selectedPrintedCustomerId != 0)
 
                 <div class="modal-body">
 
+                    @if (!string.IsNullOrWhiteSpace(directSaleError))
+                    {
+                        <div class="alert alert-danger">@directSaleError</div>
+                    }
+
                     <EditForm Model="DirectSaleModel" OnValidSubmit="SaveDirectSale">
                         <DataAnnotationsValidator />
                         <ValidationSummary />
@@ -730,6 +735,7 @@ else if (selectedPrintedCustomerId != 0)
     private DirectSaleDto DirectSaleModel = new();
     private List<Customer> Customers = new();
     private List<Product> products = new();
+    private string directSaleError;
 
 
 
@@ -1656,23 +1662,75 @@ else if (selectedPrintedCustomerId != 0)
 
     private async Task SaveDirectSale()
     {
-        var invoiceGroupId = await InvoiceService.CreateDirectSaleInvoiceAsync(DirectSaleModel);
+        directSaleError = null;
 
-        ShowDirectSaleModal = false;
+        try
+        {
+            var groupId = await InvoiceService.CreateDirectSaleInvoiceAsync(DirectSaleModel);
 
-        await LoadInvoices(); // refresh InvoicePage
+            // Close modal and refresh
+            ShowDirectSaleModal = false;
+            await LoadInvoices();
+        }
+        catch (InvalidOperationException ex)
+        {
+            // This is where your restricted-product error will show
+            directSaleError = ex.Message;
+        }
+        catch (Exception ex)
+        {
+            directSaleError = "An unexpected error occurred while saving the direct sale.";
+            // optionally log ex
+        }
     }
 
-    private void OnProductSelected(DirectSaleItemDto item, string productName)
+
+    private async Task OnProductSelected(DirectSaleItemDto item, string productName)
     {
+        directSaleError = null;
+
         var product = products.FirstOrDefault(p => p.Name == productName);
         if (product == null)
             return;
 
+        // Populate fields
         item.ChemicalName = product.Name;
         item.UnitOfMeasure = product.DefaultUnitOfMeasure;
 
+        // If product is restricted, enforce licensing
+        if (product.Restricted == true)
+        {
+            if (DirectSaleModel.CustomerId == 0)
+            {
+                directSaleError = "Select a customer before choosing a restricted product.";
+                return;
+            }
+
+            // Load customer licenses
+            var licenses = await InvoiceService.GetCustomerLicensesAsync(DirectSaleModel.CustomerId);
+
+            bool hasValidLicense = licenses.Any(l =>
+                l.OwnerType == LicenseOwnerType.Customer &&
+                l.IsActive &&
+                l.ExpirationDate >= DateTime.UtcNow);
+
+            if (!hasValidLicense)
+            {
+                directSaleError =
+                    $"The product '{product.Name}' is restricted. " +
+                    $"This customer does not have a valid, non-expired license.";
+
+                // Clear the selection so the user cannot proceed
+                item.ChemicalName = null;
+                item.UnitOfMeasure = null;
+                item.Price = 0;
+
+                return;
+            }
+        }
+
         RecalculateDirectSaleTotals();
     }
+
 
 }

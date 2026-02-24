@@ -13,6 +13,11 @@
 
 @if (showQuoteForm)
 {
+    @if (!string.IsNullOrWhiteSpace(quoteError))
+    {
+        <div class="alert alert-danger">@quoteError</div>
+    }
+
     <EditForm Model="NewQuote" OnValidSubmit="SaveQuote">
         <DataAnnotationsValidator />
         <ValidationSummary />
@@ -66,6 +71,15 @@
                 <InputDate class="form-control" @bind-Value="NewQuote.QuoteDate" />
             </div>
         </div>
+
+        <!-- Archive Date Field -->
+        <div class="row">
+            <div class="col-md-6">
+                <label>Archive Date:</label>
+                <InputDate class="form-control" @bind-Value="NewQuote.ArchiveDate" />
+            </div>
+        </div>
+
 
         <!-- Product Items -->
         @foreach (var quoteInventory in NewQuote.QuoteInventories)
@@ -160,6 +174,12 @@
 
 <hr />
 
+@if (!string.IsNullOrWhiteSpace(quoteError))
+{
+    <div class="alert alert-danger">@quoteError</div>
+}
+
+
 <h3>Existing Quotes</h3>
 <table class="table">
     <thead>
@@ -172,6 +192,7 @@
             <th>Phone</th>
             <th>Product</th>
             <th>Total</th>
+            <th>Status</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -192,6 +213,7 @@
                     }
                 </td>
                 <td>@quote.QuoteTotal</td>
+                <td>@quote.Status</td>
                 <td>
                     <button @onclick="() => EditQuote(quote.Id)" class="btn btn-warning">Edit</button>
                     <button @onclick="() => DeleteQuote(quote.Id)" class="btn btn-danger">Delete</button>
@@ -210,6 +232,8 @@
     private List<UOMConversion> UOMConversions = new(); // List of unit of measure conversions
     private bool showQuoteForm = false;
     private List<Product> Products = new();
+    private string quoteError;
+
 
 
     private int SelectedCustomerId
@@ -280,24 +304,39 @@
 
     private async Task SaveQuote()
     {
-        // Quote2 is fully Product-based — no legacy Inventory logic remains
+        quoteError = null; // clear previous errors
 
-        if (NewQuote.Id == 0)
+        try
         {
-            await Quote2Service.AddQuoteAsync(NewQuote);
+            if (NewQuote.Id == 0)
+            {
+                await Quote2Service.AddQuoteAsync(NewQuote);
+            }
+            else
+            {
+                await Quote2Service.UpdateQuoteAsync(NewQuote);
+            }
         }
-        else
+        catch (InvalidOperationException ex)
         {
-            await Quote2Service.UpdateQuoteAsync(NewQuote);
+            // ⭐ This is the lock message from QuoteIsLockedAsync
+            quoteError = ex.Message;
+
+            // ⭐ Do NOT close the form
+            // ⭐ Do NOT reset NewQuote
+            // ⭐ Do NOT refresh the list
+            StateHasChanged();
+            return;
         }
 
-        // Reset form
+        // ⭐ Only runs if save succeeded
         NewQuote = new Quote() { QuoteInventories = new List<QuoteInventory>() };
         Quotes = await Quote2Service.GetQuotesAsync();
         showQuoteForm = false;
 
         StateHasChanged();
     }
+
 
     private async Task EditQuote(int id)
     {
@@ -306,12 +345,29 @@
         StateHasChanged();
     }
 
+
     private async Task DeleteQuote(int id)
     {
-        await Quote2Service.DeleteQuoteAsync(id);
-        Quotes = await Quote2Service.GetQuotesAsync();
-        StateHasChanged(); // Ensure the UI is updated to reflect changes
+        quoteError = null;
+
+        try
+        {
+            await Quote2Service.DeleteQuoteAsync(id);
+            Quotes = await Quote2Service.GetQuotesAsync();
+        }
+        catch (InvalidOperationException ex)
+        {
+            // ⭐ This is the lock message from QuoteIsLockedAsync
+            quoteError = ex.Message;
+
+            // ⭐ Do NOT refresh the list
+            // ⭐ Do NOT hide anything
+            StateHasChanged();
+            return;
+        }
     }
+
+
 
     private void RemoveQuoteItem(QuoteInventory quoteInventory)
     {

@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "svyOz8QlIHUyQ3M3otcF8qI2t388OKIfwJckID9cPxY=",
+  "Hash": "nCRZVBtxcNjlQeBHJwRwbvjAc/a7lnY1B8t1xMGJJ40=",
   "Source": "PAS",
   "BasePath": "_content/PAS",
   "Mode": "Default",
@@ -36,6 +36,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\css\\open-iconic\\font\\css\\open-iconic-bootstrap.min.css"
+    },
+    {
+      "Identity": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\1q11du2sej-ifm25zbny2.gz",
+      "SourceId": "PAS",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\",
+      "BasePath": "_content/PAS",
+      "RelativePath": "print_productlist#[.{fingerprint=ifm25zbny2}]?.html.gz",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Alternative",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\print_productlist.html",
+      "AssetTraitName": "Content-Encoding",
+      "AssetTraitValue": "gzip",
+      "Fingerprint": "lhdixafasv",
+      "Integrity": "N1JSI/aM8eOEKXI8WhYpsRNueaq3BljQtCAHDtMhirM=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\print_productlist.html"
     },
     {
       "Identity": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\3fni2ukzdl-n1l14mxadb.gz",
@@ -897,6 +918,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\print_potemplate.html"
+    },
+    {
+      "Identity": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\print_productlist.html",
+      "SourceId": "PAS",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\",
+      "BasePath": "_content/PAS",
+      "RelativePath": "print_productlist#[.{fingerprint}]?.html",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "ifm25zbny2",
+      "Integrity": "Dt8NW1oLyr5Xs/PS5gzLjuzsYOv2YWxgA+9kWDGWNxA=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\print_productlist.html"
     },
     {
       "Identity": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\print_quotetemplate.html",
@@ -3946,7 +3988,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 21 Feb 2026 16:50:14 GMT"
+          "Value": "Tue, 24 Feb 2026 10:28:25 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3999,7 +4041,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 21 Feb 2026 16:50:14 GMT"
+          "Value": "Tue, 24 Feb 2026 10:28:25 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4036,7 +4078,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 21 Feb 2026 16:50:14 GMT"
+          "Value": "Tue, 24 Feb 2026 10:28:25 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4083,7 +4125,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 21 Feb 2026 16:50:14 GMT"
+          "Value": "Tue, 24 Feb 2026 10:28:25 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4144,7 +4186,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 21 Feb 2026 16:50:14 GMT"
+          "Value": "Tue, 24 Feb 2026 10:28:25 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4189,7 +4231,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 21 Feb 2026 16:50:14 GMT"
+          "Value": "Tue, 24 Feb 2026 10:28:25 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4244,7 +4286,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 21 Feb 2026 16:50:14 GMT"
+          "Value": "Tue, 24 Feb 2026 10:28:25 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4305,7 +4347,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 21 Feb 2026 16:50:14 GMT"
+          "Value": "Tue, 24 Feb 2026 10:28:25 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4350,7 +4392,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 21 Feb 2026 16:50:14 GMT"
+          "Value": "Tue, 24 Feb 2026 10:28:25 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4405,7 +4447,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 21 Feb 2026 16:50:14 GMT"
+          "Value": "Tue, 24 Feb 2026 10:28:25 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4458,7 +4500,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 21 Feb 2026 16:50:14 GMT"
+          "Value": "Tue, 24 Feb 2026 10:28:25 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4495,7 +4537,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 21 Feb 2026 16:50:14 GMT"
+          "Value": "Tue, 24 Feb 2026 10:28:25 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -6302,6 +6344,304 @@
         {
           "Name": "integrity",
           "Value": "sha256-GMm0YFOwGlQRU9ROuYflYxkYXKHJBeyZtnZCB7Tyqxk="
+        }
+      ]
+    },
+    {
+      "Route": "print_productlist.html",
+      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\1q11du2sej-ifm25zbny2.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.003067484663"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "325"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"N1JSI/aM8eOEKXI8WhYpsRNueaq3BljQtCAHDtMhirM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 24 Feb 2026 00:29:59 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"Dt8NW1oLyr5Xs/PS5gzLjuzsYOv2YWxgA+9kWDGWNxA=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-Dt8NW1oLyr5Xs/PS5gzLjuzsYOv2YWxgA+9kWDGWNxA="
+        }
+      ]
+    },
+    {
+      "Route": "print_productlist.html",
+      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\print_productlist.html",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "602"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"Dt8NW1oLyr5Xs/PS5gzLjuzsYOv2YWxgA+9kWDGWNxA=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 24 Feb 2026 00:29:59 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-Dt8NW1oLyr5Xs/PS5gzLjuzsYOv2YWxgA+9kWDGWNxA="
+        }
+      ]
+    },
+    {
+      "Route": "print_productlist.html.gz",
+      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\1q11du2sej-ifm25zbny2.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "325"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"N1JSI/aM8eOEKXI8WhYpsRNueaq3BljQtCAHDtMhirM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 24 Feb 2026 00:29:59 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-N1JSI/aM8eOEKXI8WhYpsRNueaq3BljQtCAHDtMhirM="
+        }
+      ]
+    },
+    {
+      "Route": "print_productlist.ifm25zbny2.html",
+      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\1q11du2sej-ifm25zbny2.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.003067484663"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "325"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"N1JSI/aM8eOEKXI8WhYpsRNueaq3BljQtCAHDtMhirM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 24 Feb 2026 00:29:59 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"Dt8NW1oLyr5Xs/PS5gzLjuzsYOv2YWxgA+9kWDGWNxA=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "ifm25zbny2"
+        },
+        {
+          "Name": "label",
+          "Value": "print_productlist.html"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-Dt8NW1oLyr5Xs/PS5gzLjuzsYOv2YWxgA+9kWDGWNxA="
+        }
+      ]
+    },
+    {
+      "Route": "print_productlist.ifm25zbny2.html",
+      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\print_productlist.html",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "602"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"Dt8NW1oLyr5Xs/PS5gzLjuzsYOv2YWxgA+9kWDGWNxA=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 24 Feb 2026 00:29:59 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "ifm25zbny2"
+        },
+        {
+          "Name": "label",
+          "Value": "print_productlist.html"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-Dt8NW1oLyr5Xs/PS5gzLjuzsYOv2YWxgA+9kWDGWNxA="
+        }
+      ]
+    },
+    {
+      "Route": "print_productlist.ifm25zbny2.html.gz",
+      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\obj\\Debug\\net9.0\\compressed\\1q11du2sej-ifm25zbny2.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "325"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"N1JSI/aM8eOEKXI8WhYpsRNueaq3BljQtCAHDtMhirM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 24 Feb 2026 00:29:59 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "ifm25zbny2"
+        },
+        {
+          "Name": "label",
+          "Value": "print_productlist.html.gz"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-N1JSI/aM8eOEKXI8WhYpsRNueaq3BljQtCAHDtMhirM="
         }
       ]
     },

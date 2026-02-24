@@ -131,6 +131,7 @@ C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\compres
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\compressed\p87rl2wwy6-10xvwh95a6.gz
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\compressed\yzelpdz66n-c7xuifnh1w.gz
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\compressed\jgrswj0ogc-1mhk6g3nwn.gz
+C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\compressed\1q11du2sej-ifm25zbny2.gz
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\compressed\5aw6ffevl9-jjjvl33bmv.gz
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\compressed\66laoa0lq6-bw3pbry748.gz
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\compressed\xoxkui8xbz-2zg12c8wj8.gz
@@ -145,10 +146,10 @@ C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\staticw
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\staticwebassets\msbuild.buildMultiTargeting.PAS.props
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\staticwebassets\msbuild.buildTransitive.PAS.props
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\staticwebassets.pack.json
-C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\PAS.csproj.Up2Date
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\PAS.dll
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\refint\PAS.dll
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\PAS.pdb
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\PAS.genruntimeconfig.cache
 C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\ref\PAS.dll
+C:\Users\birkn\Documents\Premier Ag Solution, L.L.C\PAS\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt

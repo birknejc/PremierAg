@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PAS.DBContext;
@@ -11,9 +12,11 @@ using PAS.DBContext;
 namespace PAS.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260221183732_AddLicenseOwnershipAndProductRestriction")]
+    partial class AddLicenseOwnershipAndProductRestriction
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -281,45 +284,6 @@ namespace PAS.Migrations
                     b.ToTable("Fields");
                 });
 
-            modelBuilder.Entity("PAS.Models.InventoryAudit", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Action")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("GroupId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("LoadMixDetailsId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("LoadMixId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("ProductName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<decimal>("QuantityChanged")
-                        .HasColumnType("numeric");
-
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("InventoryAudits");
-                });
-
             modelBuilder.Entity("PAS.Models.InvoiceHeader", b =>
                 {
                     b.Property<int>("InvoiceGroupId")
@@ -421,9 +385,6 @@ namespace PAS.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("ProductId")
-                        .HasColumnType("integer");
-
                     b.Property<decimal?>("QuotePrice")
                         .HasColumnType("numeric");
 
@@ -438,14 +399,9 @@ namespace PAS.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<decimal>("TotalUsed")
-                        .HasColumnType("numeric");
-
                     b.HasKey("Id");
 
                     b.HasIndex("LoadMixId");
-
-                    b.HasIndex("ProductId");
 
                     b.ToTable("LoadMixDetails");
                 });
@@ -706,9 +662,6 @@ namespace PAS.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("ArchiveDate")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<string>("CustomerBusinessName")
                         .IsRequired()
                         .HasColumnType("text");
@@ -742,10 +695,6 @@ namespace PAS.Migrations
                         .HasColumnType("numeric");
 
                     b.Property<string>("QuoteZipcode")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -1047,13 +996,7 @@ namespace PAS.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("PAS.Models.Product", "ProductRef")
-                        .WithMany()
-                        .HasForeignKey("ProductId");
-
                     b.Navigation("LoadMix");
-
-                    b.Navigation("ProductRef");
                 });
 
             modelBuilder.Entity("PAS.Models.NoQuoteInvoice", b =>

@@ -9,10 +9,22 @@ namespace PAS.Services
         Task<decimal> GetWeightedAveragePriceAsync(int productId);
 
         Task ReceivePurchaseAsync(ProductPurchase purchase);
-        Task ConsumeInventoryAsync(int productId, decimal quantityUsed);
+
+        // ⭐ UPDATED SIGNATURES (must match ProductInventoryService)
+        Task ConsumeInventoryAsync(
+            int productId,
+            decimal quantityUsed,
+            int groupId,
+            int loadMixId,
+            int loadMixDetailsId);
+
+        Task RestoreInventoryAsync(
+            int productId,
+            decimal quantityToRestore,
+            int groupId,
+            int loadMixId,
+            int loadMixDetailsId);
 
         Task<List<Product>> GetAllProductsAsync();
-
     }
 }
-

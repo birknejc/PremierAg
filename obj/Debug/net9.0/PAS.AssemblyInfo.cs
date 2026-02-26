@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PAS")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+dd21df2338d258a540a945dbc3189d6addc75abf")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2d6295d998f34078e67508aac43e59d491096111")]
 [assembly: System.Reflection.AssemblyProductAttribute("PAS")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PAS")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

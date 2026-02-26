@@ -184,13 +184,13 @@
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\PAS.n1l14mxadb.bundle.scp.css'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
       <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-NbMVKW5gIhn0vn/12wajfxJjitbYyzU0SnxjnMV8GQg="}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"3466"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022NbMVKW5gIhn0vn/12wajfxJjitbYyzU0SnxjnMV8GQg=\u0022"},{"Name":"Last-Modified","Value":"Tue, 24 Feb 2026 10:28:25 GMT"}]]]></ResponseHeaders>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"3466"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022NbMVKW5gIhn0vn/12wajfxJjitbYyzU0SnxjnMV8GQg=\u0022"},{"Name":"Last-Modified","Value":"Tue, 24 Feb 2026 13:58:38 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/PAS/PAS.n1l14mxadb.bundle.scp.css">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\PAS.n1l14mxadb.bundle.scp.css'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
       <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"n1l14mxadb"},{"Name":"integrity","Value":"sha256-NbMVKW5gIhn0vn/12wajfxJjitbYyzU0SnxjnMV8GQg="},{"Name":"label","Value":"_content/PAS/PAS.bundle.scp.css"}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"3466"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022NbMVKW5gIhn0vn/12wajfxJjitbYyzU0SnxjnMV8GQg=\u0022"},{"Name":"Last-Modified","Value":"Tue, 24 Feb 2026 10:28:25 GMT"}]]]></ResponseHeaders>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"3466"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022NbMVKW5gIhn0vn/12wajfxJjitbYyzU0SnxjnMV8GQg=\u0022"},{"Name":"Last-Modified","Value":"Tue, 24 Feb 2026 13:58:38 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/PAS/print_customerlist.html">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\print_customerlist.html'))</AssetFile>

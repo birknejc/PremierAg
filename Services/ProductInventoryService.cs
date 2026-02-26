@@ -252,8 +252,24 @@ namespace PAS.Services
             return Math.Round(totalHold, 2);
         }
 
+        public async Task AddStartingInventoryAsync(int productId, decimal quantity, decimal cost, string note)
+        {
+            const int systemVendorId = 1; // ID of "System Initialization" vendor
 
+            var purchase = new ProductPurchase
+            {
+                ProductId = productId,
+                VendorId = systemVendorId,
+                QuantityReceived = quantity,
+                QuantityRemaining = quantity,
+                PricePerUnit = cost,
+                ReceivedDate = DateTime.UtcNow,
+                PurchaseOrderId = null
+            };
 
+            _context.ProductPurchases.Add(purchase);
+            await _context.SaveChangesAsync();
+        }
 
     }
 }

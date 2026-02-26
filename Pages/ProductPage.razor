@@ -18,6 +18,7 @@
 <button class="btn btn-secondary" @onclick="PrintProductList">Print Inventory Report</button>
 
 
+
 @if (products != null && products.Any())
 {
     <table class="table mt-3">
@@ -47,6 +48,7 @@
                     <td>
                         <button class="btn btn-warning btn-sm" @onclick="() => EditProduct(p.Id)">Edit</button>
                         <button class="btn btn-success btn-sm" @onclick="() => ShowAddPurchaseModal(p.Id)">Add Purchase</button>
+                        <button class="btn btn-info btn-sm" @onclick="() => ShowAddStartingInventoryModal(p.Id)">Add Starting Inventory</button>
                     </td>
                 </tr>
             }
@@ -221,6 +223,48 @@ else
     </div>
 }
 
+<!-- ADD INITIAL INVENTORY MODAL -->
+@if (showStartingInventoryModal)
+{
+    <div class="modal" style="display:block;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Starting Inventory</h5>
+                    <button type="button" class="btn-close" @onclick="HideStartingInventoryModal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <EditForm Model="startingInventory" OnValidSubmit="SaveStartingInventory">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <div class="form-group">
+                            <label>Quantity</label>
+                            <InputNumber class="form-control" @bind-Value="startingInventory.Quantity" />
+                        </div>
+
+                        <div class="form-group">
+                            <label>Cost (optional)</label>
+                            <InputNumber class="form-control" @bind-Value="startingInventory.Cost" />
+                        </div>
+
+                        <div class="form-group">
+                            <label>Note</label>
+                            <InputText class="form-control" @bind-Value="startingInventory.Note" />
+                        </div>
+
+                        <button type="submit" class="btn btn-success mt-2">Add</button>
+                    </EditForm>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+
+
 @code {
     private List<Product> products = new();
     private List<Vendor> vendors = new();
@@ -237,7 +281,8 @@ else
 
     private List<Vendor> purchaseVendors = new();
     public bool? Restricted { get; set; }
-
+    private bool showStartingInventoryModal = false;
+    private StartingInventoryModel startingInventory = new();
 
     [Parameter]
     public int? ProductId { get; set; }
@@ -440,6 +485,44 @@ else
 
 
         return template.Replace("{{ProductListContent}}", tableHtml);
+    }
+
+
+    public class StartingInventoryModel
+    {
+        public int ProductId { get; set; }
+        public decimal Quantity { get; set; }
+        public decimal Cost { get; set; }
+        public string Note { get; set; }
+    }
+
+    private void ShowAddStartingInventoryModal(int productId)
+    {
+        startingInventory = new StartingInventoryModel
+            {
+                ProductId = productId,
+                Cost = 0
+            };
+
+        showStartingInventoryModal = true;
+    }
+
+    private void HideStartingInventoryModal()
+    {
+        showStartingInventoryModal = false;
+    }
+
+    private async Task SaveStartingInventory()
+    {
+        await ProductInventoryService.AddStartingInventoryAsync(
+            startingInventory.ProductId,
+            startingInventory.Quantity,
+            startingInventory.Cost,
+            startingInventory.Note
+        );
+
+        products = await Db.Products.Include(p => p.Purchases).ToListAsync();
+        showStartingInventoryModal = false;
     }
 
 }

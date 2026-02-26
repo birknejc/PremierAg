@@ -12,7 +12,7 @@ using PAS.DBContext;
 namespace PAS.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260211153110_InitialBaseline")]
+    [Migration("20260224135904_InitialBaseline")]
     partial class InitialBaseline
     {
         /// <inheritdoc />
@@ -24,52 +24,6 @@ namespace PAS.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("Inventory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ChemicalName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("EPA")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal>("QuantityOnHand")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal>("QuantityQuoted")
-                        .HasColumnType("numeric");
-
-                    b.Property<string>("UnitOfMeasure")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("UnitOfMeasurePurchase")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("VendorId")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal>("WeightedAveragePrice")
-                        .HasColumnType("numeric");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("VendorId");
-
-                    b.ToTable("Inventories");
-                });
 
             modelBuilder.Entity("Invoice", b =>
                 {
@@ -90,9 +44,6 @@ namespace PAS.Migrations
 
                     b.Property<decimal?>("InterestRate")
                         .HasColumnType("numeric");
-
-                    b.Property<int>("InventoryId")
-                        .HasColumnType("integer");
 
                     b.Property<string>("InvoiceChemicalName")
                         .IsRequired()
@@ -123,6 +74,9 @@ namespace PAS.Migrations
                     b.Property<int?>("QuoteId")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("QuoteInventoryId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("UnitOfMeasure")
                         .IsRequired()
                         .HasColumnType("text");
@@ -133,7 +87,7 @@ namespace PAS.Migrations
 
                     b.HasIndex("InvoiceGroupId");
 
-                    b.HasIndex("QuoteId", "InventoryId");
+                    b.HasIndex("QuoteInventoryId");
 
                     b.ToTable("Invoices");
                 });
@@ -178,6 +132,50 @@ namespace PAS.Migrations
                     b.HasIndex("LoadMixId");
 
                     b.ToTable("LoadFields");
+                });
+
+            modelBuilder.Entity("PAS.Models.ApplicatorLicense", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CertNumber")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("CustomerId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("ExpirationDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LicenseNumber")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LicenseType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int?>("OwnerType")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("PrintOnInvoice")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.ToTable("ApplicatorLicenses");
                 });
 
             modelBuilder.Entity("PAS.Models.Customer", b =>
@@ -286,6 +284,45 @@ namespace PAS.Migrations
                     b.ToTable("Fields");
                 });
 
+            modelBuilder.Entity("PAS.Models.InventoryAudit", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("GroupId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("LoadMixDetailsId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("LoadMixId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ProductName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("QuantityChanged")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("InventoryAudits");
+                });
+
             modelBuilder.Entity("PAS.Models.InvoiceHeader", b =>
                 {
                     b.Property<int>("InvoiceGroupId")
@@ -387,6 +424,9 @@ namespace PAS.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int?>("ProductId")
+                        .HasColumnType("integer");
+
                     b.Property<decimal?>("QuotePrice")
                         .HasColumnType("numeric");
 
@@ -401,9 +441,14 @@ namespace PAS.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<decimal>("TotalUsed")
+                        .HasColumnType("numeric");
+
                     b.HasKey("Id");
 
                     b.HasIndex("LoadMixId");
+
+                    b.HasIndex("ProductId");
 
                     b.ToTable("LoadMixDetails");
                 });
@@ -458,6 +503,97 @@ namespace PAS.Migrations
                     b.ToTable("NoQuoteInvoices");
                 });
 
+            modelBuilder.Entity("PAS.Models.Product", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("DefaultUnitOfMeasure")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<string>("EPA")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool?>("Restricted")
+                        .HasColumnType("boolean");
+
+                    b.Property<decimal>("WeightedAveragePrice")
+                        .HasColumnType("numeric");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("PAS.Models.ProductPurchase", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("PricePerUnit")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("PurchaseOrderId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("QuantityReceived")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("QuantityRemaining")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime>("ReceivedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("VendorId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("VendorId");
+
+                    b.ToTable("ProductPurchases");
+                });
+
+            modelBuilder.Entity("PAS.Models.ProductVendor", b =>
+                {
+                    b.Property<int>("ProductId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("VendorId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("ProductId", "VendorId");
+
+                    b.HasIndex("VendorId");
+
+                    b.ToTable("ProductVendors");
+                });
+
             modelBuilder.Entity("PAS.Models.PurchaseOrder", b =>
                 {
                     b.Property<int>("Id")
@@ -472,9 +608,6 @@ namespace PAS.Migrations
 
                     b.Property<DateTime>("DeliveryPickUpDate")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("InventoryId")
-                        .HasColumnType("integer");
 
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("timestamp with time zone");
@@ -493,9 +626,12 @@ namespace PAS.Migrations
                     b.Property<DateTime?>("ReceivedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int>("VendorId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("InventoryId");
+                    b.HasIndex("VendorId");
 
                     b.ToTable("PurchaseOrders");
                 });
@@ -516,14 +652,29 @@ namespace PAS.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("InventoryId")
-                        .HasColumnType("integer");
-
                     b.Property<int>("NewQuantityReceived")
                         .HasColumnType("integer");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("numeric");
+
+                    b.Property<string>("ProductEPA")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int?>("ProductId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ProductName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("ProductPurchasePrice")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("ProductUOM")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<int>("PurchaseOrderId")
                         .HasColumnType("integer");
@@ -543,7 +694,7 @@ namespace PAS.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("InventoryId");
+                    b.HasIndex("ProductId");
 
                     b.HasIndex("PurchaseOrderId");
 
@@ -557,6 +708,9 @@ namespace PAS.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("ArchiveDate")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CustomerBusinessName")
                         .IsRequired()
@@ -594,6 +748,10 @@ namespace PAS.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CustomerId");
@@ -603,11 +761,11 @@ namespace PAS.Migrations
 
             modelBuilder.Entity("PAS.Models.QuoteInventory", b =>
                 {
-                    b.Property<int>("QuoteId")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    b.Property<int>("InventoryId")
-                        .HasColumnType("integer");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ChemicalName")
                         .IsRequired()
@@ -617,14 +775,17 @@ namespace PAS.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Id")
-                        .HasColumnType("integer");
-
                     b.Property<decimal>("Price")
                         .HasColumnType("numeric");
 
+                    b.Property<int?>("ProductId")
+                        .HasColumnType("integer");
+
                     b.Property<decimal>("QuantityPerAcre")
                         .HasColumnType("numeric");
+
+                    b.Property<int>("QuoteId")
+                        .HasColumnType("integer");
 
                     b.Property<decimal>("QuotePrice")
                         .HasColumnType("numeric");
@@ -644,9 +805,11 @@ namespace PAS.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("QuoteId", "InventoryId");
+                    b.HasKey("Id");
 
-                    b.HasIndex("InventoryId");
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("QuoteId");
 
                     b.ToTable("QuoteInventories");
                 });
@@ -774,17 +937,6 @@ namespace PAS.Migrations
                     b.ToTable("Payments");
                 });
 
-            modelBuilder.Entity("Inventory", b =>
-                {
-                    b.HasOne("PAS.Models.Vendor", "Vendor")
-                        .WithMany("Inventories")
-                        .HasForeignKey("VendorId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Vendor");
-                });
-
             modelBuilder.Entity("Invoice", b =>
                 {
                     b.HasOne("PAS.Models.Customer", "Customer")
@@ -801,7 +953,8 @@ namespace PAS.Migrations
 
                     b.HasOne("PAS.Models.QuoteInventory", "QuoteInventory")
                         .WithMany("Invoices")
-                        .HasForeignKey("QuoteId", "InventoryId");
+                        .HasForeignKey("QuoteInventoryId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Customer");
 
@@ -827,6 +980,15 @@ namespace PAS.Migrations
                     b.Navigation("Customer");
 
                     b.Navigation("LoadMix");
+                });
+
+            modelBuilder.Entity("PAS.Models.ApplicatorLicense", b =>
+                {
+                    b.HasOne("PAS.Models.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId");
+
+                    b.Navigation("Customer");
                 });
 
             modelBuilder.Entity("PAS.Models.CustomerField", b =>
@@ -888,7 +1050,13 @@ namespace PAS.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("PAS.Models.Product", "ProductRef")
+                        .WithMany()
+                        .HasForeignKey("ProductId");
+
                     b.Navigation("LoadMix");
+
+                    b.Navigation("ProductRef");
                 });
 
             modelBuilder.Entity("PAS.Models.NoQuoteInvoice", b =>
@@ -902,26 +1070,68 @@ namespace PAS.Migrations
                     b.Navigation("Customer");
                 });
 
+            modelBuilder.Entity("PAS.Models.ProductPurchase", b =>
+                {
+                    b.HasOne("PAS.Models.Product", "Product")
+                        .WithMany("Purchases")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PAS.Models.Vendor", "Vendor")
+                        .WithMany()
+                        .HasForeignKey("VendorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Vendor");
+                });
+
+            modelBuilder.Entity("PAS.Models.ProductVendor", b =>
+                {
+                    b.HasOne("PAS.Models.Product", "Product")
+                        .WithMany("ProductVendors")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PAS.Models.Vendor", "Vendor")
+                        .WithMany("ProductVendors")
+                        .HasForeignKey("VendorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Vendor");
+                });
+
             modelBuilder.Entity("PAS.Models.PurchaseOrder", b =>
                 {
-                    b.HasOne("Inventory", null)
-                        .WithMany("PurchaseOrders")
-                        .HasForeignKey("InventoryId");
+                    b.HasOne("PAS.Models.Vendor", "Vendor")
+                        .WithMany()
+                        .HasForeignKey("VendorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Vendor");
                 });
 
             modelBuilder.Entity("PAS.Models.PurchaseOrderItem", b =>
                 {
-                    b.HasOne("Inventory", null)
+                    b.HasOne("PAS.Models.Product", "Product")
                         .WithMany()
-                        .HasForeignKey("InventoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .HasForeignKey("ProductId");
 
                     b.HasOne("PAS.Models.PurchaseOrder", "PurchaseOrder")
                         .WithMany("Items")
                         .HasForeignKey("PurchaseOrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Product");
 
                     b.Navigation("PurchaseOrder");
                 });
@@ -939,11 +1149,9 @@ namespace PAS.Migrations
 
             modelBuilder.Entity("PAS.Models.QuoteInventory", b =>
                 {
-                    b.HasOne("Inventory", "Inventory")
-                        .WithMany("QuoteInventories")
-                        .HasForeignKey("InventoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("PAS.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId");
 
                     b.HasOne("PAS.Models.Quote", "Quote")
                         .WithMany("QuoteInventories")
@@ -951,7 +1159,7 @@ namespace PAS.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Inventory");
+                    b.Navigation("Product");
 
                     b.Navigation("Quote");
                 });
@@ -972,13 +1180,6 @@ namespace PAS.Migrations
                     b.Navigation("Customer");
 
                     b.Navigation("InvoiceHeader");
-                });
-
-            modelBuilder.Entity("Inventory", b =>
-                {
-                    b.Navigation("PurchaseOrders");
-
-                    b.Navigation("QuoteInventories");
                 });
 
             modelBuilder.Entity("PAS.Models.Customer", b =>
@@ -1015,6 +1216,13 @@ namespace PAS.Migrations
                     b.Navigation("LoadMixDetails");
                 });
 
+            modelBuilder.Entity("PAS.Models.Product", b =>
+                {
+                    b.Navigation("ProductVendors");
+
+                    b.Navigation("Purchases");
+                });
+
             modelBuilder.Entity("PAS.Models.PurchaseOrder", b =>
                 {
                     b.Navigation("Items");
@@ -1034,7 +1242,7 @@ namespace PAS.Migrations
 
             modelBuilder.Entity("PAS.Models.Vendor", b =>
                 {
-                    b.Navigation("Inventories");
+                    b.Navigation("ProductVendors");
                 });
 #pragma warning restore 612, 618
         }

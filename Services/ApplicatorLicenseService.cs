@@ -29,8 +29,13 @@ namespace PAS.Services
 
         public async Task<ApplicatorLicense?> GetByIdAsync(int id)
         {
-            return await _context.ApplicatorLicenses.FindAsync(id);
+            return await _context.ApplicatorLicenses
+                .AsNoTracking()
+                .Include(a => a.Customer)
+                .FirstOrDefaultAsync(a => a.Id == id);
         }
+
+
 
         public async Task AddAsync(ApplicatorLicense license)
         {
@@ -40,9 +45,17 @@ namespace PAS.Services
 
         public async Task UpdateAsync(ApplicatorLicense license)
         {
-            _context.ApplicatorLicenses.Update(license);
+            var existing = await _context.ApplicatorLicenses
+                .FirstOrDefaultAsync(a => a.Id == license.Id);
+
+            if (existing == null)
+                return;
+
+            _context.Entry(existing).CurrentValues.SetValues(license);
+
             await _context.SaveChangesAsync();
         }
+
 
         public async Task DeleteAsync(int id)
         {

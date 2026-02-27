@@ -73,8 +73,8 @@ namespace PAS.Services
 
             // Normalize dates
             purchaseOrder.OrderDate = purchaseOrder.OrderDate.ToUniversalTime();
-            purchaseOrder.PaymentDueDate = purchaseOrder.PaymentDueDate.ToUniversalTime();
-            purchaseOrder.DeliveryPickUpDate = purchaseOrder.DeliveryPickUpDate.ToUniversalTime();
+            purchaseOrder.PaymentDueDate = purchaseOrder.PaymentDueDate?.ToUniversalTime(); ;
+            purchaseOrder.DeliveryPickUpDate = purchaseOrder.DeliveryPickUpDate?.ToUniversalTime();
 
             _context.PurchaseOrders.Add(purchaseOrder);
             await _context.SaveChangesAsync();
@@ -100,8 +100,8 @@ namespace PAS.Services
             existingPurchaseOrder.ReceivedDate = purchaseOrder.ReceivedDate?.ToUniversalTime();
             existingPurchaseOrder.VendorId = purchaseOrder.VendorId;
             existingPurchaseOrder.BusinessName = purchaseOrder.BusinessName;
-            existingPurchaseOrder.PaymentDueDate = purchaseOrder.PaymentDueDate.ToUniversalTime();
-            existingPurchaseOrder.DeliveryPickUpDate = purchaseOrder.DeliveryPickUpDate.ToUniversalTime();
+            existingPurchaseOrder.PaymentDueDate = purchaseOrder.PaymentDueDate?.ToUniversalTime(); 
+            existingPurchaseOrder.DeliveryPickUpDate = purchaseOrder.DeliveryPickUpDate?.ToUniversalTime();
             existingPurchaseOrder.PickUpLocation = purchaseOrder.PickUpLocation;
 
             // Remove deleted items
@@ -273,8 +273,8 @@ namespace PAS.Services
                 .Replace("{{PONumber}}", purchaseOrder.PONumber)
                 .Replace("{{OrderDate}}", purchaseOrder.OrderDate.ToString("MM/dd/yyyy"))
                 .Replace("{{BusinessName}}", purchaseOrder.BusinessName)
-                .Replace("{{PaymentDueDate}}", purchaseOrder.PaymentDueDate.ToString("MM/dd/yyyy"))
-                .Replace("{{DeliveryPickUpDate}}", purchaseOrder.DeliveryPickUpDate.ToString("MM/dd/yyyy"))
+                .Replace("{{PaymentDueDate}}", purchaseOrder.PaymentDueDate?.ToString("MM/dd/yyyy") ?? "")
+                .Replace("{{DeliveryPickUpDate}}", purchaseOrder.DeliveryPickUpDate?.ToString("MM/dd/yyyy") ?? "")
                 .Replace("{{PickUpLocation}}", purchaseOrder.PickUpLocation)
                 .Replace("{{ItemsRows}}", itemsHtml);
 

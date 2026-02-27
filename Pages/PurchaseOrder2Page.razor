@@ -232,19 +232,29 @@
 
     private string PaymentDueDateFormatted
     {
-        get => NewPurchaseOrder.PaymentDueDate == DateTime.MinValue ? "" : NewPurchaseOrder.PaymentDueDate.ToString("MM/dd/yyyy");
-        set => NewPurchaseOrder.PaymentDueDate = DateTime.TryParse(value, out var d)
-            ? DateTime.SpecifyKind(d, DateTimeKind.Utc)
-            : DateTime.MinValue;
+        get => NewPurchaseOrder.PaymentDueDate.HasValue
+            ? NewPurchaseOrder.PaymentDueDate.Value.ToString("MM/dd/yyyy")
+            : "";
+
+        set => NewPurchaseOrder.PaymentDueDate =
+            DateTime.TryParse(value, out var d)
+                ? DateTime.SpecifyKind(d, DateTimeKind.Utc)
+                : (DateTime?)null;
     }
+
 
     private string DeliveryPickUpDateFormatted
     {
-        get => NewPurchaseOrder.DeliveryPickUpDate == DateTime.MinValue ? "" : NewPurchaseOrder.DeliveryPickUpDate.ToString("MM/dd/yyyy");
-        set => NewPurchaseOrder.DeliveryPickUpDate = DateTime.TryParse(value, out var d)
-            ? DateTime.SpecifyKind(d, DateTimeKind.Utc)
-            : DateTime.MinValue;
+        get => NewPurchaseOrder.DeliveryPickUpDate.HasValue
+            ? NewPurchaseOrder.DeliveryPickUpDate.Value.ToString("MM/dd/yyyy")
+            : "";
+
+        set => NewPurchaseOrder.DeliveryPickUpDate =
+            DateTime.TryParse(value, out var d)
+                ? DateTime.SpecifyKind(d, DateTimeKind.Utc)
+                : (DateTime?)null;
     }
+
 
     protected override async Task OnInitializedAsync()
     {

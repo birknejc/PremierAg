@@ -14,9 +14,9 @@ namespace PAS.Models
         public string CustomerState { get; set; }
         public string CustomerZipCode { get; set; }
         public string CustomerPhone { get; set; }
-        public string CustomerCell { get; set; }
-        public string CustomerFax { get; set; }
-        public string CustomerEmail { get; set; }
+        public string? CustomerCell { get; set; }
+        public string? CustomerFax { get; set; }
+        public string? CustomerEmail { get; set; }
         public int PaymentTermsDays { get; set; } = 30; // default Net 30
         public List<Payment> Payments { get; set; } = new();
 

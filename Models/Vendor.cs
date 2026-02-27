@@ -8,11 +8,11 @@
         public string City { get; set; }
         public string ZipCode { get; set; }
         public string Phone { get; set; }
-        public string Fax { get; set; }
-        public string Email { get; set; }
-        public string SalesRepName { get; set; }
-        public string SalesRepPhone { get; set; }
-        public string SalesRepEmail { get; set; }
+        public string? Fax { get; set; }
+        public string? Email { get; set; }
+        public string? SalesRepName { get; set; }
+        public string? SalesRepPhone { get; set; }
+        public string? SalesRepEmail { get; set; }
         
         public ICollection<ProductVendor> ProductVendors { get; set; }
 

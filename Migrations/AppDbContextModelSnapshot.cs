@@ -188,7 +188,6 @@ namespace PAS.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("CustomerCell")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("CustomerCity")
@@ -196,7 +195,6 @@ namespace PAS.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("CustomerEmail")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("CustomerFName")
@@ -204,7 +202,6 @@ namespace PAS.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("CustomerFax")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("CustomerLName")
@@ -603,7 +600,7 @@ namespace PAS.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("DeliveryPickUpDate")
+                    b.Property<DateTime?>("DeliveryPickUpDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("OrderDate")
@@ -613,11 +610,10 @@ namespace PAS.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("PaymentDueDate")
+                    b.Property<DateTime?>("PaymentDueDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("PickUpLocation")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ReceivedDate")
@@ -862,11 +858,9 @@ namespace PAS.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Fax")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Phone")
@@ -874,15 +868,12 @@ namespace PAS.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("SalesRepEmail")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("SalesRepName")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("SalesRepPhone")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("StreetAddress")

@@ -16,7 +16,7 @@ namespace PAS.Models
         public string QuotePhone { get; set; }
         public DateTime QuoteDate { get; set; }
         public decimal QuoteTotal { get; set; }
-        public decimal EstimatedAcres { get; set; }
+        public decimal EstimatedAcres { get; set; } = 0;
         public QuoteStatus Status { get; set; } = QuoteStatus.Active;
 
         [Required]

@@ -14,9 +14,9 @@
         // Snapshot for printing
         public string BusinessName { get; set; }
 
-        public DateTime PaymentDueDate { get; set; }
-        public DateTime DeliveryPickUpDate { get; set; }
-        public string PickUpLocation { get; set; }
+        public DateTime? PaymentDueDate { get; set; }
+        public DateTime? DeliveryPickUpDate { get; set; }
+        public string? PickUpLocation { get; set; }
 
         public List<PurchaseOrderItem> Items { get; set; } = new();
     }

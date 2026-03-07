@@ -4,7 +4,6 @@
 @inject CustomerService CustomerService
 @inject Quote2Service Quote2Service
 @inject LoadMix2Service LoadMix2Service
-@* @inject InventoryService InventoryService *@
 @inject FieldService FieldService
 @inject ConversionService ConversionService
 @inject ProductInventoryService ProductInventoryService
@@ -1643,9 +1642,11 @@ else if (isAddingLoadSheet)
                 FieldTotalGallons = 0,
                 FieldAverageRate = newLoadMix.LMRatePerAcre,
                 FieldAcres = 0,
-                DropdownFields = new List<Field>() // not used
+                DropdownFields = new List<Field>(),
+                IsCustomerApplied = true   // ⭐ REQUIRED
             });
     }
+
 
     private async Task OnProductSelectionChanged(QuoteInventory qi, ChangeEventArgs e)
     {

@@ -126,7 +126,10 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        customers = await CustomerService.GetAllCustomersAsync();
+        customers = (await CustomerService.GetAllCustomersAsync())
+            .OrderBy(c => c.CustomerLName)
+            .ThenBy(c => c.CustomerFName)
+            .ToList();
     }
 
     private void ShowAddCustomerModal()

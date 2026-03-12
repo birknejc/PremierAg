@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "3BpIVhFqow3oFv6MpoX5450Qcdk0vdfRAqVv0AghL4A=",
+  "Hash": "r+Wp1aMv8vezUj58XLDeA2bqygs5bfgIWF8CeY6EHBs=",
   "Source": "PAS",
   "BasePath": "_content/PAS",
   "Mode": "Default",
@@ -766,8 +766,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "yjwnt292gn",
-      "Integrity": "jpk9Iy/xEihcjwruDGBBFpU2KkLjmB+4kDaB1fpUEoU=",
+      "Fingerprint": "4973t8pxj8",
+      "Integrity": "iIs/I4DTwfP6hBrYRS50hhaeOcAmmbJyLD5Zd7QUlBo=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\images\\logo.jpg"
@@ -3228,7 +3228,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 13 Feb 2025 21:10:02 GMT"
+          "Value": "Wed, 11 Mar 2026 22:38:53 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3281,7 +3281,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 13 Feb 2025 21:10:02 GMT"
+          "Value": "Wed, 11 Mar 2026 22:38:53 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3318,7 +3318,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 13 Feb 2025 21:10:02 GMT"
+          "Value": "Wed, 11 Mar 2026 22:38:53 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3365,7 +3365,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 13 Feb 2025 21:10:02 GMT"
+          "Value": "Wed, 11 Mar 2026 22:38:53 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3426,7 +3426,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 13 Feb 2025 21:10:02 GMT"
+          "Value": "Wed, 11 Mar 2026 22:38:53 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3471,7 +3471,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 13 Feb 2025 21:10:02 GMT"
+          "Value": "Wed, 11 Mar 2026 22:38:53 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3584,6 +3584,51 @@
       ]
     },
     {
+      "Route": "images/logo.4973t8pxj8.jpg",
+      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\images\\logo.jpg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "10849"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"iIs/I4DTwfP6hBrYRS50hhaeOcAmmbJyLD5Zd7QUlBo=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 11 Mar 2026 23:04:07 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "4973t8pxj8"
+        },
+        {
+          "Name": "label",
+          "Value": "images/logo.jpg"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-iIs/I4DTwfP6hBrYRS50hhaeOcAmmbJyLD5Zd7QUlBo="
+        }
+      ]
+    },
+    {
       "Route": "images/logo.jpg",
       "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\images\\logo.jpg",
       "Selectors": [],
@@ -3594,7 +3639,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "75782"
+          "Value": "10849"
         },
         {
           "Name": "Content-Type",
@@ -3602,11 +3647,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"jpk9Iy/xEihcjwruDGBBFpU2KkLjmB+4kDaB1fpUEoU=\""
+          "Value": "\"iIs/I4DTwfP6hBrYRS50hhaeOcAmmbJyLD5Zd7QUlBo=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 23 Jan 2025 17:24:28 GMT"
+          "Value": "Wed, 11 Mar 2026 23:04:07 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3616,52 +3661,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-jpk9Iy/xEihcjwruDGBBFpU2KkLjmB+4kDaB1fpUEoU="
-        }
-      ]
-    },
-    {
-      "Route": "images/logo.yjwnt292gn.jpg",
-      "AssetFile": "C:\\Users\\birkn\\Documents\\Premier Ag Solution, L.L.C\\PAS\\wwwroot\\images\\logo.jpg",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "75782"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "image/jpeg"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"jpk9Iy/xEihcjwruDGBBFpU2KkLjmB+4kDaB1fpUEoU=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Thu, 23 Jan 2025 17:24:28 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "yjwnt292gn"
-        },
-        {
-          "Name": "label",
-          "Value": "images/logo.jpg"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-jpk9Iy/xEihcjwruDGBBFpU2KkLjmB+4kDaB1fpUEoU="
+          "Value": "sha256-iIs/I4DTwfP6hBrYRS50hhaeOcAmmbJyLD5Zd7QUlBo="
         }
       ]
     },

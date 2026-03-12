@@ -88,7 +88,13 @@ else
 
                         <div class="form-group">
                             <label>Default Unit of Measure</label>
-                            <InputText class="form-control" @bind-Value="editProduct.DefaultUnitOfMeasure" />
+                            <InputSelect class="form-control" @bind-Value="editProduct.DefaultUnitOfMeasure">
+                                <option value="">Select UOM</option>
+                                @foreach (var uom in purchaseUOMs)
+                                {
+                                    <option value="@uom">@uom</option>
+                                }
+                            </InputSelect>
                         </div>
 
                         <div class="form-group">
@@ -283,6 +289,8 @@ else
     public bool? Restricted { get; set; }
     private bool showStartingInventoryModal = false;
     private StartingInventoryModel startingInventory = new();
+    private List<string> purchaseUOMs = new();
+
 
     [Parameter]
     public int? ProductId { get; set; }
@@ -291,6 +299,15 @@ else
     protected override async Task OnParametersSetAsync()
     {
         vendors = await VendorService.GetVendorsAsync();
+
+        //Load unique PUOM values
+        var conversions = await Db.UOMConversions.ToListAsync();
+        purchaseUOMs = conversions
+            .Select(c => c.PUOM)
+            .Where(u => !string.IsNullOrWhiteSpace(u))
+            .Distinct()
+            .OrderBy(u => u)
+            .ToList();
 
         if (ProductId.HasValue)
         {

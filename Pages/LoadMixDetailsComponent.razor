@@ -44,7 +44,17 @@
 <div class="row">
     <div class="col-md-6">
         <label>Crop:</label>
-        <InputText class="form-control" @bind-Value="NewLoadMix.Crop" />
+        <InputSelect class="form-control" @bind-Value="NewLoadMix.Crop">
+            <option value="">Select Crop</option>
+            <option value="Alfalfa">Alfalfa</option>
+            <option value="Beans">Beans</option>
+            <option value="Corn">Corn</option>
+            <option value="Hay">Hay</option>
+            <option value="Pasture">Pasture</option>
+            <option value="Rye">Rye</option>
+            <option value="Wheat">Wheat</option>
+            <option value="Other">Other</option>
+        </InputSelect>
     </div>
 </div>
 <div class="row">

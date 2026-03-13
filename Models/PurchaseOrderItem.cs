@@ -1,4 +1,6 @@
-﻿namespace PAS.Models
+﻿using PAS.Services;
+
+namespace PAS.Models
 {
     public class PurchaseOrderItem
     {
@@ -23,15 +25,23 @@
         public string ProductUOM { get; set; }
         public decimal ProductPurchasePrice { get; set; }
 
-        public int QuantityOrdered { get; set; }
-        public int QuantityReceived { get; set; }
-        public int NewQuantityReceived { get; set; }
-        public int QuantityUnreceived { get; set; }
+        public decimal QuantityOrdered { get; set; }
+        public decimal QuantityReceived { get; set; }
+        public decimal NewQuantityReceived { get; set; }
+        public decimal QuantityUnreceived { get; set; }
         public bool FullyReceived => QuantityOrdered == QuantityReceived;
         public decimal TotalCost => Price * QuantityOrdered;
+        public decimal RemainingQuantity { get; set; }
+        
+        public enum PurchaseOrderStatus
+        {
+            Open,
+            Closed
+        }
+
+        public PurchaseOrderStatus Status { get; set; } = PurchaseOrderStatus.Open;
+
     }
-
-
 }
 
 

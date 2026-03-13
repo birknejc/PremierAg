@@ -95,7 +95,7 @@
                                 <td>@item.UnitOfMeasurePurchase</td>
                                 <td>@item.Price.ToString("0.00")</td>
                                 <td>@item.QuantityOrdered</td>
-                                <td>@(item.Price * item.QuantityOrdered).ToString("0.00")</td>
+                                <td>@((item.Price * item.QuantityOrdered).ToString("0.00"))</td>
                                 <td>
                                     <button class="btn btn-danger btn-sm" @onclick="() => RemoveItem(item)">Remove</button>
                                 </td>

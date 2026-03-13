@@ -264,7 +264,7 @@ namespace PAS.Services
                         <td>{item.Price}</td>
                         <td>{item.QuantityOrdered}</td>
                         <td>{item.QuantityReceived}</td>
-                        <td>{item.TotalCost}</td>
+                        <td>{item.TotalCost.ToString("0.00")}</td>
                     </tr>"
                 ))
                 : "";

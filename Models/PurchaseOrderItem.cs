@@ -2,6 +2,11 @@
 
 namespace PAS.Models
 {
+    public enum PurchaseOrderStatus
+    {
+        Open,
+        Closed
+    }
     public class PurchaseOrderItem
     {
         public int Id { get; set; }
@@ -33,12 +38,6 @@ namespace PAS.Models
         public decimal TotalCost => Price * QuantityOrdered;
         public decimal RemainingQuantity { get; set; }
         
-        public enum PurchaseOrderStatus
-        {
-            Open,
-            Closed
-        }
-
         public PurchaseOrderStatus Status { get; set; } = PurchaseOrderStatus.Open;
 
     }

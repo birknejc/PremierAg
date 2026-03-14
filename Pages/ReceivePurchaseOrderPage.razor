@@ -36,21 +36,28 @@
         <tbody>
             @foreach (var item in SelectedPurchaseOrder.Items)
             {
-                var remaining = item.QuantityOrdered - item.QuantityReceived;
-
                 <tr>
                     <td>@item.ChemicalName</td>
                     <td>@item.UnitOfMeasurePurchase</td>
                     <td>@item.QuantityOrdered</td>
                     <td>@item.QuantityReceived</td>
-                    <td>@remaining</td>
+                    <td>@item.RemainingQuantity</td>
+
                     <td>
                         <input type="number"
+                               step="0.01"
                                class="form-control"
-                               min="0"
-                               max="@remaining"
                                @bind="ReceiveQuantities[item.Id]"
-                               disabled="@(remaining == 0)" />
+                               disabled="@(item.Status == PurchaseOrderStatus.Closed)" />
+
+                        @if (ReceiveQuantities.ContainsKey(item.Id) &&
+                       ReceiveQuantities[item.Id] > item.RemainingQuantity &&
+                       item.Status == PurchaseOrderStatus.Open)
+                        {
+                            <div class="text-warning small">
+                                Receiving more than remaining. This will be marked as over‑received.
+                            </div>
+                        }
                     </td>
                 </tr>
             }
@@ -58,12 +65,18 @@
     </table>
 
     <button class="btn btn-primary" @onclick="ReceiveItems">Receive Items</button>
+    @if (SelectedPurchaseOrder.Items.Any(i => i.Status == PurchaseOrderStatus.Open))
+    {
+        <button class="btn btn-danger ms-2" @onclick="ClosePO">Close PO</button>
+    }
+
 }
 
 @code {
     private List<PurchaseOrder> PurchaseOrders = new();
     private PurchaseOrder? SelectedPurchaseOrder;
-    private Dictionary<int, int> ReceiveQuantities = new();
+    private Dictionary<int, decimal> ReceiveQuantities = new();
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -79,7 +92,7 @@
             if (SelectedPurchaseOrder?.Items != null)
             {
                 ReceiveQuantities = SelectedPurchaseOrder.Items
-                    .ToDictionary(i => i.Id, i => 0);
+                    .ToDictionary(i => i.Id, i => 0m);
             }
         }
         else
@@ -106,13 +119,33 @@
             quantitiesToReceive
         );
 
-        SelectedPurchaseOrder = await PurchaseOrderService.GetPurchaseOrderByIdAsync(SelectedPurchaseOrder.Id);
+        SelectedPurchaseOrder = await PurchaseOrderService
+            .GetPurchaseOrderByIdAsync(SelectedPurchaseOrder.Id);
 
         if (SelectedPurchaseOrder?.Items != null)
         {
             ReceiveQuantities = SelectedPurchaseOrder.Items
-                .ToDictionary(i => i.Id, i => 0);
+                .ToDictionary(i => i.Id, i => 0m);
         }
     }
+
+    private async Task ClosePO()
+    {
+        if (SelectedPurchaseOrder == null)
+            return;
+
+        await PurchaseOrderService.ClosePurchaseOrderAsync(SelectedPurchaseOrder.Id);
+
+        SelectedPurchaseOrder = await PurchaseOrderService
+            .GetPurchaseOrderByIdAsync(SelectedPurchaseOrder.Id);
+
+        // Reset inputs
+        if (SelectedPurchaseOrder?.Items != null)
+        {
+            ReceiveQuantities = SelectedPurchaseOrder.Items
+                .ToDictionary(i => i.Id, i => 0m);
+        }
+    }
+
 }
 

@@ -4,6 +4,7 @@ using PAS.DBContext;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
+using static PAS.Models.PurchaseOrderItem;
 
 namespace PAS.Services
 {
@@ -57,28 +58,30 @@ namespace PAS.Services
 
                     if (product != null)
                     {
-                        // Product snapshot fields
                         item.ProductName = product.Name;
                         item.ProductEPA = product.EPA;
                         item.ProductUOM = product.DefaultUnitOfMeasure;
                         item.ProductPurchasePrice = item.Price;
 
-                        // Legacy compatibility fields (still used downstream)
                         item.ChemicalName = product.Name;
                         item.UnitOfMeasurePurchase = product.DefaultUnitOfMeasure;
                         item.EPANumber = product.EPA;
                     }
                 }
+
+                // NEW: initialize workflow fields
+                item.Status = PurchaseOrderStatus.Open;
+                item.RemainingQuantity = item.QuantityOrdered;
             }
 
-            // Normalize dates
             purchaseOrder.OrderDate = purchaseOrder.OrderDate.ToUniversalTime();
-            purchaseOrder.PaymentDueDate = purchaseOrder.PaymentDueDate?.ToUniversalTime(); ;
+            purchaseOrder.PaymentDueDate = purchaseOrder.PaymentDueDate?.ToUniversalTime();
             purchaseOrder.DeliveryPickUpDate = purchaseOrder.DeliveryPickUpDate?.ToUniversalTime();
 
             _context.PurchaseOrders.Add(purchaseOrder);
             await _context.SaveChangesAsync();
         }
+
 
 
         // ---------------------------------------------------------
@@ -94,31 +97,46 @@ namespace PAS.Services
             if (existingPurchaseOrder == null)
                 return;
 
-            // Update header
+            // -----------------------------
+            // Update PO header
+            // -----------------------------
             existingPurchaseOrder.PONumber = purchaseOrder.PONumber;
             existingPurchaseOrder.OrderDate = purchaseOrder.OrderDate.ToUniversalTime();
             existingPurchaseOrder.ReceivedDate = purchaseOrder.ReceivedDate?.ToUniversalTime();
             existingPurchaseOrder.VendorId = purchaseOrder.VendorId;
             existingPurchaseOrder.BusinessName = purchaseOrder.BusinessName;
-            existingPurchaseOrder.PaymentDueDate = purchaseOrder.PaymentDueDate?.ToUniversalTime(); 
+            existingPurchaseOrder.PaymentDueDate = purchaseOrder.PaymentDueDate?.ToUniversalTime();
             existingPurchaseOrder.DeliveryPickUpDate = purchaseOrder.DeliveryPickUpDate?.ToUniversalTime();
             existingPurchaseOrder.PickUpLocation = purchaseOrder.PickUpLocation;
 
+            // -----------------------------
             // Remove deleted items
+            // -----------------------------
             _context.PurchaseOrderItems.RemoveRange(
                 existingPurchaseOrder.Items.Where(ei => !purchaseOrder.Items.Any(ui => ui.Id == ei.Id))
             );
 
+            // -----------------------------
             // Add or update items
+            // -----------------------------
             foreach (var item in purchaseOrder.Items)
             {
                 var existingItem = existingPurchaseOrder.Items.FirstOrDefault(ei => ei.Id == item.Id);
 
                 if (existingItem != null)
                 {
+                    // Update editable fields
                     existingItem.Price = item.Price;
                     existingItem.QuantityOrdered = item.QuantityOrdered;
 
+                    // Recalculate RemainingQuantity ONLY if PO is still open
+                    if (existingItem.Status == PurchaseOrderStatus.Open)
+                    {
+                        existingItem.RemainingQuantity =
+                            existingItem.QuantityOrdered - existingItem.QuantityReceived;
+                    }
+
+                    // Update product snapshot fields
                     if (item.ProductId != null)
                     {
                         var product = await _context.Products.FindAsync(item.ProductId);
@@ -129,7 +147,7 @@ namespace PAS.Services
                         existingItem.ProductUOM = product.DefaultUnitOfMeasure;
                         existingItem.ProductPurchasePrice = item.Price;
 
-                        // Legacy compatibility fields (still needed downstream)
+                        // Legacy compatibility
                         existingItem.ChemicalName = product.Name;
                         existingItem.UnitOfMeasurePurchase = product.DefaultUnitOfMeasure;
                         existingItem.EPANumber = product.EPA;
@@ -137,12 +155,35 @@ namespace PAS.Services
                 }
                 else
                 {
+                    // -----------------------------
+                    // NEW ITEM ADDED TO EXISTING PO
+                    // -----------------------------
+                    if (item.ProductId != null)
+                    {
+                        var product = await _context.Products.FindAsync(item.ProductId);
+
+                        item.ProductName = product.Name;
+                        item.ProductEPA = product.EPA;
+                        item.ProductUOM = product.DefaultUnitOfMeasure;
+                        item.ProductPurchasePrice = item.Price;
+
+                        // Legacy compatibility
+                        item.ChemicalName = product.Name;
+                        item.UnitOfMeasurePurchase = product.DefaultUnitOfMeasure;
+                        item.EPANumber = product.EPA;
+                    }
+
+                    // Initialize workflow fields
+                    item.Status = PurchaseOrderStatus.Open;
+                    item.RemainingQuantity = item.QuantityOrdered;
+
                     existingPurchaseOrder.Items.Add(item);
                 }
             }
 
             await _context.SaveChangesAsync();
         }
+
 
 
         // ---------------------------------------------------------
@@ -164,7 +205,7 @@ namespace PAS.Services
         // ---------------------------------------------------------
         // RECEIVE PURCHASE ORDER ITEM
         // ---------------------------------------------------------
-        public async Task ReceivePurchaseOrderItemAsync(int purchaseOrderItemId, int quantityReceived)
+        public async Task ReceivePurchaseOrderItemAsync(int purchaseOrderItemId, decimal quantityReceived)
         {
             var purchaseOrderItem = await _context.PurchaseOrderItems
                 .FirstOrDefaultAsync(poi => poi.Id == purchaseOrderItemId);
@@ -172,7 +213,9 @@ namespace PAS.Services
             if (purchaseOrderItem == null)
                 throw new Exception("Purchase Order Item not found.");
 
-            // ⭐ Load the PurchaseOrder FIRST so VendorId is available
+            if (purchaseOrderItem.Status == PurchaseOrderStatus.Closed)
+                throw new Exception("Cannot receive a closed Purchase Order item.");
+
             var purchaseOrder = await _context.PurchaseOrders
                 .FirstOrDefaultAsync(po => po.Id == purchaseOrderItem.PurchaseOrderId);
 
@@ -181,41 +224,49 @@ namespace PAS.Services
 
             bool isProduct = purchaseOrderItem.ProductId != null;
 
+            // Create inventory batch if this is a product
             if (isProduct)
             {
-                //
-                // ⭐ PRODUCT MASTER RECEIVING ⭐
-                //
                 var purchase = new ProductPurchase
                 {
                     ProductId = purchaseOrderItem.ProductId.Value,
                     QuantityReceived = quantityReceived,
                     PricePerUnit = purchaseOrderItem.ProductPurchasePrice,
-                    VendorId = purchaseOrder.VendorId   // NOW VALID
+                    VendorId = purchaseOrder.VendorId
                 };
 
                 await _productInventoryService.ReceivePurchaseAsync(purchase);
-
-                purchaseOrderItem.QuantityReceived += quantityReceived;
             }
-            else
-            {
 
+            // -----------------------------
+            // Update workflow fields
+            // -----------------------------
+            purchaseOrderItem.QuantityReceived += quantityReceived;
+
+            purchaseOrderItem.RemainingQuantity =
+                purchaseOrderItem.QuantityOrdered - purchaseOrderItem.QuantityReceived;
+
+            // Auto-close item if exact received
+            if (purchaseOrderItem.RemainingQuantity <= 0)
+            {
+                purchaseOrderItem.Status = PurchaseOrderStatus.Closed;
             }
 
             await _context.SaveChangesAsync();
 
-            // Reload PO to check if fully received
+            // -----------------------------
+            // Auto-close PO if all items are closed
+            // -----------------------------
             purchaseOrder = await GetPurchaseOrderByIdAsync(purchaseOrderItem.PurchaseOrderId);
-            if (purchaseOrder.Items.All(item => item.QuantityReceived >= item.QuantityOrdered))
+
+            if (purchaseOrder.Items.All(i => i.Status == PurchaseOrderStatus.Closed))
             {
                 purchaseOrder.ReceivedDate = DateTime.UtcNow;
                 await UpdatePurchaseOrderAsync(purchaseOrder);
             }
         }
 
-
-        public async Task ReceivePurchaseOrderAsync(int purchaseOrderId, Dictionary<int, int> itemQuantities)
+        public async Task ReceivePurchaseOrderAsync(int purchaseOrderId, Dictionary<int, decimal> itemQuantities)
         {
             foreach (var item in itemQuantities)
                 await ReceivePurchaseOrderItemAsync(item.Key, item.Value);
@@ -281,18 +332,19 @@ namespace PAS.Services
             return template;
         }
 
-        public async Task ReturnPurchaseOrderItemsAsync(int purchaseOrderId, Dictionary<int, int> quantitiesToReturn)
+        public async Task ReturnPurchaseOrderItemsAsync(int purchaseOrderId, Dictionary<int, decimal> quantitiesToReturn)
         {
             foreach (var kvp in quantitiesToReturn)
             {
                 int itemId = kvp.Key;
-                int qtyReturned = kvp.Value;
+                decimal qtyReturned = kvp.Value;
 
                 await ReturnPurchaseOrderItemAsync(itemId, qtyReturned);
             }
         }
 
-        public async Task ReturnPurchaseOrderItemAsync(int purchaseOrderItemId, int quantityReturned)
+
+        public async Task ReturnPurchaseOrderItemAsync(int purchaseOrderItemId, decimal quantityReturned)
         {
             if (quantityReturned <= 0)
                 throw new Exception("Return quantity must be greater than zero.");
@@ -304,6 +356,7 @@ namespace PAS.Services
                 throw new Exception("Purchase Order Item not found.");
 
             var purchaseOrder = await _context.PurchaseOrders
+                .Include(po => po.Items)
                 .FirstOrDefaultAsync(po => po.Id == purchaseOrderItem.PurchaseOrderId);
 
             if (purchaseOrder == null)
@@ -314,37 +367,70 @@ namespace PAS.Services
 
             bool isProduct = purchaseOrderItem.ProductId != null;
 
+            // -----------------------------
+            // Reverse inventory (negative batch)
+            // -----------------------------
             if (isProduct)
             {
-                //
-                // ⭐ PRODUCT RETURN (negative ProductPurchase)
-                //
                 var purchase = new ProductPurchase
                 {
                     ProductId = purchaseOrderItem.ProductId.Value,
-                    QuantityReceived = -quantityReturned,
+                    QuantityReceived = -quantityReturned,   // negative = return
                     PricePerUnit = purchaseOrderItem.ProductPurchasePrice,
                     VendorId = purchaseOrder.VendorId
                 };
 
                 await _productInventoryService.ReceivePurchaseAsync(purchase);
-
-                purchaseOrderItem.QuantityReceived -= quantityReturned;
             }
-            else
+
+            // -----------------------------
+            // Update workflow fields
+            // -----------------------------
+            purchaseOrderItem.QuantityReceived -= quantityReturned;
+
+            purchaseOrderItem.RemainingQuantity =
+                purchaseOrderItem.QuantityOrdered - purchaseOrderItem.QuantityReceived;
+
+            // Reopen item if it was previously closed
+            if (purchaseOrderItem.Status == PurchaseOrderStatus.Closed &&
+                purchaseOrderItem.RemainingQuantity > 0)
             {
-
-                purchaseOrderItem.QuantityReceived -= quantityReturned;
-
-                // Weighted average does NOT change on returns
+                purchaseOrderItem.Status = PurchaseOrderStatus.Open;
             }
 
-            // Reopen PO if needed
-            if (purchaseOrder.Items.Any(i => i.QuantityReceived < i.QuantityOrdered))
+            await _context.SaveChangesAsync();
+
+            // -----------------------------
+            // Reopen PO if any item is open
+            // -----------------------------
+            if (purchaseOrder.Items.Any(i => i.Status == PurchaseOrderStatus.Open))
+            {
                 purchaseOrder.ReceivedDate = null;
+                await UpdatePurchaseOrderAsync(purchaseOrder);
+            }
+        }
+
+
+        public async Task ClosePurchaseOrderAsync(int purchaseOrderId)
+        {
+            var purchaseOrder = await _context.PurchaseOrders
+                .Include(po => po.Items)
+                .FirstOrDefaultAsync(po => po.Id == purchaseOrderId);
+
+            if (purchaseOrder == null)
+                throw new Exception("Purchase Order not found.");
+
+            foreach (var item in purchaseOrder.Items)
+            {
+                item.Status = PurchaseOrderStatus.Closed;
+                item.RemainingQuantity = 0;
+            }
+
+            purchaseOrder.ReceivedDate = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
         }
+
 
     }
 }

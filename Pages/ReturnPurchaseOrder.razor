@@ -43,13 +43,21 @@
                     <td>@item.QuantityOrdered</td>
                     <td>@item.QuantityReceived</td>
                     <td>@returnable</td>
+
                     <td>
                         <input type="number"
+                               step="0.01"
                                class="form-control"
-                               min="0"
-                               max="@returnable"
                                @bind="ReturnQuantities[item.Id]"
                                disabled="@(returnable == 0)" />
+
+                        @if (ReturnQuantities.ContainsKey(item.Id) &&
+                       ReturnQuantities[item.Id] > returnable)
+                        {
+                            <div class="text-warning small">
+                                Returning more than received. This will create a negative batch.
+                            </div>
+                        }
                     </td>
                 </tr>
             }
@@ -62,7 +70,7 @@
 @code {
     private List<PurchaseOrder> PurchaseOrders = new();
     private PurchaseOrder? SelectedPurchaseOrder;
-    private Dictionary<int, int> ReturnQuantities = new();
+    private Dictionary<int, decimal> ReturnQuantities = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -78,7 +86,7 @@
             if (SelectedPurchaseOrder?.Items != null)
             {
                 ReturnQuantities = SelectedPurchaseOrder.Items
-                    .ToDictionary(i => i.Id, i => 0);
+                    .ToDictionary(i => i.Id, i => 0m);
             }
         }
         else
@@ -105,12 +113,13 @@
             quantitiesToReturn
         );
 
-        SelectedPurchaseOrder = await PurchaseOrderService.GetPurchaseOrderByIdAsync(SelectedPurchaseOrder.Id);
+        SelectedPurchaseOrder = await PurchaseOrderService
+            .GetPurchaseOrderByIdAsync(SelectedPurchaseOrder.Id);
 
         if (SelectedPurchaseOrder?.Items != null)
         {
             ReturnQuantities = SelectedPurchaseOrder.Items
-                .ToDictionary(i => i.Id, i => 0);
+                .ToDictionary(i => i.Id, i => 0m);
         }
     }
 }

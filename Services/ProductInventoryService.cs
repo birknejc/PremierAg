@@ -55,14 +55,30 @@ namespace PAS.Services
             decimal oldQty = product.Purchases.Sum(pp => pp.QuantityRemaining);
             decimal oldAvg = product.WeightedAveragePrice;
 
-            // New purchase
+            // New purchase (can be negative for returns)
             decimal newQty = purchase.QuantityReceived;
             decimal newPrice = purchase.PricePerUnit;
 
-            // Weighted average formula
+            decimal totalQtyAfter = oldQty + newQty;
+
+            // 🔹 Case 1: everything nets to zero → no inventory left
+            if (totalQtyAfter <= 0)
+            {
+                product.WeightedAveragePrice = 0;
+
+                // Still record the purchase as a negative batch for audit
+                purchase.QuantityRemaining = purchase.QuantityReceived;
+                purchase.ReceivedDate = DateTime.UtcNow;
+                _context.ProductPurchases.Add(purchase);
+
+                await _context.SaveChangesAsync();
+                return;
+            }
+
+            // 🔹 Case 2: normal weighted-average update
             decimal newWeightedAvg =
                 (oldQty * oldAvg + newQty * newPrice) /
-                (oldQty + newQty);
+                totalQtyAfter;
 
             product.WeightedAveragePrice = Math.Round(newWeightedAvg, 2);
 
@@ -74,6 +90,7 @@ namespace PAS.Services
 
             await _context.SaveChangesAsync();
         }
+
 
         // ------------------------------------------------------------
         //  CONSUME INVENTORY (FIFO)

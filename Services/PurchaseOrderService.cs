@@ -347,78 +347,96 @@ namespace PAS.Services
 
         public async Task ReturnPurchaseOrderItemAsync(int purchaseOrderItemId, decimal quantityReturned)
         {
-            if (quantityReturned <= 0)
-                throw new Exception("Return quantity must be greater than zero.");
-
-            var purchaseOrderItem = await _context.PurchaseOrderItems
-                .FirstOrDefaultAsync(poi => poi.Id == purchaseOrderItemId);
-
-            if (purchaseOrderItem == null)
-                throw new Exception("Purchase Order Item not found.");
-
-            var purchaseOrder = await _context.PurchaseOrders
-                .Include(po => po.Items)
-                .FirstOrDefaultAsync(po => po.Id == purchaseOrderItem.PurchaseOrderId);
-
-            if (purchaseOrder == null)
-                throw new Exception("Purchase Order not found.");
-
-            if (quantityReturned > purchaseOrderItem.QuantityReceived)
-                throw new Exception("Cannot return more than has been received.");
-
-            bool isProduct = purchaseOrderItem.ProductId != null;
-
-            // -----------------------------
-            // Reverse inventory (negative batch)
-            // -----------------------------
-            if (isProduct)
+            try
             {
-                var purchase = new ProductPurchase
+                if (quantityReturned <= 0)
+                    throw new Exception("Return quantity must be greater than zero.");
+
+                var purchaseOrderItem = await _context.PurchaseOrderItems
+                    .FirstOrDefaultAsync(poi => poi.Id == purchaseOrderItemId);
+
+                if (purchaseOrderItem == null)
+                    throw new Exception("Purchase Order Item not found.");
+
+                var purchaseOrder = await _context.PurchaseOrders
+                    .Include(po => po.Items)
+                    .FirstOrDefaultAsync(po => po.Id == purchaseOrderItem.PurchaseOrderId);
+
+                if (purchaseOrder == null)
+                    throw new Exception("Purchase Order not found.");
+
+                if (quantityReturned > purchaseOrderItem.QuantityReceived)
+                    throw new Exception("Cannot return more than has been received.");
+
+                bool isProduct = purchaseOrderItem.ProductId != null;
+
+                // -----------------------------
+                // Reverse inventory (negative batch)
+                // -----------------------------
+                if (isProduct)
                 {
-                    ProductId = purchaseOrderItem.ProductId.Value,
-                    QuantityReceived = -quantityReturned,   // negative = return
-                    PricePerUnit = purchaseOrderItem.ProductPurchasePrice,
-                    VendorId = purchaseOrder.VendorId
-                };
+                    var purchase = new ProductPurchase
+                    {
+                        ProductId = purchaseOrderItem.ProductId.Value,
+                        QuantityReceived = -quantityReturned,   // negative = return
+                        PricePerUnit = purchaseOrderItem.ProductPurchasePrice,
+                        VendorId = purchaseOrder.VendorId
+                    };
 
-                await _productInventoryService.ReceivePurchaseAsync(purchase);
-            }
+                    await _productInventoryService.ReceivePurchaseAsync(purchase);
+                }
 
-            // -----------------------------
-            // Update workflow fields
-            // -----------------------------
-            purchaseOrderItem.QuantityReceived -= quantityReturned;
+                // -----------------------------
+                // Update workflow fields
+                // -----------------------------
+                purchaseOrderItem.QuantityReceived -= quantityReturned;
 
-            purchaseOrderItem.RemainingQuantity =
-                purchaseOrderItem.QuantityOrdered - purchaseOrderItem.QuantityReceived;
+                purchaseOrderItem.RemainingQuantity =
+                    purchaseOrderItem.QuantityOrdered - purchaseOrderItem.QuantityReceived;
 
-            // Reopen item if it was previously closed
-            if (purchaseOrderItem.Status == PurchaseOrderStatus.Closed &&
-                purchaseOrderItem.RemainingQuantity > 0)
-            {
-                purchaseOrderItem.Status = PurchaseOrderStatus.Open;
-            }
+                // Reopen item if it was previously closed
+                if (purchaseOrderItem.Status == PurchaseOrderStatus.Closed &&
+                    purchaseOrderItem.RemainingQuantity > 0)
+                {
+                    purchaseOrderItem.Status = PurchaseOrderStatus.Open;
+                }
 
-            // Save item changes
-            await _context.SaveChangesAsync();
-
-            // -----------------------------
-            // ⭐ CRITICAL FIX:
-            // Reload PO items so EF has a consistent tracked graph
-            // -----------------------------
-            await _context.Entry(purchaseOrder)
-                .Collection(po => po.Items)
-                .LoadAsync();
-
-            // -----------------------------
-            // Reopen PO if any item is open
-            // -----------------------------
-            if (purchaseOrder.Items.Any(i => i.Status == PurchaseOrderStatus.Open))
-            {
-                purchaseOrder.ReceivedDate = null;
+                // Save item changes
                 await _context.SaveChangesAsync();
+
+                // -----------------------------
+                // Reload PO items so EF has a consistent tracked graph
+                // -----------------------------
+                await _context.Entry(purchaseOrder)
+                    .Collection(po => po.Items)
+                    .LoadAsync();
+
+                // -----------------------------
+                // Reopen PO if any item is open
+                // -----------------------------
+                if (purchaseOrder.Items.Any(i => i.Status == PurchaseOrderStatus.Open))
+                {
+                    purchaseOrder.ReceivedDate = null;
+                    await _context.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("🔥 ERROR in ReturnPurchaseOrderItemAsync");
+                Console.WriteLine($"Message: {ex.Message}");
+                Console.WriteLine($"StackTrace: {ex.StackTrace}");
+
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine("🔥 INNER EXCEPTION:");
+                    Console.WriteLine($"Inner Message: {ex.InnerException.Message}");
+                    Console.WriteLine($"Inner StackTrace: {ex.InnerException.StackTrace}");
+                }
+
+                throw; // rethrow so Blazor shows the UI error
             }
         }
+
 
 
 

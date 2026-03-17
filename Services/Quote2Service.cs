@@ -348,6 +348,7 @@ namespace PAS.Services
             {
                 rows.AppendLine($@"
             <tr>
+                <td>{item.PartNumberSnapshot}</td>
                 <td>{item.ChemicalName}</td>
                 <td>{item.QuantityPerAcre} {item.QuoteUnitOfMeasure}</td>
                 <td>{item.UnitOfMeasure}</td>
@@ -377,6 +378,7 @@ namespace PAS.Services
         <table>
             <thead>
                 <tr>
+                    <th>Part #</th>
                     <th>Product</th>
                     <th>Rate / Acre</th>
                     <th>Unit of Measure</th>

@@ -72,6 +72,7 @@ else
                         <th>Select</th>
                         <th>Group ID</th>
                         <th>Quote ID</th>
+                        <th>Part #</th>
                         <th>Chemical Name</th>
                         <th>Unit of Measure</th>
                         <th>Price/Unit</th>
@@ -96,6 +97,7 @@ else
 
                             <td>@invoice.GroupId</td>
                             <td>@invoice.QuoteId</td>
+                            <td>@invoice.PartNumberSnapshot</td>
                             <td>@invoice.InvoiceChemicalName</td>
 
                             <td>
@@ -648,6 +650,7 @@ else if (selectedPrintedCustomerId != 0)
                         <table class="table table-bordered">
                             <thead>
                                 <tr>
+                                    <th>Part #</th>
                                     <th>Description</th>
                                     <th>Unit</th>
                                     <th>Qty</th>

@@ -25,6 +25,7 @@
     <table class="table table-bordered mt-3">
         <thead>
             <tr>
+                <th>Part #</th>
                 <th>Product / Chemical</th>
                 <th>UOM</th>
                 <th>Ordered</th>
@@ -37,6 +38,7 @@
             @foreach (var item in SelectedPurchaseOrder.Items)
             {
                 <tr>
+                    <td>@item.PartNumberSnapshot</td>
                     <td>@item.ChemicalName</td>
                     <td>@item.UnitOfMeasurePurchase</td>
                     <td>@item.QuantityOrdered</td>
@@ -80,8 +82,11 @@
 
     protected override async Task OnInitializedAsync()
     {
-        PurchaseOrders = await PurchaseOrderService.GetPurchaseOrdersAsync();
+        PurchaseOrders = (await PurchaseOrderService.GetPurchaseOrdersAsync())
+            .OrderByDescending(po => po.Id)
+            .ToList();
     }
+
 
     private async Task OnPurchaseOrderSelected(ChangeEventArgs e)
     {

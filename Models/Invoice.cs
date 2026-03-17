@@ -13,6 +13,8 @@ public class Invoice
     // Line item fields
     public DateTime InvoiceDate { get; set; }
 
+    public string? PartNumberSnapshot { get; set; }
+
     [Required]
     public string InvoiceChemicalName { get; set; }
 

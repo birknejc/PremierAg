@@ -14,7 +14,7 @@ namespace PAS.Models
         public PurchaseOrder PurchaseOrder { get; set; }
 
         // Legacy
-        //public int? InventoryId { get; set; }
+        public string? PartNumberSnapshot { get; set; }
         public string ChemicalName { get; set; }
         public string UnitOfMeasurePurchase { get; set; }
         public string EPANumber { get; set; }

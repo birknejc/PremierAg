@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PAS.DBContext;
@@ -11,9 +12,11 @@ using PAS.DBContext;
 namespace PAS.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260315234407_ProductPartNumber")]
+    partial class ProductPartNumber
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -67,9 +70,6 @@ namespace PAS.Migrations
 
                     b.Property<bool>("IsPrinted")
                         .HasColumnType("boolean");
-
-                    b.Property<string>("PartNumberSnapshot")
-                        .HasColumnType("text");
 
                     b.Property<int?>("QuoteId")
                         .HasColumnType("integer");
@@ -654,9 +654,6 @@ namespace PAS.Migrations
                     b.Property<decimal>("NewQuantityReceived")
                         .HasColumnType("numeric");
 
-                    b.Property<string>("PartNumberSnapshot")
-                        .HasColumnType("text");
-
                     b.Property<decimal>("Price")
                         .HasColumnType("numeric");
 
@@ -781,9 +778,6 @@ namespace PAS.Migrations
 
                     b.Property<string>("EPA")
                         .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("PartNumberSnapshot")
                         .HasColumnType("text");
 
                     b.Property<decimal>("Price")

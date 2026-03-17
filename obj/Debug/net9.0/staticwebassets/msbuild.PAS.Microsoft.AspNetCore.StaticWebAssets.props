@@ -390,8 +390,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>1mhk6g3nwn</Fingerprint>
-      <Integrity>KYzjRhoTOttf4TIN5DBS1/7fog6zo2xArtXhVLd6q5M=</Integrity>
+      <Fingerprint>yhajcsvs72</Fingerprint>
+      <Integrity>GtjjRMjvaSekTA0bN0oWerCfvPffRXzVpFVXtN2540Q=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\print_potemplate.html'))</OriginalItemSpec>

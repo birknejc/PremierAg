@@ -24,6 +24,7 @@
     <table class="table mt-3">
         <thead>
             <tr>
+                <th>Part #</th>
                 <th>Name</th>
                 <th>EPA</th>
                 <th>Default UOM</th>
@@ -38,6 +39,7 @@
             @foreach (var p in products.OrderBy(p => p.Name))
             {
                 <tr>
+                    <td>@p.PartNumber</td>
                     <td>@p.Name</td>
                     <td>@p.EPA</td>
                     <td>@p.DefaultUnitOfMeasure</td>
@@ -75,6 +77,11 @@ else
                     <EditForm Model="editProduct" OnValidSubmit="SaveProduct">
                         <DataAnnotationsValidator />
                         <ValidationSummary />
+
+                        <div class="form-group">
+                            <label>Part #</label>
+                            <InputText class="form-control" @bind-Value="editProduct.PartNumber" />
+                        </div>
 
                         <div class="form-group">
                             <label>Name</label>
@@ -469,6 +476,7 @@ else
 
                 return $@"
 <tr>
+    <td>{p.PartNumber}</td>
     <td>{p.Name}</td>
     <td>{p.EPA}</td>
     <td>{p.DefaultUnitOfMeasure}</td>
@@ -483,6 +491,7 @@ else
 <table class='table table-bordered'>
     <thead>
         <tr>
+            <th>Part #</th>
             <th>Name</th>
             <th>EPA</th>
             <th>Default UOM</th>

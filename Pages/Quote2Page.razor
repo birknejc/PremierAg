@@ -98,6 +98,11 @@
                 </div>
 
                 <div class="col-md-6">
+                    <label>Part #:</label>
+                    <InputText class="form-control" @bind-Value="quoteInventory.PartNumberSnapshot" readonly="true" />
+                </div>
+
+                <div class="col-md-6">
                     <label>EPA:</label>
                     <InputText class="form-control" @bind-Value="quoteInventory.ProductEPA" readonly="true" />
                 </div>
@@ -206,12 +211,7 @@
                 <td>@quote.QuoteState</td>
                 <td>@quote.QuoteZipcode</td>
                 <td>@quote.QuotePhone</td>
-                <td>
-                    @foreach (var quoteInventory in quote.QuoteInventories)
-                    {
-                        <div>@quoteInventory.ProductName</div>
-                    }
-                </td>
+                <td>@quote.QuoteInventories.Count() product(s)</td>
                 <td>@quote.QuoteTotal</td>
                 <td>@quote.Status</td>
                 <td>
@@ -388,6 +388,7 @@
                 qi.ProductId = product.Id;
                 qi.Product = product;
 
+                qi.PartNumberSnapshot = product.PartNumber;
                 qi.ProductName = product.Name;
                 qi.ProductEPA = product.EPA;
                 qi.ProductUOM = product.DefaultUnitOfMeasure;

@@ -310,6 +310,7 @@ namespace PAS.Services
             var itemsHtml = purchaseOrder.Items != null
                 ? string.Join("", purchaseOrder.Items.Select(item =>
                     $@"<tr>
+                        <td>{item.PartNumberSnapshot}</td>
                         <td>{item.ChemicalName}</td>
                         <td>{item.UnitOfMeasurePurchase}</td>
                         <td>{item.Price}</td>

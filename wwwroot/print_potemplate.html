@@ -11,44 +11,57 @@
 
             .print-container {
                 width: 100%;
-                max-width: 750px; /* Adjust the max-width as needed */
+                max-width: 750px;
                 margin: 0 auto;
                 padding: 20px;
-                background: #fff; /* Removed border */
-                overflow: hidden; /* Ensure content doesn't overflow */
-            }
-
-            .no-print {
-                display: none;
+                background: #fff;
+                overflow: hidden;
             }
 
             table {
                 width: 100%;
                 border-collapse: collapse;
-                table-layout: fixed; /* Ensure columns have fixed width */
+                table-layout: fixed;
             }
 
             th, td {
                 border: 1px solid #000;
                 padding: 8px;
                 text-align: left;
-                word-wrap: break-word; /* Ensure content wraps within the cell */
+                word-wrap: break-word;
             }
 
             th {
                 background-color: #f2f2f2;
             }
 
-            .column-item {
-                width: 40%; /* Increase width of Item column */
+            /* Updated widths to match new column order */
+            .column-part {
+                width: 12%;
             }
 
-            .column-uom,
-            .column-price,
-            .column-ordered,
-            .column-received,
+            .column-item {
+                width: 32%;
+            }
+
+            .column-uom {
+                width: 10%;
+            }
+
+            .column-price {
+                width: 12%;
+            }
+
+            .column-ordered {
+                width: 10%;
+            }
+
+            .column-received {
+                width: 12%;
+            }
+
             .column-total {
-                width: 12%; /* Decrease width of other columns */
+                width: 12%;
             }
         }
     </style>
@@ -59,6 +72,7 @@
             <img src="images/logo.jpg" alt="Logo" style="width: 100px; height: auto; margin-right: 20px;">
             <h1 style="margin: 0;">Purchase Order</h1>
         </div>
+
         <h3>Purchase Order Details</h3>
         <p><strong>P.O. Number:</strong> {{PONumber}}</p>
         <p><strong>Order Date:</strong> {{OrderDate}}</p>
@@ -71,11 +85,12 @@
         <table>
             <thead>
                 <tr>
+                    <th class="column-part">Part #</th>
                     <th class="column-item">Item</th>
                     <th class="column-uom">UOM</th>
                     <th class="column-price">Price</th>
                     <th class="column-ordered">Ordered</th>
-                    <th class="column-received">Received</th> <!-- Added Received field -->
+                    <th class="column-received">Received</th>
                     <th class="column-total">Total</th>
                 </tr>
             </thead>

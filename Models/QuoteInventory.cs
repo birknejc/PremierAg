@@ -9,6 +9,8 @@ namespace PAS.Models
 
         public int QuoteId { get; set; }
 
+        public string? PartNumberSnapshot { get; set; }
+
         public string ChemicalName { get; set; }
         public string EPA { get; set; }
         public decimal Price { get; set; }

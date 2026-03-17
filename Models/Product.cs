@@ -7,6 +7,8 @@ namespace PAS.Models
         public int Id { get; set; }
 
         // Identity fields
+        public string? PartNumber { get; set; }
+
         public string Name { get; set; }
         public string EPA { get; set; }
         public string DefaultUnitOfMeasure { get; set; }

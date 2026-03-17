@@ -219,6 +219,7 @@ namespace PAS.Services
                         var invoice = new Invoice
                         {
                             GroupId = loadMix.LoadMixId,
+                            PartNumberSnapshot = matchingQuote?.PartNumberSnapshot,
                             InvoiceChemicalName = detail.Product,
                             InvoiceUnitOfMeasure = invoiceUnitOfMeasure,
                             UnitOfMeasure = unitOfMeasure,
@@ -860,6 +861,7 @@ namespace PAS.Services
             <tr>
                 <th>Qty</th>
                 <th>Unit</th>
+                <th>Part #</th>
                 <th>Description</th>
                 <th>Price/Unit</th>
                 <th>Amount</th>
@@ -879,6 +881,7 @@ namespace PAS.Services
             <tr>
                 <td>{line.InvoiceRatePerAcre}</td>
                 <td>{line.InvoiceUnitOfMeasure}</td>
+                <td>{line.PartNumberSnapshot}</td>
                 <td>{line.InvoiceChemicalName}</td>
                 <td>{line.InvoicePrice.ToString("C")}</td>
                 <td>{amount.ToString("C")}</td>
@@ -995,6 +998,7 @@ namespace PAS.Services
             <tr>
                 <th>Qty</th>
                 <th>Unit</th>
+                <th>Part #</th>
                 <th>Description</th>
                 <th>Price/Unit</th>
                 <th>Amount</th>
@@ -1014,6 +1018,7 @@ namespace PAS.Services
             <tr>
                 <td>{line.InvoiceRatePerAcre}</td>
                 <td>{line.InvoiceUnitOfMeasure}</td>
+                <td>{line.PartNumberSnapshot}</td>
                 <td>{line.InvoiceChemicalName}</td>
                 <td>{line.InvoicePrice.ToString("C")}</td>
                 <td>{amount.ToString("C")}</td>

@@ -208,11 +208,16 @@ namespace PAS.Services
             int loadMixDetailsId,
             string action)
         {
+            // ⭐ PUT THE LOG HERE
+            Console.WriteLine(
+                $"AUDIT VALUES: ProductId={productId}, ProductName={productName}, Qty={quantityChanged}, GroupId={groupId}, LoadMixId={loadMixId}, LoadMixDetailsId={loadMixDetailsId}, Action={action}"
+            );
+
             var audit = new InventoryAudit
             {
                 ProductId = productId,
                 ProductName = productName,
-                QuantityChanged = quantityChanged, // negative = consume, positive = restore
+                QuantityChanged = quantityChanged,
                 GroupId = groupId,
                 LoadMixId = loadMixId,
                 LoadMixDetailsId = loadMixDetailsId,
@@ -223,6 +228,7 @@ namespace PAS.Services
             _context.InventoryAudits.Add(audit);
             await _context.SaveChangesAsync();
         }
+
 
         public async Task<decimal> GetHoldQuantityAsync(int productId)
         {

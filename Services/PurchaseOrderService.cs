@@ -399,7 +399,16 @@ namespace PAS.Services
                 purchaseOrderItem.Status = PurchaseOrderStatus.Open;
             }
 
+            // Save item changes
             await _context.SaveChangesAsync();
+
+            // -----------------------------
+            // ⭐ CRITICAL FIX:
+            // Reload PO items so EF has a consistent tracked graph
+            // -----------------------------
+            await _context.Entry(purchaseOrder)
+                .Collection(po => po.Items)
+                .LoadAsync();
 
             // -----------------------------
             // Reopen PO if any item is open
@@ -407,11 +416,10 @@ namespace PAS.Services
             if (purchaseOrder.Items.Any(i => i.Status == PurchaseOrderStatus.Open))
             {
                 purchaseOrder.ReceivedDate = null;
-                //_context.PurchaseOrders.Update(purchaseOrder);
                 await _context.SaveChangesAsync();
             }
-
         }
+
 
 
         public async Task ClosePurchaseOrderAsync(int purchaseOrderId)

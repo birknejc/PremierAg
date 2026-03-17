@@ -407,7 +407,7 @@ namespace PAS.Services
             if (purchaseOrder.Items.Any(i => i.Status == PurchaseOrderStatus.Open))
             {
                 purchaseOrder.ReceivedDate = null;
-                _context.PurchaseOrders.Update(purchaseOrder);
+                //_context.PurchaseOrders.Update(purchaseOrder);
                 await _context.SaveChangesAsync();
             }
 

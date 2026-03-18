@@ -194,9 +194,14 @@ else if (isAddingLoadSheet)
 
 @if (showLoadMixForm)
 {
-    @* <button class="btn btn-primary" @onclick="AddField">Add Field</button> *@
-    <button class="btn btn-success" @onclick="SaveLoadMix">Save Load Mix</button>
+    @if (!string.IsNullOrWhiteSpace(loadMixError))
+    {
+        <div class="alert alert-danger mt-2">@loadMixError</div>
+    }
+
+    <button class="btn btn-success mt-2" @onclick="SaveLoadMix">Save Load Mix</button>
 }
+
 
 <hr />
 

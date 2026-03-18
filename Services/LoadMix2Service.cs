@@ -239,6 +239,16 @@ namespace PAS.Services
                 $"LoadMixId={loadMixDetails.LoadMixId}, " +
                 $"GroupId={loadMixDetails.GroupId}");
 
+            // ⭐ VALIDATE SINGLE ROW INSERT (primary only) ⭐
+            if (loadMix != null)
+            {
+                var tempList = new List<LoadMixDetails> { loadMixDetails };
+                string? validationError = await ValidatePrimaryLoadMixInventoryAsync(loadMix.LoadMixId, tempList);
+
+                if (validationError != null)
+                    throw new InvalidOperationException(validationError);
+            }
+
             // Save the detail row
             _context.LoadMixDetails.Add(loadMixDetails);
             await _context.SaveChangesAsync();
@@ -444,6 +454,13 @@ namespace PAS.Services
 
             int groupId = loadMix.LoadMixId;
 
+            // ⭐ VALIDATION BEFORE ANY INVENTORY CHANGES ⭐
+            string? validationError = await ValidatePrimaryLoadMixInventoryAsync(groupId, newDetails);
+            if (validationError != null)
+            {
+                throw new InvalidOperationException(validationError);
+            }
+
             // Determine primary LoadMix
             var primaryLoadMixId = await GetPrimaryLoadMixIdForGroupAsync(groupId);
             bool isPrimary = (primaryLoadMixId.HasValue && primaryLoadMixId.Value == loadMixId);
@@ -490,6 +507,48 @@ namespace PAS.Services
             }
         }
 
+        private async Task<string?> ValidatePrimaryLoadMixInventoryAsync(int groupId, List<LoadMixDetails> newDetails)
+        {
+            // Determine primary LoadMix
+            var primaryLoadMixId = await GetPrimaryLoadMixIdForGroupAsync(groupId);
+            if (!primaryLoadMixId.HasValue)
+                return null; // No primary = nothing to validate
+
+            // Only validate details belonging to the primary LoadMix
+            var primaryDetails = newDetails
+                .Where(d => d.LoadMixId == primaryLoadMixId.Value)
+                .ToList();
+
+            foreach (var detail in primaryDetails)
+            {
+                // Skip water or manual items
+                if (!detail.ProductId.HasValue || detail.ProductId.Value <= 0)
+                    continue;
+
+                int productId = detail.ProductId.Value;
+
+                // Load purchases
+                var purchases = await _context.ProductPurchases
+                    .Where(pp => pp.ProductId == productId)
+                    .ToListAsync();
+
+                // Never purchased
+                if (!purchases.Any())
+                {
+                    return $"Product {detail.Product} has never been purchased. Add starting inventory first.";
+                }
+
+                // Check available inventory
+                decimal available = purchases.Sum(p => p.QuantityRemaining);
+
+                if (available < detail.TotalUsed)
+                {
+                    return $"Cannot save Load Mix: insufficient inventory for {detail.Product}.";
+                }
+            }
+
+            return null; // All good
+        }
 
     }
 }

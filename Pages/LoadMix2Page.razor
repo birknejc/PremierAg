@@ -199,7 +199,7 @@ else if (isAddingLoadSheet)
         <div class="alert alert-danger mt-2">@loadMixError</div>
     }
 
-    <button class="btn btn-success mt-2" @onclick="SaveLoadMix">Save Load Mix</button>
+    <button class="btn btn-success" @onclick="SaveLoadMix">Save Load Mix</button>
 }
 
 
@@ -423,29 +423,6 @@ else if (isAddingLoadSheet)
         StateHasChanged();
     }
 
-
-
-    // private Task HandleProductChange((QuoteInventory qi, ChangeEventArgs e) args)
-    // {
-    //     var (qi, e) = args;
-
-    //     if (!int.TryParse(e.Value?.ToString(), out int productId))
-    //         return Task.CompletedTask;
-
-    //     qi.ProductId = productId;
-
-    //     var product = products.FirstOrDefault(p => p.Id == productId);
-    //     if (product == null)
-    //         return Task.CompletedTask;
-
-    //     qi.ProductName = product.Name;
-    //     qi.EPA = product.EPA;
-    //     qi.Price = product.WeightedAveragePrice;
-    //     qi.ProductUOM = product.DefaultUnitOfMeasure;
-
-    //     StateHasChanged();
-    //     return Task.CompletedTask;
-    // }
 
     private Task HandleProductChange((QuoteInventory qi, ChangeEventArgs e) args)
     {

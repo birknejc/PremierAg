@@ -13,6 +13,11 @@
         public int TotalAcres { get; set; }
         public int LMRatePerAcre { get; set; }
 
+        public int? VehicleId { get; set; }
+        public string? Mixer { get; set; }
+
+        public string? VehicleDescriptionSnapshot { get; set; }
+
         public Quote Quote { get; set; } // Navigation property for Quote
         public List<LoadFields> LoadFields { get; set; } = new List<LoadFields>(); // Navigation property for LoadFields
         public List<LoadMixDetails> LoadMixDetails { get; set; } = new List<LoadMixDetails>(); // Navigation property for LoadMixDetails

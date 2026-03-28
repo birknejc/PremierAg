@@ -75,7 +75,7 @@
                 <h1 style="margin: 0;">LOAD SHEET</h1>
             </div>
             <div class="checkboxes">
-                <label><input type="checkbox"> Corn</label>
+                <!--<label><input type="checkbox"> Corn</label>
                 <label><input type="checkbox"> Beans</label>
                 <label><input type="checkbox"> Chemical Pre</label>
                 <label><input type="checkbox"> Chemical Post</label>
@@ -83,7 +83,11 @@
                 <label><input type="checkbox"> 1100B Sprayer</label>
                 <label><input type="checkbox"> 1300B Sprayer</label>
                 <label><input type="checkbox"> 1600 Chemical Trailer</label>
-                <label><input type="checkbox"> Other</label>
+                <label><input type="checkbox"> Other</label>-->
+            </div>
+            <div style="margin-bottom: 20px;">
+                <div><strong>Vehicle:</strong> {{Vehicle}}</div>
+                <div><strong>Mixer:</strong> {{Mixer}}</div>
             </div>
         </div>
         <div style="margin-bottom: 20px;">
@@ -94,6 +98,8 @@
             <div><strong>Total Mixed Acres:</strong> {{TotalAcres}}</div>
             <div><strong>Total Gallons:</strong> {{TotalGallons}}</div>
             <div><strong>Rate/Acre:</strong> {{RatePerAcre}}</div>
+            <!--<div><strong>Vehicle:</strong> {{Vehicle}}</div>
+            <div><strong>Mixer:</strong> {{Mixer}}</div>-->
         </div>
         <h4>Load Mix</h4>
         <table class="table">
@@ -116,6 +122,7 @@
                     <th>Average Rate</th>
                     <th>Total Gallons</th>
                     <th>Acres</th>
+                    <th>Applicator</th>
                 </tr>
             </thead>
             <tbody>

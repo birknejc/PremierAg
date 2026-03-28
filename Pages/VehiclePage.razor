@@ -1,0 +1,142 @@
+﻿@page "/vehiclepage"
+@using PAS.Models
+@using PAS.Services
+@inject VehicleService VehicleService
+
+<h3>Vehicle Management</h3>
+
+<button class="btn btn-primary" @onclick="StartAdd">Add Vehicle</button>
+
+@if (showForm)
+{
+    <div class="card mt-3 p-3">
+        <h5>@(editing ? "Edit Vehicle" : "Add Vehicle")</h5>
+
+        <div class="row">
+            <div class="col-md-6">
+                <label>Make</label>
+                <input class="form-control" @bind="vehicle.Make" />
+            </div>
+
+            <div class="col-md-6">
+                <label>Model</label>
+                <input class="form-control" @bind="vehicle.Model" />
+            </div>
+
+            <div class="col-md-12 mt-2">
+                <label>Description</label>
+                <textarea class="form-control" @bind="vehicle.Description"></textarea>
+            </div>
+
+            <div class="col-md-6 mt-2">
+                <label>Year Purchased</label>
+                <input type="number" class="form-control" @bind="vehicle.YearPurchased" />
+            </div>
+
+            <div class="col-md-6 mt-2">
+                <label>Purchased Amount</label>
+                <input type="number" step="0.01" class="form-control" @bind="vehicle.PurchasedAmount" />
+            </div>
+
+            <div class="col-md-6 mt-3">
+                <label>Active</label>
+                <input type="checkbox" class="form-check-input ms-2" @bind="vehicle.Active" />
+            </div>
+        </div>
+
+        <button class="btn btn-success mt-3" @onclick="SaveVehicle">Save</button>
+        <button class="btn btn-secondary mt-3 ms-2" @onclick="Cancel">Cancel</button>
+    </div>
+}
+
+<hr />
+
+<h4>Saved Vehicles</h4>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Make</th>
+            <th>Model</th>
+            <th>Year</th>
+            <th>Purchased</th>
+            <th>Active</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var v in vehicles)
+        {
+            <tr>
+                <td>@v.Make</td>
+                <td>@v.Model</td>
+                <td>@v.YearPurchased</td>
+                <td>@v.PurchasedAmount</td>
+                <td>@(v.Active ? "Yes" : "No")</td>
+                <td>
+                    <button class="btn btn-primary btn-sm" @onclick="() => Edit(v)">Edit</button>
+                    <button class="btn btn-danger btn-sm ms-2" @onclick="() => Delete(v.Id)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<Vehicle> vehicles = new();
+    private Vehicle vehicle = new();
+    private bool showForm = false;
+    private bool editing = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        vehicles = await VehicleService.GetAllVehiclesAsync();
+    }
+
+    private void StartAdd()
+    {
+        vehicle = new Vehicle();
+        editing = false;
+        showForm = true;
+    }
+
+    private void Edit(Vehicle v)
+    {
+        vehicle = new Vehicle
+            {
+                Id = v.Id,
+                Make = v.Make,
+                Model = v.Model,
+                Description = v.Description,
+                YearPurchased = v.YearPurchased,
+                PurchasedAmount = v.PurchasedAmount,
+                Active = v.Active
+            };
+
+        editing = true;
+        showForm = true;
+    }
+
+    private async Task SaveVehicle()
+    {
+        if (editing)
+            await VehicleService.UpdateVehicleAsync(vehicle);
+        else
+            await VehicleService.AddVehicleAsync(vehicle);
+
+        vehicles = await VehicleService.GetAllVehiclesAsync();
+        showForm = false;
+    }
+
+    private void Cancel()
+    {
+        showForm = false;
+    }
+
+    private async Task Delete(int id)
+    {
+        await VehicleService.DeleteVehicleAsync(id);
+        vehicles = await VehicleService.GetAllVehiclesAsync();
+    }
+}

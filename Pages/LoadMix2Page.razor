@@ -7,6 +7,8 @@
 @inject FieldService FieldService
 @inject ConversionService ConversionService
 @inject ProductInventoryService ProductInventoryService
+@inject VehicleService VehicleService
+@inject ApplicatorLicenseService ApplicatorLicenseService
 @inject ILogger<LoadMix2Page> Logger
 @inject IJSRuntime JSRuntime
 
@@ -106,7 +108,9 @@ else if (isAddingLoadSheet)
                              OnLoadTimeChanged="UpdateLoadTimeString"
                              OnTotalGallonsChanged="@OnTotalGallonsChanged"
                              OnTotalAcresChanged="@OnTotalAcresChanged"
-                             IncludeWater="@includeWater" />
+                             IncludeWater="@includeWater"
+                             Vehicles="vehicles"
+                             Mixers="mixers" />
 
     <div class="col-md-6">
         <label>Include Water:</label>
@@ -189,7 +193,8 @@ else if (isAddingLoadSheet)
                                OnAddField="AddField"
                                OnAddCustomerApplied="AddCustomerApplied"
                                OnRemoveField="RemoveField"
-                               IsEditingLoadMix="isEditingLoadMix" />
+                               IsEditingLoadMix="isEditingLoadMix"
+                               Mixers="mixers" />
 }
 
 @if (showLoadMixForm)
@@ -271,8 +276,8 @@ else if (isAddingLoadSheet)
     private List<Customer> customers = new();
     private List<Product> products = new();
     private string loadMixError;
-
-
+    private List<Vehicle> vehicles = new();
+    private List<ApplicatorLicense> mixers = new();
 
 
     private enum LoadMixType
@@ -309,11 +314,18 @@ else if (isAddingLoadSheet)
             : "00:00:00";
 
         quotes = await Quote2Service.GetQuotesAsync();
-        // Inventories = await InventoryService.GetAllInventoriesAsync();
         products = await ProductInventoryService.GetAllProductsAsync();
         UOMConversions = await ConversionService.GetAllConversionsAsync();
-
         customers = await CustomerService.GetAllCustomersAsync();
+
+        // ⭐ Load vehicles for the Vehicle dropdown
+        vehicles = await VehicleService.GetAllVehiclesAsync();
+
+        // ⭐ Load mixers (ApplicatorLicenses where CustomerId is NULL)
+        mixers = (await ApplicatorLicenseService.GetAllAsync())
+            .Where(a => a.CustomerId == null)
+            .OrderBy(a => a.Name)
+            .ToList();
 
         // Initialize grouped load mixes
         var loadMixes = await LoadMix2Service.GetAllLoadMixesAsync();
@@ -656,6 +668,21 @@ else if (isAddingLoadSheet)
                 existingLoadMix.TotalGallons = newLoadMix.TotalGallons;
                 existingLoadMix.TotalAcres = newLoadMix.TotalAcres;
                 existingLoadMix.LMRatePerAcre = newLoadMix.LMRatePerAcre;
+                existingLoadMix.Mixer = newLoadMix.Mixer;
+
+                // ⭐ NEW — Save Vehicle selection
+                existingLoadMix.VehicleId = newLoadMix.VehicleId;
+
+                if (newLoadMix.VehicleId.HasValue)
+                {
+                    var vehicle = vehicles.FirstOrDefault(v => v.Id == newLoadMix.VehicleId.Value);
+                    existingLoadMix.VehicleDescriptionSnapshot = vehicle?.Description;
+                }
+                else
+                {
+                    existingLoadMix.VehicleDescriptionSnapshot = null;
+                }
+
 
                 // ⭐ This will now throw InvalidOperationException if locked
                 await LoadMix2Service.UpdateLoadMixAsync(existingLoadMix);
@@ -724,7 +751,12 @@ else if (isAddingLoadSheet)
                                 TotalAcres = newLoadMix.TotalAcres,
                                 LMRatePerAcre = newLoadMix.LMRatePerAcre,
                                 QuoteId = selectedQuoteId,
-                                LoadMixId = loadMixId
+                                LoadMixId = loadMixId,
+                                VehicleId = newLoadMix.VehicleId,
+                                VehicleDescriptionSnapshot = newLoadMix.VehicleId.HasValue
+                                    ? vehicles.FirstOrDefault(v => v.Id == newLoadMix.VehicleId.Value)?.Description
+                                    : null,
+                                Mixer = newLoadMix.Mixer,
                             };
 
                         await LoadMix2Service.AddLoadMixAsync(loadMixToSave);
@@ -748,7 +780,12 @@ else if (isAddingLoadSheet)
                             TotalGallons = newLoadMix.TotalGallons,
                             TotalAcres = newLoadMix.TotalAcres,
                             LMRatePerAcre = newLoadMix.LMRatePerAcre,
-                            LoadMixId = loadMixId
+                            LoadMixId = loadMixId,
+                            VehicleId = newLoadMix.VehicleId,
+                            VehicleDescriptionSnapshot = newLoadMix.VehicleId.HasValue
+                                ? vehicles.FirstOrDefault(v => v.Id == newLoadMix.VehicleId.Value)?.Description
+                                : null,
+                            Mixer = newLoadMix.Mixer,
                         };
 
                     await LoadMix2Service.AddLoadMixAsync(loadMixToSave);
@@ -910,7 +947,8 @@ else if (isAddingLoadSheet)
                             FieldTotalGallons = field.FieldTotalGallons,
                             SelectedFieldId = 0,
                             Id = 0,
-                            IsCustomerApplied = true
+                            IsCustomerApplied = true,
+                            Applicator = field.Applicator
                         };
 
                     await LoadMix2Service.AddLoadFieldAsync(newField);
@@ -951,6 +989,7 @@ else if (isAddingLoadSheet)
                         existingField.FieldAcres = field.FieldAcres;
                         existingField.FieldAverageRate = field.FieldAverageRate;
                         existingField.FieldTotalGallons = field.FieldTotalGallons;
+                        existingField.Applicator = field.Applicator;
                         await LoadMix2Service.UpdateLoadFieldAsync(existingField);
                         await JSRuntime.InvokeVoidAsync("console.log", $"Field updated: {existingField.FieldName}, LoadMixId: {existingField.LoadMixId}");
                     }
@@ -966,7 +1005,8 @@ else if (isAddingLoadSheet)
                                 FieldAverageRate = field.FieldAverageRate,
                                 FieldTotalGallons = field.FieldTotalGallons,
                                 SelectedFieldId = field.SelectedFieldId,
-                                Id = 0
+                                Id = 0,
+                                Applicator = field.Applicator,
                             };
 
                         await LoadMix2Service.AddLoadFieldAsync(newField);

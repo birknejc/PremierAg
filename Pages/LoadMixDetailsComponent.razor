@@ -9,6 +9,10 @@
     [Parameter] public EventCallback<ChangeEventArgs> OnTotalAcresChanged { get; set; }
     [Parameter] public bool IncludeWater { get; set; }
     [Parameter] public EventCallback<bool> OnIncludeWaterChanged { get; set; }
+    [Parameter] public List<Vehicle> Vehicles { get; set; }
+    [Parameter] public List<ApplicatorLicense> Mixers { get; set; }
+
+
 
     private async Task HandleLoadTimeChanged(ChangeEventArgs e)
     {
@@ -56,7 +60,22 @@
             <option value="Other">Other</option>
         </InputSelect>
     </div>
+
+    <div class="col-md-6">
+        <label>Vehicle:</label>
+        <InputSelect class="form-control" @bind-Value="NewLoadMix.VehicleId">
+            <option value="">Select Vehicle</option>
+            @if (Vehicles != null)
+            {
+                @foreach (var v in Vehicles.OrderBy(v => v.Description))
+                {
+                    <option value="@v.Id">@v.Description</option>
+                }
+            }
+        </InputSelect>
+    </div>
 </div>
+
 <div class="row">
     <div class="col-md-6">
         <label>Total Gallons:</label>
@@ -71,5 +90,16 @@
     <div class="col-md-6">
         <label>Rate Per Acre:</label>
         <div class="form-control">@NewLoadMix.LMRatePerAcre</div>
+    </div>
+
+    <div class="col-md-6">
+        <label>Mixer:</label>
+        <InputSelect class="form-control" @bind-Value="NewLoadMix.Mixer">
+            <option value="">Select Mixer</option>
+            @foreach (var m in Mixers)
+            {
+                <option value="@m.Name">@m.Name</option>
+            }
+        </InputSelect>
     </div>
 </div>

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PAS.DBContext;
@@ -11,9 +12,11 @@ using PAS.DBContext;
 namespace PAS.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260326002918_AddVehicleTable")]
+    partial class AddVehicleTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -99,9 +102,6 @@ namespace PAS.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Applicator")
-                        .HasColumnType("text");
 
                     b.Property<int>("CustomerId")
                         .HasColumnType("integer");
@@ -384,9 +384,6 @@ namespace PAS.Migrations
                     b.Property<TimeSpan>("LoadTime")
                         .HasColumnType("interval");
 
-                    b.Property<string>("Mixer")
-                        .HasColumnType("text");
-
                     b.Property<int?>("QuoteId")
                         .HasColumnType("integer");
 
@@ -394,12 +391,6 @@ namespace PAS.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int>("TotalGallons")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("VehicleDescriptionSnapshot")
-                        .HasColumnType("text");
-
-                    b.Property<int?>("VehicleId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");

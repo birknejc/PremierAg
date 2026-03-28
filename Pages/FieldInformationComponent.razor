@@ -8,6 +8,7 @@
     [Parameter] public bool IsEditingLoadMix { get; set; }
     [Parameter] public EventCallback OnAddCustomerApplied { get; set; }
     [Parameter] public List<Customer> Customers { get; set; }
+    [Parameter] public List<ApplicatorLicense> Mixers { get; set; }
 
 
     private List<Field> allFields = new();
@@ -102,6 +103,24 @@
                     <InputNumber class="form-control" @bind-Value="field.FieldAcres" />
                 </div>
             </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Applicator:</label>
+                    <InputSelect class="form-control" @bind-Value="field.Applicator">
+                        <option value="">Select Applicator</option>
+
+                        @if (Mixers != null)
+                        {
+                            @foreach (var m in Mixers)
+                            {
+                                <option value="@m.Name">@m.Name</option>
+                            }
+                        }
+                    </InputSelect>
+                </div>
+            </div>
+
 
             <div class="row">
                 <div class="col-md-12">

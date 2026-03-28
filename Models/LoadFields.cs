@@ -29,6 +29,8 @@ public class LoadFields
     public decimal FieldTotalGallons { get; set; }
     public decimal FieldAcres { get; set; }
     public int CustomerId { get; set; } // Foreign key linking to Customer
+    public string? Applicator { get; set; }
+
 
     // Navigation properties
     public Customer Customer { get; set; } // Navigation property to Customer

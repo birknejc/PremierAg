@@ -32,8 +32,7 @@ builder.Services.AddScoped<ProductInventoryService>();
 builder.Services.AddScoped<LoadMix2Service>();
 builder.Services.AddScoped<Quote2Service>();
 builder.Services.AddScoped<ApplicatorLicenseService>();
-
-
+builder.Services.AddScoped<VehicleService>();
 
 
 

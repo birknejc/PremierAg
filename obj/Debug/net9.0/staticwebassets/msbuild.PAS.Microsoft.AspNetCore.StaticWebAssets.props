@@ -372,8 +372,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>c7xuifnh1w</Fingerprint>
-      <Integrity>mKHQsR+15Ew3Kyh5zTuHm0KRMomVZPf9EgWMTM0HUys=</Integrity>
+      <Fingerprint>hoccbqzc12</Fingerprint>
+      <Integrity>MY6qTHQRJjhJqZhiXV2JuPoZHySITllwRHD9LLPpcIo=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\print_loadmixtemplate.html'))</OriginalItemSpec>

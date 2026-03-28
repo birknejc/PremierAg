@@ -28,8 +28,7 @@ namespace PAS.DBContext
         public DbSet<ProductVendor> ProductVendors { get; set; }
         public DbSet<ApplicatorLicense> ApplicatorLicenses { get; set; }
         public DbSet<InventoryAudit> InventoryAudits { get; set; }
-
-
+        public DbSet<Vehicle> Vehicles { get; set; }
 
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }

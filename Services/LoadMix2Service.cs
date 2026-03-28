@@ -377,6 +377,7 @@ namespace PAS.Services
                 <td>{f.FieldAverageRate}</td>
                 <td>{f.FieldTotalGallons}</td>
                 <td>{f.FieldAcres}</td>
+                <td>{f.Applicator}</td>
             </tr>");
             }
 
@@ -389,8 +390,9 @@ namespace PAS.Services
                 .Replace("{{TotalGallons}}", first.TotalGallons.ToString())
                 .Replace("{{RatePerAcre}}", first.LMRatePerAcre.ToString())
                 .Replace("{{LoadMixRows}}", loadMixRows.ToString())
-                .Replace("{{FieldsAppliedToRows}}", fieldsRows.ToString());
-
+                .Replace("{{FieldsAppliedToRows}}", fieldsRows.ToString())
+                .Replace("{{Vehicle}}", first.VehicleDescriptionSnapshot ?? "")
+                .Replace("{{Mixer}}", first.Mixer ?? "");
             return template;
         }
 
